@@ -48,7 +48,7 @@ Frontend tidak boleh:
 
 - menentukan workflow transition sendiri;
 - menganggap button visibility sebagai authorization;
-- mengubah case status secara lokal sebagai source of truth;
+- mengubah case status secara lokal sebagai sumber kebenaran;
 - menganggap approval berhasil sebelum backend mengonfirmasi;
 - menggunakan analysis lama setelah backend mengembalikan `STALE_ANALYSIS`.
 
@@ -541,7 +541,7 @@ Route:
 /cases/[caseId]
 ```
 
-Case Detail merupakan halaman utama workflow.
+Detail Case merupakan halaman utama workflow.
 
 Layout:
 
@@ -1764,7 +1764,7 @@ Mapping error utama:
 | CASE_NOT_FOUND | Not Found |
 | POLICY_NOT_FOUND | Not Found |
 | INVALID_STATE_TRANSITION | Refetch + conflict/wait message |
-| STALE_ANALYSIS | Refetch case and current analysis |
+| STALE_ANALYSIS | Refetch case and analysis saat ini |
 | INTERNAL_ERROR | Generic retry state |
 
 ---
@@ -1997,7 +1997,7 @@ Polling dilakukan pada:
 GET /cases/{case_id}
 ```
 
-dan/atau current analysis query dengan interval terbatas.
+dan/atau analysis saat ini query dengan interval terbatas.
 
 Polling berhenti ketika case keluar dari `AI_ANALYSIS`.
 
