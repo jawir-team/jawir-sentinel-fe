@@ -293,6 +293,21 @@ Authenticated pages menggunakan layout:
 
 Sidebar navigation ditampilkan berdasarkan user context.
 
+```text
+USER
+→ Dashboard / Cases
+→ safe read-only reference views as exposed by API
+
+ADMIN
+→ all USER navigation
+→ Policies
+→ Users
+→ Units
+→ Case Types
+```
+
+ADMIN is a system role only; it does not make a user Checker/Signer/Executer on a case.
+
 Admin menu:
 
 ```text
@@ -358,7 +373,7 @@ type CurrentUser = {
   id: string;
   name: string;
   email: string;
-  is_admin: boolean;
+  system_role: "USER" | "ADMIN";
   unit: {
     id: string;
     code: string;
@@ -509,6 +524,13 @@ Case baru berada pada:
 DRAFT
 ```
 
+Backend automatically sets:
+
+```text
+Maker = current user
+Owner = current user
+```
+
 ---
 
 # 12. Case Detail
@@ -608,6 +630,8 @@ MAKER     exactly 1, creator, immutable
 CHECKER   1..N, at least 1 required
 SIGNER    exactly 1
 EXECUTER  exactly 1
+
+Every active role must use a different user.
 ```
 
 Participant assignment controls are available only while the case is `DRAFT`. After submit, participant context is read-only.
@@ -615,8 +639,8 @@ Participant assignment controls are available only while the case is `DRAFT`. Af
 Contoh UI prevention:
 
 ```text
-Maker tidak ditampilkan pada pilihan Checker
-Signer tidak ditampilkan pada pilihan Executer
+Any user already holding an ACTIVE role is excluded from all other role selectors.
+Maker tidak ditampilkan pada Checker/Signer/Executer options.
 ```
 
 ---
@@ -651,10 +675,12 @@ status → AI_ANALYSIS
 UI menampilkan:
 
 ```text
-AI analysis is being generated.
+AI analysis is queued / being generated.
 ```
 
-Frontend tidak memanggil Gemini secara langsung.
+Submit only waits for the backend database transaction. Gemini processing runs asynchronously through the backend worker/RabbitMQ path.
+
+Frontend tidak memanggil Gemini atau RabbitMQ secara langsung.
 
 ---
 
@@ -991,18 +1017,28 @@ refetch evidence list
 
 # 28. File Evidence Upload
 
+Supported files:
+
+```text
+PDF   → application/pdf
+JPEG  → image/jpeg
+PNG   → image/png
+```
+
 Flow:
 
 ```text
-Select Acting Role + File
+Select Acting Role + supported file
 ↓
-POST /evidences/upload-url with actor_role
+POST /evidences/upload-url with actor_role + mime_type
 ↓
 Receive signed URL + file key
 ↓
 Upload directly to Cloud Storage
 ↓
 POST /evidences/file with same actor_role
+↓
+Backend verifies object/key/MIME
 ↓
 Evidence Created
 ```
@@ -1016,6 +1052,10 @@ Registering
 Completed
 Failed
 ```
+
+Unsupported MIME is blocked client-side for UX and still validated by backend.
+
+Supported file evidence can later be consumed directly by Gemini from GCS; frontend does not run OCR or parse the document.
 
 File tidak dikirim melalui Next.js server sebagai proxy.
 
@@ -1517,10 +1557,25 @@ DRAFT
 
 # 44. Activate Policy Version
 
-Only authorized UI displays:
+Only `ADMIN` UI displays mutation action:
 
 ```text
 Activate Version
+```
+
+Precondition presentation:
+
+```text
+target = DRAFT
+effective_from is null or <= now
+effective_until is null or > now
+```
+
+Future-effective / expired version:
+
+```text
+Activate disabled
+show why it is not currently effective
 ```
 
 Confirmation:
@@ -1531,7 +1586,15 @@ The current ACTIVE version remains authoritative until the target is READY
 and final activation succeeds.
 ```
 
-During `PROCESSING`, prevent duplicate activation action. On indexing failure, target remains `DRAFT + FAILED`.
+Index UI:
+
+```text
+NOT_STARTED → Activate
+PROCESSING + index_recoverable=false → disabled / show processing
+PROCESSING + index_recoverable=true  → Recover Indexing
+FAILED                              → Retry Activation
+READY + DRAFT                       → Activate without re-embedding
+```
 
 API:
 
@@ -1539,16 +1602,18 @@ API:
 POST /api/v1/policies/{policy_id}/versions/{version_id}/activate
 ```
 
-After success:
+After success/failure:
 
 ```text
 refetch policy
-refetch versions
+refetch version
 ```
 
 ---
 
 # 45. User Management
+
+Mutation UI is visible to `ADMIN` only.
 
 Route:
 
@@ -1563,7 +1628,7 @@ Name
 Email
 Unit
 Status
-Admin
+System Role
 ```
 
 API:
@@ -1582,12 +1647,14 @@ Email
 Firebase UID
 Unit
 Status
-Admin
+System Role (USER | ADMIN)
 ```
 
 ---
 
 # 46. Unit Management
+
+Create/mutation UI is visible to `ADMIN` only; read access may still be used by ordinary workflow forms.
 
 Route:
 
@@ -1613,6 +1680,8 @@ Description
 ---
 
 # 47. Case Type Management
+
+Create/mutation UI is visible to `ADMIN` only; read access remains available for case creation.
 
 Route:
 
@@ -1697,8 +1766,6 @@ Core error mapping:
 | INVALID_STATE_TRANSITION | Refetch + conflict message |
 | STALE_ANALYSIS | Refetch case and current analysis |
 | POLICY_CONFLICT | Warning/error panel |
-| AI_OUTPUT_INVALID | AI failure state |
-| AI_ANALYSIS_FAILED | AI failure state |
 | INTERNAL_ERROR | Generic retry state |
 
 ---
@@ -1941,20 +2008,23 @@ If the final state is `ESCALATION_REQUIRED`, fetch analysis list/history to dist
 
 # 58. Action Visibility Matrix
 
-Frontend menggunakan matrix untuk presentation.
+Frontend menggunakan matrix untuk presentation. Backend remains final authority.
 
 | State | Maker | Checker | Signer | Executer |
 |---|---|---|---|---|
-| DRAFT | Edit / Assign / Submit | - | - | - |
-| AI_ANALYSIS | View | View | View | View |
-| CHECKING | View | Approve / Reject | View | View |
-| SIGNING | View | View Decision | Approve / Reject | View |
-| EXECUTION | View | View | View | Execute |
+| DRAFT | Edit / Assign / Submit / Evidence / Close | - | - | - |
+| SUBMITTED | View | View | View | View |
+| AI_ANALYSIS | View / Close disabled while GENERATING | View | View | View |
+| CHECKING | View / Evidence / Close | Approve / Reject / Evidence / Close | View / Evidence / Close | View / Evidence / Close |
+| SIGNING | View / Evidence / Close | View / Evidence / Close | Approve / Reject / Evidence / Close | View / Evidence / Close |
+| EXECUTION | View / Evidence / Close* | View / Evidence / Close* | View / Evidence / Close* | Execute / Evidence / Close* |
 | DONE | View | View | View | View |
 | CLOSED | View | View | View | View |
 | ESCALATION_REQUIRED | View / Evidence / Close | View / Evidence / Close | View / Evidence / Close | View / Evidence / Close |
 
-Actual permission tetap ditentukan backend.
+`Close*` is disabled while an execution is `IN_PROGRESS`. Close is also unavailable while any analysis is `GENERATING`.
+
+If backend returns `409 INVALID_STATE_TRANSITION` because an active process is running, show “Wait for the current process to finish” and refetch.
 
 ---
 
@@ -1973,6 +2043,7 @@ current user
 case
 participants
 current analysis
+latest analysis attempt
 checker status
 execution
 ```
@@ -2070,7 +2141,7 @@ Mock response tidak boleh memiliki shape berbeda dari backend contract.
 
 # 63. Demo Personas
 
-Frontend development menggunakan persona:
+Frontend development menggunakan four distinct workflow personas:
 
 ```text
 Operations User
@@ -2079,14 +2150,25 @@ Development User
 Manager User
 ```
 
+System roles:
+
+```text
+Operations User  → USER
+Risk User        → USER
+Development User → USER
+Manager User     → ADMIN
+```
+
 Assignment demo:
 
 ```text
-Operations User  → MAKER + EXECUTER
+Operations User  → MAKER / OWNER
 Risk User        → CHECKER
-Development User → CHECKER
 Manager User     → SIGNER
+Development User → EXECUTER
 ```
+
+ADMIN system role on Manager User does not provide extra case-action authority beyond its assigned SIGNER role.
 
 ---
 
@@ -2153,7 +2235,7 @@ Frontend:
 - tidak menyimpan Vertex AI credential;
 - tidak memiliki direct database access;
 - tidak memiliki Cloud SQL credential;
-- tidak memanggil Vertex AI secara langsung;
+- tidak memanggil Vertex AI atau RabbitMQ secara langsung;
 - Firebase config public client hanya menggunakan browser-safe configuration;
 - Firebase ID Token dikirim hanya ke Sentinel backend;
 - evidence file upload hanya melalui signed URL dari backend.
