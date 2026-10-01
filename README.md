@@ -11,9 +11,9 @@ Frontend bertanggung jawab atas:
 - user interface;
 - navigation;
 - authentication flow;
-- case creation and case monitoring;
+- pembuatan dan monitoring case;
 - AI analysis presentation;
-- policy and evidence presentation;
+- presentation policy dan evidence;
 - Checker review interface;
 - Signer authorization interface;
 - execution interface;
@@ -22,7 +22,7 @@ Frontend bertanggung jawab atas:
 - API integration;
 - frontend deployment.
 
-Frontend **bukan source of truth** untuk workflow, authorization, approval validity, atau state transition.
+Frontend **bukan sumber kebenaran** untuk workflow, authorization, approval validity, atau state transition.
 
 Semua business rule tetap divalidasi oleh backend.
 
@@ -30,7 +30,7 @@ Semua business rule tetap divalidasi oleh backend.
 
 # 1. Prinsip Utama
 
-> **Frontend presents state and captures intent. Backend owns business truth.**
+> **Frontend menampilkan state dan menangkap intent user. Backend memegang business truth.**
 
 Frontend bertugas:
 
@@ -306,7 +306,7 @@ ADMIN
 → Case Types
 ```
 
-ADMIN is a system role only; it does not make a user Checker/Signer/Executer on a case.
+ADMIN hanya system role; role ini tidak otomatis membuat user menjadi Checker/Signer/Executer pada case.
 
 Admin menu:
 
@@ -325,7 +325,7 @@ Backend tetap memvalidasi authorization.
 
 Authentication menggunakan Firebase Authentication.
 
-Flow:
+Alur:
 
 ```text
 User
@@ -366,7 +366,7 @@ frontend:
 
 # 8. Model User Saat Ini
 
-Frontend membutuhkan current user:
+Frontend membutuhkan user saat ini:
 
 ```ts
 type CurrentUser = {
@@ -382,14 +382,14 @@ type CurrentUser = {
 };
 ```
 
-Current user digunakan untuk:
+User saat ini digunakan untuk:
 
 - header identity;
 - navigation presentation;
 - action visibility;
-- current assignment highlight.
+- highlight assignment saat ini.
 
-Current user tidak digunakan sebagai pengganti backend authorization.
+User saat ini tidak digunakan sebagai pengganti backend authorization.
 
 ---
 
@@ -584,7 +584,7 @@ Participants
 Created At
 ```
 
-Jika case `DRAFT` dan current user adalah Maker:
+Jika case `DRAFT` dan user saat ini adalah Maker:
 
 ```text
 Edit Case
@@ -621,7 +621,7 @@ POST /api/v1/cases/{case_id}/participants
 DELETE /api/v1/cases/{case_id}/participants/{participant_id}
 ```
 
-Frontend dapat mencegah obvious invalid selection berdasarkan current participant state, tetapi backend tetap melakukan final validation.
+Frontend dapat mencegah selection yang jelas tidak valid berdasarkan participant state saat ini, tetapi backend tetap melakukan validasi final.
 
 Locked cardinality:
 
@@ -634,7 +634,7 @@ EXECUTER  exactly 1
 Every active role must use a different user.
 ```
 
-Participant assignment controls are available only while the case is `DRAFT`. After submit, participant context is read-only.
+Control participant assignment hanya tersedia selama case berstatus `DRAFT`. Setelah submit, participant context menjadi read-only.
 
 Contoh UI prevention:
 
@@ -664,7 +664,7 @@ POST /cases/{id}/submit
 Refetch Case
 ```
 
-Successful submit freezes case core data and participant assignments.
+Submit yang berhasil membekukan core data case dan participant assignment.
 
 Setelah submit:
 
@@ -678,7 +678,7 @@ UI menampilkan:
 AI analysis is queued / being generated.
 ```
 
-Submit only waits for the backend database transaction. Gemini processing runs asynchronously through the backend worker/RabbitMQ path.
+Submit hanya menunggu database transaction backend. Gemini processing berjalan asynchronous melalui backend worker/RabbitMQ.
 
 Frontend tidak memanggil Gemini atau RabbitMQ secara langsung.
 
@@ -768,9 +768,9 @@ v1 COMPLETED PASS  → CURRENT
 v2 FAILED          → LATEST ATTEMPT
 ```
 
-Historical and FAILED versions are read-only.
+Version historis dan FAILED bersifat read-only.
 
-Action Checker/Signer hanya tersedia when case state permits it and the displayed analysis equals `current_analysis_id`.
+Action Checker/Signer hanya tersedia ketika case state mengizinkan dan displayed analysis sama dengan `current_analysis_id`.
 
 ---
 
@@ -922,7 +922,7 @@ Section
 Excerpt
 ```
 
-Example:
+Contoh:
 
 ```text
 SOP-RISK-001
@@ -998,7 +998,7 @@ SUBMITTED / AI_ANALYSIS / DONE / CLOSED
 → read-only for user evidence
 ```
 
-Frontend does not send an acting role. Strict SoD guarantees one active workflow role per user/case, so backend derives source role from the authenticated participant assignment. SYSTEM is internal-only.
+Frontend tidak mengirim acting role. Strict SoD menjamin satu active workflow role per user/case, sehingga backend melakukan derivasi source role dari authenticated participant assignment. SYSTEM hanya internal.
 
 API:
 
@@ -1025,7 +1025,7 @@ JPEG  → image/jpeg
 PNG   → image/png
 ```
 
-Flow:
+Alur:
 
 ```text
 Select supported file
@@ -1053,9 +1053,9 @@ Completed
 Failed
 ```
 
-Unsupported MIME is blocked client-side for UX and still validated by backend.
+Unsupported MIME diblok client-side untuk UX dan tetap divalidasi backend.
 
-Supported file evidence can later be consumed directly by Gemini from GCS; frontend does not run OCR or parse the document.
+File evidence yang didukung dapat dikonsumsi langsung oleh Gemini dari GCS; frontend tidak menjalankan OCR atau parsing dokumen.
 
 File tidak dikirim melalui Next.js server sebagai proxy.
 
@@ -1150,7 +1150,7 @@ Payload:
 }
 ```
 
-Setelah successful reject:
+Setelah reject berhasil:
 
 ```text
 quota available
@@ -1163,7 +1163,7 @@ quota exhausted
 → no new analysis / no AI call
 ```
 
-Quota exhaustion is a successful reject outcome, not a reverted action.
+Quota yang habis tetap menghasilkan reject yang sukses, bukan action yang di-revert.
 
 ---
 
@@ -1276,14 +1276,14 @@ Payload:
 }
 ```
 
-Setelah successful reject:
+Setelah reject berhasil:
 
 ```text
 quota available  → backend AI_ANALYSIS
 quota exhausted  → backend ESCALATION_REQUIRED
 ```
 
-In both cases the rejection remains persisted.
+Pada kedua kondisi, rejection tetap dipersist.
 
 ---
 
@@ -1374,7 +1374,7 @@ POST /api/v1/cases/{case_id}/executions/{execution_id}/result
 
 # 38. Perilaku UI Execution
 
-Result:
+Hasil:
 
 ```text
 SUCCESS
@@ -1526,7 +1526,7 @@ READY
 FAILED
 ```
 
-UI must keep authority status and retrieval readiness visually distinct.
+UI wajib membedakan authority status dan retrieval readiness secara visual.
 
 ---
 
@@ -1557,7 +1557,7 @@ DRAFT
 
 # 44. Aktifkan Policy Version
 
-Only `ADMIN` UI displays mutation action:
+Hanya UI untuk `ADMIN` yang menampilkan mutation action:
 
 ```text
 Activate Version
@@ -1613,7 +1613,7 @@ refetch version
 
 # 45. Management User
 
-Mutation UI is visible to `ADMIN` only.
+Mutation UI hanya terlihat untuk `ADMIN`.
 
 Route:
 
@@ -1654,7 +1654,7 @@ System Role (USER | ADMIN)
 
 # 46. Management Unit
 
-Create/mutation UI is visible to `ADMIN` only; read access may still be used by ordinary workflow forms.
+UI create/mutation hanya terlihat untuk `ADMIN`; read access tetap dapat dipakai form workflow biasa.
 
 Route:
 
@@ -1681,7 +1681,7 @@ Description
 
 # 47. Management Case Type
 
-Create/mutation UI is visible to `ADMIN` only; read access remains available for case creation.
+UI create/mutation hanya terlihat untuk `ADMIN`; read access tetap tersedia untuk pembuatan case.
 
 Route:
 
@@ -1917,7 +1917,7 @@ Frontend validation hanya untuk UX.
 
 Backend tetap authoritative.
 
-Example:
+Contoh:
 
 ```ts
 const createCaseSchema = z.object({
@@ -2001,7 +2001,7 @@ dan/atau current analysis query dengan interval terbatas.
 
 Polling berhenti ketika case keluar dari `AI_ANALYSIS`.
 
-Jika final state adalah `ESCALATION_REQUIRED`, fetch analysis list/history to distinguish `VERIFIER_FAIL`, `TECHNICAL_RETRY_EXHAUSTED`, or `REANALYSIS_LIMIT_REACHED`.
+Jika final state adalah `ESCALATION_REQUIRED`, fetch analysis list/history untuk membedakan `VERIFIER_FAIL`, `TECHNICAL_RETRY_EXHAUSTED`, atau `REANALYSIS_LIMIT_REACHED`.
 
 ---
 
@@ -2023,7 +2023,7 @@ Frontend menggunakan matrix untuk presentation. Backend tetap menjadi authority 
 
 `Close*` is disabled while an execution is `IN_PROGRESS`. Close is also unavailable while any analysis is `GENERATING`.
 
-If backend returns `409 INVALID_STATE_TRANSITION` because an active process is running, show “Wait for the current process to finish” and refetch.
+Jika backend mengembalikan `409 INVALID_STATE_TRANSITION` karena masih ada proses aktif, tampilkan pesan agar user menunggu proses tersebut selesai lalu lakukan refetch.
 
 ---
 
@@ -2074,7 +2074,7 @@ UI preference
 
 Frontend API type harus eksplisit.
 
-Example:
+Contoh:
 
 ```ts
 type CaseStatus =
@@ -2167,7 +2167,7 @@ Manager User     → SIGNER
 Development User → EXECUTER
 ```
 
-ADMIN system role on Manager User does not provide extra case-action authority beyond its assigned SIGNER role.
+System role ADMIN pada Manager User tidak memberikan case-action authority tambahan di luar assigned role SIGNER.
 
 ---
 
@@ -2485,10 +2485,10 @@ Case displays DONE
 
 Seluruh flow harus menampilkan:
 
-- current case status;
-- current reviewable AI analysis when available;
-- latest analysis attempt, including FAILED attempts;
-- historical analysis versions;
+- case status saat ini;
+- reviewable AI analysis saat ini jika tersedia;
+- analysis attempt terbaru, termasuk FAILED attempt;
+- analysis version historis;
 - policy references;
 - evidence;
 - Checker decisions;
