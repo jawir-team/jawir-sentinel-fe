@@ -601,6 +601,17 @@ DELETE /api/v1/cases/{case_id}/participants/{participant_id}
 
 Frontend dapat mencegah obvious invalid selection berdasarkan current participant state, tetapi backend tetap melakukan final validation.
 
+Locked cardinality:
+
+```text
+MAKER     exactly 1, creator, immutable
+CHECKER   1..N, at least 1 required
+SIGNER    exactly 1
+EXECUTER  exactly 1
+```
+
+Participant assignment controls are available only while the case is `DRAFT`. After submit, participant context is read-only.
+
 Contoh UI prevention:
 
 ```text
@@ -628,6 +639,8 @@ POST /cases/{id}/submit
 ↓
 Refetch Case
 ```
+
+Successful submit freezes case core data and participant assignments.
 
 Setelah submit:
 
@@ -720,15 +733,18 @@ Analysis v2
 Analysis v3
 ```
 
-Current version diberi label:
+`CURRENT` means `cases.current_analysis_id`: the latest COMPLETED PASS/PASS_WITH_WARNING analysis that became reviewable.
+
+`LATEST ATTEMPT` means the highest persisted analysis version. These labels can differ:
 
 ```text
-CURRENT
+v1 COMPLETED PASS  → CURRENT
+v2 FAILED          → LATEST ATTEMPT
 ```
 
-Historical version bersifat read-only.
+Historical and FAILED versions are read-only.
 
-Action Checker/Signer hanya tersedia pada current analysis.
+Action Checker/Signer hanya tersedia when case state permits it and the displayed analysis equals `current_analysis_id`.
 
 ---
 
@@ -862,7 +878,9 @@ FAIL
 `FAIL`:
 
 - analysis tidak diperlakukan sebagai reviewable analysis;
-- frontend menampilkan failure state berdasarkan backend state.
+- failed attempt tetap dapat tampil di history/version selector;
+- case berakhir `ESCALATION_REQUIRED`;
+- UI tidak menawarkan retry/reanalyze/resume pada MVP.
 
 ---
 
@@ -935,10 +953,26 @@ EXECUTION_RESULT
 Form:
 
 ```text
+Acting Role
 Evidence Type
 Title
 Content
 ```
+
+User-created evidence authorization:
+
+```text
+DRAFT               → Maker only
+CHECKING             → active participant
+SIGNING              → active participant
+EXECUTION            → active participant
+ESCALATION_REQUIRED  → active participant
+
+SUBMITTED / AI_ANALYSIS / DONE / CLOSED
+→ read-only for user evidence
+```
+
+Frontend sends `actor_role`; backend derives authoritative source user/source type. SYSTEM is not selectable.
 
 API:
 
@@ -960,15 +994,15 @@ refetch evidence list
 Flow:
 
 ```text
-Select File
+Select Acting Role + File
 ↓
-POST /evidences/upload-url
+POST /evidences/upload-url with actor_role
 ↓
 Receive signed URL + file key
 ↓
 Upload directly to Cloud Storage
 ↓
-POST /evidences/file
+POST /evidences/file with same actor_role
 ↓
 Evidence Created
 ```
@@ -1076,13 +1110,20 @@ Payload:
 }
 ```
 
-Setelah sukses:
+Setelah successful reject:
 
 ```text
-case → AI_ANALYSIS
+quota available
+→ case = AI_ANALYSIS
+→ show analysis generation state
+
+quota exhausted
+→ case = ESCALATION_REQUIRED
+→ rejection tetap tersimpan
+→ no new analysis / no AI call
 ```
 
-UI menampilkan analysis generation state sampai backend menyediakan version baru.
+Quota exhaustion is a successful reject outcome, not a reverted action.
 
 ---
 
@@ -1195,11 +1236,14 @@ Payload:
 }
 ```
 
-Setelah success:
+Setelah successful reject:
 
 ```text
-backend → AI_ANALYSIS
+quota available  → backend AI_ANALYSIS
+quota exhausted  → backend ESCALATION_REQUIRED
 ```
+
+In both cases the rejection remains persisted.
 
 ---
 
@@ -1299,9 +1343,13 @@ SUCCESS
 ```
 
 ```text
-BLOCKED / FAILED
+BLOCKED / FAILED with quota available
 → backend AI_ANALYSIS
 → show Re-analysis state
+
+BLOCKED / FAILED with quota exhausted
+→ backend ESCALATION_REQUIRED
+→ execution result remains persisted
 ```
 
 Frontend tidak menentukan transition tersebut.
@@ -1421,13 +1469,24 @@ Effective Date
 Content
 ```
 
-Version status:
+Authority status:
 
 ```text
 DRAFT
 ACTIVE
 SUPERSEDED
 ```
+
+Index status:
+
+```text
+NOT_STARTED
+PROCESSING
+READY
+FAILED
+```
+
+UI must keep authority status and retrieval readiness visually distinct.
 
 ---
 
@@ -1467,8 +1526,12 @@ Activate Version
 Confirmation:
 
 ```text
-Activating this version will supersede the current active version.
+Sentinel will build/verify the retrieval index first.
+The current ACTIVE version remains authoritative until the target is READY
+and final activation succeeds.
 ```
+
+During `PROCESSING`, prevent duplicate activation action. On indexing failure, target remains `DRAFT + FAILED`.
 
 API:
 
@@ -1634,7 +1697,6 @@ Core error mapping:
 | INVALID_STATE_TRANSITION | Refetch + conflict message |
 | STALE_ANALYSIS | Refetch case and current analysis |
 | POLICY_CONFLICT | Warning/error panel |
-| REANALYSIS_LIMIT_REACHED | Escalation state |
 | AI_OUTPUT_INVALID | AI failure state |
 | AI_ANALYSIS_FAILED | AI failure state |
 | INTERNAL_ERROR | Generic retry state |
@@ -1873,6 +1935,8 @@ dan/atau current analysis query dengan interval terbatas.
 
 Polling berhenti ketika case keluar dari `AI_ANALYSIS`.
 
+If the final state is `ESCALATION_REQUIRED`, fetch analysis list/history to distinguish `VERIFIER_FAIL`, `TECHNICAL_RETRY_EXHAUSTED`, or `REANALYSIS_LIMIT_REACHED`.
+
 ---
 
 # 58. Action Visibility Matrix
@@ -1888,7 +1952,7 @@ Frontend menggunakan matrix untuk presentation.
 | EXECUTION | View | View | View | Execute |
 | DONE | View | View | View | View |
 | CLOSED | View | View | View | View |
-| ESCALATION_REQUIRED | View | View | View | View |
+| ESCALATION_REQUIRED | View / Evidence / Close | View / Evidence / Close | View / Evidence / Close | View / Evidence / Close |
 
 Actual permission tetap ditentukan backend.
 
@@ -1995,6 +2059,9 @@ Policy Partial
 No Policy
 Policy Conflict
 Verifier Warning
+Verifier Failure → Escalation
+Technical Retry Exhausted → Escalation
+Re-analysis Limit Reached → Escalation
 ```
 
 Mock response tidak boleh memiliki shape berbeda dari backend contract.
@@ -2234,7 +2301,7 @@ Not Found
 Invalid State Transition
 Stale Analysis
 AI Analysis Failed
-Re-analysis Limit Reached
+Escalation Required
 File Upload Failed
 ```
 
@@ -2338,7 +2405,8 @@ Case displays DONE
 Seluruh flow harus menampilkan:
 
 - current case status;
-- latest AI analysis;
+- current reviewable AI analysis when available;
+- latest analysis attempt, including FAILED attempts;
 - historical analysis versions;
 - policy references;
 - evidence;
