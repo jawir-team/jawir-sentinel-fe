@@ -28,7 +28,7 @@ Semua business rule tetap divalidasi oleh backend.
 
 ---
 
-# 1. Core Principle
+# 1. Prinsip Utama
 
 > **Frontend presents state and captures intent. Backend owns business truth.**
 
@@ -74,7 +74,7 @@ Frontend menggunakan strict TypeScript.
 
 ---
 
-# 3. Repository Structure
+# 3. Struktur Repository
 
 ```text
 jawir-sentinel-fe/
@@ -127,7 +127,7 @@ jawir-sentinel-fe/
 
 ---
 
-# 4. Source Responsibility
+# 4. Tanggung Jawab Source
 
 ## `src/app`
 
@@ -248,7 +248,7 @@ jawir-sentinel-docs/api/api-contract.md
 
 ---
 
-# 5. Application Routes
+# 5. Route Aplikasi
 
 ```text
 /login
@@ -270,7 +270,7 @@ jawir-sentinel-docs/api/api-contract.md
 
 ---
 
-# 6. Application Layout
+# 6. Layout Aplikasi
 
 Authenticated pages menggunakan layout:
 
@@ -321,7 +321,7 @@ Backend tetap memvalidasi authorization.
 
 ---
 
-# 7. Authentication Flow
+# 7. Alur Authentication
 
 Authentication menggunakan Firebase Authentication.
 
@@ -364,7 +364,7 @@ frontend:
 
 ---
 
-# 8. Current User Model
+# 8. Model User Saat Ini
 
 Frontend membutuhkan current user:
 
@@ -433,7 +433,7 @@ Dashboard card dapat menjadi link ke filtered case list.
 
 ---
 
-# 10. Case List
+# 10. Daftar Case
 
 Route:
 
@@ -480,7 +480,7 @@ Case status ditampilkan menggunakan badge.
 
 ---
 
-# 11. Create Case
+# 11. Buat Case
 
 Route:
 
@@ -533,7 +533,7 @@ Owner = current user
 
 ---
 
-# 12. Case Detail
+# 12. Detail Case
 
 Route:
 
@@ -567,7 +567,7 @@ Case detail harus selalu mengikuti response backend terbaru.
 
 ---
 
-# 13. Case Overview
+# 13. Overview Case
 
 Overview menampilkan:
 
@@ -595,7 +595,7 @@ Submit Case
 
 ---
 
-# 14. Participant Assignment
+# 14. Assignment Participant
 
 Participant roles:
 
@@ -684,7 +684,7 @@ Frontend tidak memanggil Gemini atau RabbitMQ secara langsung.
 
 ---
 
-# 16. Case Status Presentation
+# 16. Presentation Status Case
 
 Status label:
 
@@ -704,7 +704,7 @@ Frontend tidak memiliki logic untuk menghitung next status.
 
 ---
 
-# 17. AI Analysis View
+# 17. Tampilan Analisis AI
 
 Tab:
 
@@ -749,7 +749,7 @@ Uncertainty
 
 ---
 
-# 18. Analysis Version Selector
+# 18. Selector Version Analysis
 
 Jika case memiliki lebih dari satu analysis:
 
@@ -774,7 +774,7 @@ Action Checker/Signer hanya tersedia when case state permits it and the displaye
 
 ---
 
-# 19. Analysis Facts
+# 19. Fakta Analysis
 
 Fact item menampilkan:
 
@@ -797,7 +797,7 @@ Source reference dapat membuka evidence/policy yang terkait.
 
 ---
 
-# 20. Assumptions and Unknowns
+# 20. Asumsi dan Unknowns
 
 Assumption card:
 
@@ -817,7 +817,7 @@ Unknowns harus terlihat jelas agar reviewer tidak menganggapnya sebagai fact.
 
 ---
 
-# 21. Risk Analysis
+# 21. Analisis Risiko
 
 Setiap risk menampilkan:
 
@@ -840,7 +840,7 @@ CRITICAL
 
 ---
 
-# 22. Compliance Analysis
+# 22. Analisis Compliance
 
 UI menampilkan:
 
@@ -886,7 +886,7 @@ NON_POLICY_RECOMMENDATION
 
 ---
 
-# 24. Verification Result
+# 24. Hasil Verifikasi
 
 Status:
 
@@ -910,7 +910,7 @@ FAIL
 
 ---
 
-# 25. Policy Reference UI
+# 25. UI Reference Policy
 
 Reference menampilkan:
 
@@ -935,7 +935,7 @@ Policy reference membuka drawer/modal detail tanpa meninggalkan case page.
 
 ---
 
-# 26. Evidence Tab
+# 26. Tab Evidence
 
 Tab:
 
@@ -974,7 +974,7 @@ EXECUTION_RESULT
 
 ---
 
-# 27. Add Text Evidence
+# 27. Tambah Text Evidence
 
 Form:
 
@@ -1015,7 +1015,7 @@ refetch evidence list
 
 ---
 
-# 28. File Evidence Upload
+# 28. Upload File Evidence
 
 Supported files:
 
@@ -1061,7 +1061,7 @@ File tidak dikirim melalui Next.js server sebagai proxy.
 
 ---
 
-# 29. Checker Review
+# 29. Review Checker
 
 Action hanya ditampilkan jika:
 
@@ -1167,7 +1167,7 @@ Quota exhaustion is a successful reject outcome, not a reverted action.
 
 ---
 
-# 32. Checker Status
+# 32. Status Checker
 
 API:
 
@@ -1198,7 +1198,7 @@ REJECTED
 
 ---
 
-# 33. Signer Review
+# 33. Review Signer
 
 Action hanya ditampilkan jika:
 
@@ -1287,7 +1287,7 @@ In both cases the rejection remains persisted.
 
 ---
 
-# 36. Execution Tab
+# 36. Tab Execution
 
 Tab:
 
@@ -1295,7 +1295,7 @@ Tab:
 Execution
 ```
 
-Visible action jika:
+Action terlihat jika:
 
 ```text
 case.status = EXECUTION
@@ -1324,7 +1324,7 @@ Payload:
 
 ---
 
-# 37. Execution Result
+# 37. Hasil Execution
 
 Setelah execution `IN_PROGRESS`, Executer dapat memilih:
 
@@ -1372,7 +1372,7 @@ POST /api/v1/cases/{case_id}/executions/{execution_id}/result
 
 ---
 
-# 38. Execution UI Behavior
+# 38. Perilaku UI Execution
 
 Result:
 
@@ -1396,7 +1396,7 @@ Frontend tidak menentukan transition tersebut.
 
 ---
 
-# 39. History Tab
+# 39. Tab History
 
 Tab:
 
@@ -1437,7 +1437,7 @@ Relevant Metadata
 
 ---
 
-# 40. Policy Management
+# 40. Management Policy
 
 Route:
 
@@ -1465,7 +1465,7 @@ GET /api/v1/policies
 
 ---
 
-# 41. Create Policy
+# 41. Buat Policy
 
 Route:
 
@@ -1491,7 +1491,7 @@ POST /api/v1/policies
 
 ---
 
-# 42. Policy Detail
+# 42. Detail Policy
 
 Route:
 
@@ -1530,7 +1530,7 @@ UI must keep authority status and retrieval readiness visually distinct.
 
 ---
 
-# 43. Create Policy Version
+# 43. Buat Policy Version
 
 Form:
 
@@ -1555,7 +1555,7 @@ DRAFT
 
 ---
 
-# 44. Activate Policy Version
+# 44. Aktifkan Policy Version
 
 Only `ADMIN` UI displays mutation action:
 
@@ -1602,7 +1602,7 @@ API:
 POST /api/v1/policies/{policy_id}/versions/{version_id}/activate
 ```
 
-After success/failure:
+Setelah sukses/gagal:
 
 ```text
 refetch policy
@@ -1611,7 +1611,7 @@ refetch version
 
 ---
 
-# 45. User Management
+# 45. Management User
 
 Mutation UI is visible to `ADMIN` only.
 
@@ -1652,7 +1652,7 @@ System Role (USER | ADMIN)
 
 ---
 
-# 46. Unit Management
+# 46. Management Unit
 
 Create/mutation UI is visible to `ADMIN` only; read access may still be used by ordinary workflow forms.
 
@@ -1679,7 +1679,7 @@ Description
 
 ---
 
-# 47. Case Type Management
+# 47. Management Case Type
 
 Create/mutation UI is visible to `ADMIN` only; read access remains available for case creation.
 
@@ -1714,7 +1714,7 @@ Semua requests melalui:
 src/services/api/client.ts
 ```
 
-Responsibilities:
+Tanggung jawab:
 
 ```text
 base URL
@@ -1739,7 +1739,7 @@ API feature modules tidak menggunakan Firebase secara langsung.
 
 ---
 
-# 49. API Error Model
+# 49. Model Error API
 
 Backend error:
 
@@ -1753,7 +1753,7 @@ type ApiError = {
 };
 ```
 
-Core error mapping:
+Mapping error utama:
 
 | Error | UI Behavior |
 |---|---|
@@ -1769,7 +1769,7 @@ Core error mapping:
 
 ---
 
-# 50. Stale Analysis Handling
+# 50. Penanganan Stale Analysis
 
 Jika backend mengembalikan:
 
@@ -1796,7 +1796,7 @@ Frontend tidak retry approval otomatis.
 
 ---
 
-# 51. Invalid State Transition Handling
+# 51. Penanganan Invalid State Transition
 
 Jika:
 
@@ -1848,7 +1848,7 @@ TanStack Query key convention:
 
 ---
 
-# 53. Mutation Invalidation
+# 53. Invalidation Mutation
 
 ### Create Case
 
@@ -1909,7 +1909,7 @@ analyses
 
 ---
 
-# 54. Form Validation
+# 54. Validasi Form
 
 Frontend validation menggunakan Zod.
 
@@ -1932,11 +1932,11 @@ Backend validation error tetap harus dapat dirender.
 
 ---
 
-# 55. Loading States
+# 55. State Loading
 
 Data loading tidak menggunakan blank page.
 
-Use:
+Gunakan:
 
 ```text
 Page Skeleton
@@ -1957,9 +1957,9 @@ Backend tetap harus menangani idempotency/duplicate mutation sesuai contract.
 
 ---
 
-# 56. Empty States
+# 56. Empty State
 
-Required empty states:
+Empty state yang wajib tersedia:
 
 ```text
 No Cases
@@ -1975,7 +1975,7 @@ Empty state harus menjelaskan next action jika applicable.
 
 ---
 
-# 57. AI Analysis Loading
+# 57. Loading Analisis AI
 
 Saat:
 
@@ -2001,13 +2001,13 @@ dan/atau current analysis query dengan interval terbatas.
 
 Polling berhenti ketika case keluar dari `AI_ANALYSIS`.
 
-If the final state is `ESCALATION_REQUIRED`, fetch analysis list/history to distinguish `VERIFIER_FAIL`, `TECHNICAL_RETRY_EXHAUSTED`, or `REANALYSIS_LIMIT_REACHED`.
+Jika final state adalah `ESCALATION_REQUIRED`, fetch analysis list/history to distinguish `VERIFIER_FAIL`, `TECHNICAL_RETRY_EXHAUSTED`, or `REANALYSIS_LIMIT_REACHED`.
 
 ---
 
-# 58. Action Visibility Matrix
+# 58. Matriks Visibility Action
 
-Frontend menggunakan matrix untuk presentation. Backend remains final authority.
+Frontend menggunakan matrix untuk presentation. Backend tetap menjadi authority final.
 
 | State | Maker | Checker | Signer | Executer |
 |---|---|---|---|---|
@@ -2027,7 +2027,7 @@ If backend returns `409 INVALID_STATE_TRANSITION` because an active process is r
 
 ---
 
-# 59. Case Action Component
+# 59. Komponen Case Action
 
 Semua contextual case action dirender melalui satu component boundary:
 
@@ -2053,7 +2053,7 @@ Mutation tetap memanggil backend.
 
 ---
 
-# 60. UI State Source
+# 60. Sumber State UI
 
 Server state berasal dari TanStack Query.
 
@@ -2070,7 +2070,7 @@ UI preference
 
 ---
 
-# 61. Type Contract
+# 61. Kontrak Type
 
 Frontend API type harus eksplisit.
 
@@ -2099,7 +2099,7 @@ Tidak menggunakan arbitrary string untuk domain enum.
 
 ---
 
-# 62. API Mocking
+# 62. Mocking API
 
 Frontend development dapat berjalan tanpa backend menggunakan mock API layer.
 
@@ -2111,7 +2111,7 @@ src/mocks/
 
 Mock data harus mengikuti exact API contract.
 
-Required scenarios:
+Skenario wajib:
 
 ```text
 Draft Case
@@ -2138,9 +2138,9 @@ Mock response tidak boleh memiliki shape berbeda dari backend contract.
 
 ---
 
-# 63. Demo Personas
+# 63. Persona Demo
 
-Frontend development menggunakan four distinct workflow personas:
+Frontend development menggunakan empat persona workflow yang berbeda:
 
 ```text
 Operations User
@@ -2171,7 +2171,7 @@ ADMIN system role on Manager User does not provide extra case-action authority b
 
 ---
 
-# 64. Demo Case
+# 64. Case Demo
 
 Synthetic case:
 
@@ -2193,7 +2193,7 @@ FE mock/demo harus dapat menjalankan case ini sepanjang full workflow.
 
 ---
 
-# 65. Responsive Behavior
+# 65. Perilaku Responsive
 
 MVP target utama:
 
@@ -2214,7 +2214,7 @@ Tablet/mobile tetap usable untuk reading, tetapi workflow action utama dioptimal
 
 # 66. Accessibility
 
-Minimum requirements:
+Kebutuhan minimum:
 
 - semantic button;
 - form label;
@@ -2241,7 +2241,7 @@ Frontend:
 
 ---
 
-# 68. Environment Variables
+# 68. Environment Variable
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api/v1
@@ -2256,7 +2256,7 @@ Frontend tidak memiliki backend secret environment variable.
 
 ---
 
-# 69. Local Development
+# 69. Development Lokal
 
 Requirements:
 
@@ -2300,7 +2300,7 @@ http://localhost:3000
 
 ---
 
-# 70. Scripts
+# 70. Script
 
 ```bash
 npm run dev
@@ -2314,7 +2314,7 @@ npm run test
 
 ---
 
-# 71. Testing
+# 71. Pengujian
 
 ## Unit Test
 
@@ -2369,9 +2369,9 @@ Stale Analysis Handling
 
 ---
 
-# 72. Frontend Error Scenarios
+# 72. Skenario Error Frontend
 
-Must support:
+Wajib mendukung:
 
 ```text
 Network Offline
@@ -2386,7 +2386,7 @@ Escalation Required
 File Upload Failed
 ```
 
-No critical page should collapse into an unhandled exception.
+Tidak ada halaman kritis yang boleh gagal menjadi unhandled exception.
 
 ---
 
@@ -2445,9 +2445,9 @@ PROD digunakan untuk competition demo/submission.
 
 ---
 
-# 75. Frontend Definition of Done
+# 75. Definition of Done Frontend
 
-Frontend MVP dianggap selesai ketika user dapat menjalankan full workflow berikut melalui UI:
+Frontend MVP dianggap selesai ketika user dapat menjalankan workflow lengkap berikut melalui UI:
 
 ```text
 Login
@@ -2498,7 +2498,7 @@ Seluruh flow harus menampilkan:
 
 ---
 
-# 76. Documentation Contract
+# 76. Kontrak Dokumentasi
 
 Product specification, workflow, state machine, ERD, dan API contract utama berada di:
 
