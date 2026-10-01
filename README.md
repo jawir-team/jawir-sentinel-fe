@@ -998,7 +998,7 @@ SUBMITTED / AI_ANALYSIS / DONE / CLOSED
 → read-only for user evidence
 ```
 
-Frontend sends `actor_role`; backend derives authoritative source user/source type. SYSTEM is not selectable.
+Frontend does not send an acting role. Strict SoD guarantees one active workflow role per user/case, so backend derives source role from the authenticated participant assignment. SYSTEM is internal-only.
 
 API:
 
@@ -1028,15 +1028,15 @@ PNG   → image/png
 Flow:
 
 ```text
-Select Acting Role + supported file
+Select supported file
 ↓
-POST /evidences/upload-url with actor_role + mime_type
+POST /evidences/upload-url with mime_type
 ↓
 Receive signed URL + file key
 ↓
 Upload directly to Cloud Storage
 ↓
-POST /evidences/file with same actor_role
+POST /evidences/file
 ↓
 Backend verifies object/key/MIME
 ↓
@@ -1763,9 +1763,8 @@ Core error mapping:
 | SEGREGATION_OF_DUTIES_VIOLATION | Action error dialog |
 | CASE_NOT_FOUND | Not Found |
 | POLICY_NOT_FOUND | Not Found |
-| INVALID_STATE_TRANSITION | Refetch + conflict message |
+| INVALID_STATE_TRANSITION | Refetch + conflict/wait message |
 | STALE_ANALYSIS | Refetch case and current analysis |
-| POLICY_CONFLICT | Warning/error panel |
 | INTERNAL_ERROR | Generic retry state |
 
 ---
