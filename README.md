@@ -906,7 +906,7 @@ FAIL
 - analysis tidak diperlakukan sebagai reviewable analysis;
 - failed attempt tetap dapat tampil di history/version selector;
 - case berakhir `ESCALATION_REQUIRED`;
-- UI tidak menawarkan retry/reanalyze/resume pada MVP.
+- UI tidak menawarkan resume atau action untuk memicu re-analysis secara langsung pada MVP.
 
 ---
 
