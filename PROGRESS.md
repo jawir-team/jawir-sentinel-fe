@@ -25,3 +25,4 @@
 - [x] FE-023 Execution UI (#52) — Implemented startExecution, ExecutionResultModal for SUCCESS/BLOCKED/FAILED with validation, historical execution records, and terminal DONE presentation.
 - [x] FE-024 Stale analysis handling (#53) — Implemented StaleAnalysisModal with non-replay governance safety, active dialog dismissal, and authoritative query invalidation on 409 STALE_ANALYSIS.
 - [x] FE-025 History timeline (#54) — Implemented HistoryTimeline with chronological audit events, actor/system role presentation, analysis version navigation, and escalation provenance.
+- [x] FE-026 Dashboard (#55) — Implemented authoritative GET /dashboard/summary integration, persona action queues, and status distribution grid with direct filter navigation.
