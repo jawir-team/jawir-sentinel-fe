@@ -3,13 +3,18 @@
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CaseDetail } from "@/types/case";
-import { getCurrentAnalysis } from "@/services/api/analyses";
+import {
+  getAnalyses,
+  getCurrentAnalysis,
+  getAnalysisById,
+} from "@/services/api/analyses";
 import { queryKeys } from "@/constants/queryKeys";
 import { AnalysisDetailView } from "./AnalysisDetailView";
+import { AnalysisVersionSelector } from "./AnalysisVersionSelector";
 import { LoadingState } from "@/components/feedback/LoadingState";
 import { ErrorState } from "@/components/feedback/ErrorState";
 import { EmptyState } from "@/components/feedback/EmptyState";
-import { Sparkles, Clock, AlertTriangle } from "lucide-react";
+import { Sparkles, Clock, AlertTriangle, Info } from "lucide-react";
 
 interface AnalysisTabProps {
   caseData: CaseDetail;
@@ -19,16 +24,54 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
   const isDraft = caseData.status === "DRAFT";
   const isAiAnalysisRunning = caseData.status === "AI_ANALYSIS";
 
+  // Fetch all persisted analysis attempts
   const {
-    data: currentAnalysis,
-    isLoading,
-    isError,
-    error,
-    refetch,
+    data: analyses = [],
+    isLoading: isLoadingList,
+    refetch: refetchList,
   } = useQuery({
-    queryKey: queryKeys.analysisCurrent(caseData.id),
-    queryFn: () => getCurrentAnalysis(caseData.id),
+    queryKey: queryKeys.analyses(caseData.id),
+    queryFn: () => getAnalyses(caseData.id),
     enabled: !isDraft,
+  });
+
+  const currentAnalysisId = caseData.current_analysis?.id;
+
+  // Selected analysis ID state
+  const [selectedId, setSelectedId] = React.useState<string | null>(null);
+
+  // Initialize selectedId once list or current analysis is known
+  React.useEffect(() => {
+    if (!selectedId) {
+      if (currentAnalysisId) {
+        setSelectedId(currentAnalysisId);
+      } else if (analyses && analyses.length > 0) {
+        // Default to latest attempt if no current analysis
+        const sorted = [...analyses].sort((a, b) => b.version - a.version);
+        setSelectedId(sorted[0].id);
+      }
+    }
+  }, [currentAnalysisId, analyses, selectedId]);
+
+  // Fetch the active analysis details (either current or selected historical)
+  const activeAnalysisId = selectedId || currentAnalysisId;
+
+  const {
+    data: activeAnalysis,
+    isLoading: isLoadingDetail,
+    isError: isErrorDetail,
+    refetch: refetchDetail,
+  } = useQuery({
+    queryKey: activeAnalysisId
+      ? queryKeys.analysis(caseData.id, activeAnalysisId)
+      : queryKeys.analysisCurrent(caseData.id),
+    queryFn: () => {
+      if (activeAnalysisId) {
+        return getAnalysisById(caseData.id, activeAnalysisId);
+      }
+      return getCurrentAnalysis(caseData.id);
+    },
+    enabled: !isDraft && Boolean(activeAnalysisId || isAiAnalysisRunning),
     retry: isAiAnalysisRunning ? 5 : 1,
   });
 
@@ -41,6 +84,8 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
       />
     );
   }
+
+  const isLoading = (isLoadingList || isLoadingDetail) && !activeAnalysis;
 
   if (isLoading) {
     return (
@@ -62,7 +107,7 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
     );
   }
 
-  if (isError || !currentAnalysis) {
+  if (isErrorDetail || !activeAnalysis) {
     // If case is AI_ANALYSIS but not yet ready, show generating status
     if (isAiAnalysisRunning) {
       return (
@@ -86,14 +131,44 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
       <ErrorState
         title="Analisis Tidak Ditemukan"
         message="Tidak dapat memuat hasil analisis untuk case ini. Mungkin belum ada analisis yang berstatus PASS atau terjadi kendala jaringan."
-        onRetry={() => refetch()}
+        onRetry={() => {
+          refetchList();
+          refetchDetail();
+        }}
       />
     );
   }
 
+  const isCurrent = activeAnalysis.id === currentAnalysisId;
+
   return (
     <div className="space-y-6">
-      <AnalysisDetailView analysis={currentAnalysis} isCurrent={true} />
+      {/* Version Selector for multiple attempts */}
+      {analyses.length > 0 && (
+        <AnalysisVersionSelector
+          analyses={analyses}
+          currentAnalysisId={currentAnalysisId}
+          selectedAnalysisId={activeAnalysis.id}
+          onSelectAnalysis={(id) => setSelectedId(id)}
+        />
+      )}
+
+      {/* Historical or non-current notice banner */}
+      {!isCurrent && (
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3 text-xs text-amber-900">
+          <Info className="h-4 w-4 text-amber-600 shrink-0" />
+          <p>
+            <span className="font-semibold">Mode Peninjauan Riwayat:</span> Anda
+            sedang melihat Analisis <strong>Versi #{activeAnalysis.version}</strong> (
+            {activeAnalysis.status}). Versi historis/percobaan bersifat read-only.
+            Persetujuan Checker dan Signer hanya berlaku untuk versi{" "}
+            <strong>CURRENT</strong>.
+          </p>
+        </div>
+      )}
+
+      {/* Main Analysis Detail View */}
+      <AnalysisDetailView analysis={activeAnalysis} isCurrent={isCurrent} />
     </div>
   );
 }
