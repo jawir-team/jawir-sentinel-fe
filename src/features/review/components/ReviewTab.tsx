@@ -8,6 +8,7 @@ import { queryKeys } from "@/constants/queryKeys";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { CheckerStatusCard } from "./CheckerStatusCard";
 import { CheckerDecisionModal } from "./CheckerDecisionModal";
+import { SignerDecisionModal } from "./SignerDecisionModal";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -21,6 +22,7 @@ import {
   Clock,
   Info,
   AlertTriangle,
+  FileCheck,
 } from "lucide-react";
 
 interface ReviewTabProps {
@@ -30,7 +32,18 @@ interface ReviewTabProps {
 
 export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
   const { currentUser } = useAuth();
-  const [decisionModal, setDecisionModal] = React.useState<{
+
+  // Checker decision modal state
+  const [checkerModal, setCheckerModal] = React.useState<{
+    isOpen: boolean;
+    decision: "APPROVE" | "REJECT";
+  }>({
+    isOpen: false,
+    decision: "APPROVE",
+  });
+
+  // Signer decision modal state
+  const [signerModal, setSignerModal] = React.useState<{
     isOpen: boolean;
     decision: "APPROVE" | "REJECT";
   }>({
@@ -40,6 +53,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
 
   const isChecking = caseData.status === "CHECKING";
   const isSigning = caseData.status === "SIGNING";
+  const isExecution = caseData.status === "EXECUTION";
   const currentAnalysisId = caseData.current_analysis?.id;
 
   const {
@@ -49,7 +63,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
   } = useQuery({
     queryKey: queryKeys.checkerStatus(caseData.id),
     queryFn: () => getCheckerStatus(caseData.id),
-    enabled: Boolean(currentAnalysisId) && (isChecking || isSigning),
+    enabled: Boolean(currentAnalysisId) && (isChecking || isSigning || isExecution),
   });
 
   // Check if current user is an assigned Checker
@@ -60,7 +74,17 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
       (p.user_id === currentUser?.id || p.name === currentUser?.name)
   );
 
-  // Find current user's decision status in the active round
+  // Check if current user is the assigned Signer
+  const signerParticipant = caseData.participants.find(
+    (p) => p.role === "SIGNER" && p.status === "ACTIVE"
+  );
+  const isAssignedSigner = Boolean(
+    signerParticipant &&
+      (signerParticipant.user_id === currentUser?.id ||
+        signerParticipant.name === currentUser?.name)
+  );
+
+  // Find current user's decision status in the active checker round
   const myCheckerRecord = checkerStatus?.checkers.find(
     (c) => c.user_id === currentUser?.id || c.name === currentUser?.name
   );
@@ -81,14 +105,81 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
   }
 
   if (isLoadingStatus) {
-    return <LoadingState label="Memuat status verifikasi Checker..." />;
+    return <LoadingState label="Memuat status verifikasi Checker & Signer..." />;
   }
 
   return (
     <div className="space-y-6" data-testid="review-tab">
-      {/* Checker Review Action Card for assigned active Checker */}
+      {/* Signer Authorization Card (Status: SIGNING) */}
+      {isSigning && (
+        <Card className="border-purple-300 bg-purple-50/30 shadow-sm" data-testid="signer-card">
+          <CardHeader className="pb-3 border-b border-purple-100">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2 text-purple-950">
+                <FileCheck className="h-4 w-4 text-purple-700" />
+                <span>Tahap Otorisasi Eksekutif (Signer Review)</span>
+              </CardTitle>
+              <Badge variant="outline" className="font-mono text-xs border-purple-300 text-purple-900 bg-purple-50">
+                SIGNER: {signerParticipant?.name || "Belum Ditugaskan"}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-4 space-y-4 text-xs">
+            {isAssignedSigner ? (
+              <div className="space-y-3">
+                <div className="p-3 bg-purple-100/60 border border-purple-200 rounded-lg text-purple-950 leading-relaxed">
+                  <p className="font-semibold text-xs mb-1">
+                    Seluruh Checker Wajib Telah Memberikan Persetujuan (Korum Terpenuhi).
+                  </p>
+                  <p className="text-[11px] text-purple-900">
+                    Sebagai Signer berwenang, Anda memegang mandat untuk mengotorisasi eksekusi rencana tindakan ini atau menolak dengan alasan tertulis.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    onClick={() =>
+                      setSignerModal({ isOpen: true, decision: "APPROVE" })
+                    }
+                    className="bg-purple-700 hover:bg-purple-800 text-white gap-1.5 shadow-sm"
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    <span>Otorisasi Kasus (Signer Approve)</span>
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() =>
+                      setSignerModal({ isOpen: true, decision: "REJECT" })
+                    }
+                    className="gap-1.5"
+                  >
+                    <XCircle className="h-4 w-4" />
+                    <span>Tolak Otorisasi (Signer Reject)</span>
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-3 text-slate-700">
+                <Info className="h-4 w-4 text-purple-600 shrink-0" />
+                <p>
+                  Seluruh Checker wajib telah menyetujui. Kasus saat ini sedang menunggu otorisasi akhir dari Signer yang berwenang (
+                  <strong className="text-purple-950">{signerParticipant?.name}</strong>).
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Checker Review Action Card for assigned active Checker (Status: CHECKING) */}
       {isChecking && isAssignedChecker && (
-        <Card className="border-blue-300 bg-blue-50/30 shadow-sm">
+        <Card className="border-blue-300 bg-blue-50/30 shadow-sm" data-testid="checker-action-card">
           <CardHeader className="pb-3 border-b border-blue-100">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2 text-blue-950">
@@ -132,7 +223,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
                     variant="primary"
                     size="sm"
                     onClick={() =>
-                      setDecisionModal({ isOpen: true, decision: "APPROVE" })
+                      setCheckerModal({ isOpen: true, decision: "APPROVE" })
                     }
                     className="gap-1.5"
                   >
@@ -145,7 +236,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
                     variant="destructive"
                     size="sm"
                     onClick={() =>
-                      setDecisionModal({ isOpen: true, decision: "REJECT" })
+                      setCheckerModal({ isOpen: true, decision: "REJECT" })
                     }
                     className="gap-1.5"
                   >
@@ -169,6 +260,19 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
         </div>
       )}
 
+      {/* Execution status indicator */}
+      {isExecution && (
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-3 text-xs text-emerald-900">
+          <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+          <div>
+            <p className="font-bold text-sm">Otorisasi Selesai</p>
+            <p className="text-[11px] text-emerald-800 mt-0.5">
+              Kasus ini telah berhasil diotorisasi oleh Signer dan saat ini berada dalam tahap Eksekusi Operasional.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Checker Completion Status Card */}
       {checkerStatus && (
         <CheckerStatusCard
@@ -177,17 +281,33 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
         />
       )}
 
-      {/* Decision Submission Modal */}
+      {/* Checker Decision Submission Modal */}
       {currentAnalysisId && (
         <CheckerDecisionModal
-          isOpen={decisionModal.isOpen}
+          isOpen={checkerModal.isOpen}
           onClose={() =>
-            setDecisionModal((prev) => ({ ...prev, isOpen: false }))
+            setCheckerModal((prev) => ({ ...prev, isOpen: false }))
           }
           caseId={caseData.id}
           analysisId={currentAnalysisId}
-          decision={decisionModal.decision}
-          onSuccessDecision={(nextStatus) => {
+          decision={checkerModal.decision}
+          onSuccessDecision={() => {
+            refetchStatus();
+          }}
+        />
+      )}
+
+      {/* Signer Decision Submission Modal */}
+      {currentAnalysisId && (
+        <SignerDecisionModal
+          isOpen={signerModal.isOpen}
+          onClose={() =>
+            setSignerModal((prev) => ({ ...prev, isOpen: false }))
+          }
+          caseId={caseData.id}
+          analysisId={currentAnalysisId}
+          decision={signerModal.decision}
+          onSuccessDecision={() => {
             refetchStatus();
           }}
         />

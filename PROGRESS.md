@@ -21,3 +21,4 @@
 - [x] FE-019 AI analysis loading/failure state (#48) — Implemented broker-abstracted polling for AI_ANALYSIS, reassuring queued/generating presentation, and EscalationNotice for VERIFIER_FAIL, TECHNICAL_RETRY_EXHAUSTED, and REANALYSIS_LIMIT_REACHED.
 - [x] FE-020 Checker review UI (#49) — Implemented CheckerDecisionModal with mandatory reason for REJECT, exact analysis_id binding, and role-guarded review actions.
 - [x] FE-021 Checker status UI (#50) — Implemented CheckerStatusCard with required vs optional quorum progress bar and active round checker completion tracking.
+- [x] FE-022 Signer review UI (#51) — Implemented SignerDecisionModal with role gating, mandatory reason on REJECT, transition to EXECUTION or AI_ANALYSIS/ESCALATION_REQUIRED, and no-resume guard.

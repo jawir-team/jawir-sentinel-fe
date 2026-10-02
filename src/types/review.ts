@@ -29,3 +29,17 @@ export interface CheckerStatusData {
   pending: number;
   checkers: CheckerItemStatus[];
 }
+
+export interface SignerDecisionPayload {
+  analysis_id: string;
+  decision: ReviewDecision;
+  reason?: string;
+  comment?: string;
+}
+
+export interface SignerDecisionResponse {
+  decision_id: string;
+  decision: ReviewDecision;
+  case_status: string;
+}
+
