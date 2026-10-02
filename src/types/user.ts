@@ -1,4 +1,5 @@
 export type SystemRole = "USER" | "ADMIN";
+export type UserStatus = "ACTIVE" | "INACTIVE";
 
 export interface UnitSummary {
   id: string;
@@ -18,9 +19,23 @@ export interface UserItem {
   id: string;
   name: string;
   email: string;
+  status: UserStatus;
   system_role: SystemRole;
-  is_active: boolean;
   unit: UnitSummary;
-  created_at?: string;
-  updated_at?: string;
+}
+
+export interface CreateUserPayload {
+  firebase_uid?: string;
+  name: string;
+  email: string;
+  unit_id: string;
+  status: UserStatus;
+  system_role: SystemRole;
+}
+
+export interface UpdateUserPayload {
+  name?: string;
+  unit_id?: string;
+  status?: UserStatus;
+  system_role?: SystemRole;
 }
