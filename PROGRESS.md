@@ -28,3 +28,4 @@
 - [x] FE-026 Dashboard (#55) — Implemented authoritative GET /dashboard/summary integration, persona action queues, and status distribution grid with direct filter navigation.
 - [x] FE-027 Mock complete workflow (#56) — Implemented deterministic mock scenarios covering full settlement lifecycle, strict SoD, escalation triggers, and multi-version attempts.
 - [x] FE-028 Critical component/integration tests (#57) — Implemented comprehensive automated test suite in tests/workflow-contract.test.mjs covering all 13 critical contract invariants with 100% pass rate.
+- [x] FE-029 Frontend Docker + Cloud Run (#58) — Implemented multi-stage Dockerfile, next.config.mjs with standalone output, .dockerignore, browser-safe .env.example, and GitHub Actions CI/CD pipeline targeting Cloud Run service sentinel-web.
