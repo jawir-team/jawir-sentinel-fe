@@ -4,3 +4,4 @@
 - [x] FE-002 Setup Tailwind + base UI primitives (#31) — Configured Tailwind and created accessible base UI primitives and feedback states.
 - [x] FE-003 Setup TanStack Query + API client (#32) — Configured QueryClient provider, API client with auth injection, error envelope normalization, and query keys.
 - [x] FE-004 App shell + routing (#33) — Implemented App shell (Header, Sidebar, Container), error/loading/not-found boundaries, and all core MVP routes.
+- [x] FE-005 Firebase login flow (#34) — Implemented Firebase authentication service, session observer, token injection into API client, login page, and protected route layout.
