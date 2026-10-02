@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/feedback/EmptyState";
 import { CaseDetailHeader } from "@/features/case/components/CaseDetailHeader";
 import { CaseParticipantsCard } from "@/features/case/components/CaseParticipantsCard";
 import { ParticipantAssignmentSection } from "@/features/case/components/ParticipantAssignmentSection";
+import { SubmitCaseSection } from "@/features/case/components/SubmitCaseSection";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { getCaseById } from "@/services/api/cases";
@@ -162,37 +163,11 @@ export default function CaseDetailPage({
 
             {/* Maker Governance Controls for DRAFT state */}
             {caseData.status === "DRAFT" && (
-              <Card className="border-blue-100 bg-blue-50/30">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-semibold text-blue-900">
-                    Aksi Pengajuan Maker (DRAFT)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-xs text-slate-600">
-                    Lengkapi partisipan workflow dan bukti dokumen yang diperlukan sebelum
-                    mengajukan case ke verifikasi AI Sentinel.
-                  </p>
-                  <div className="flex flex-wrap items-center gap-3 pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setActiveTab("evidence")}
-                    >
-                      <Paperclip className="h-3.5 w-3.5 mr-1.5" />
-                      Kelola Bukti Dokumen
-                    </Button>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => setActiveTab("review")}
-                    >
-                      <Send className="h-3.5 w-3.5 mr-1.5" />
-                      Lanjutkan ke Pengajuan Case
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <SubmitCaseSection
+                caseData={caseData}
+                isMaker={isMaker}
+                onSuccessSubmit={() => setActiveTab("analysis")}
+              />
             )}
           </div>
 
