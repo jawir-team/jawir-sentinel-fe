@@ -9,6 +9,7 @@ import { ErrorState } from "@/components/feedback/ErrorState";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { CaseDetailHeader } from "@/features/case/components/CaseDetailHeader";
 import { CaseParticipantsCard } from "@/features/case/components/CaseParticipantsCard";
+import { ParticipantAssignmentSection } from "@/features/case/components/ParticipantAssignmentSection";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { getCaseById } from "@/services/api/cases";
@@ -156,6 +157,8 @@ export default function CaseDetailPage({
                 </div>
               </CardContent>
             </Card>
+
+            <ParticipantAssignmentSection caseData={caseData} />
 
             {/* Maker Governance Controls for DRAFT state */}
             {caseData.status === "DRAFT" && (

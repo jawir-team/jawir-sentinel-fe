@@ -10,3 +10,4 @@
 - [x] FE-008 Case list (#37) — Implemented case list with status/urgency/casetype filters, pagination, accessible status badges, and detail navigation.
 - [x] FE-009 Create/Edit Case (#38) — Implemented CaseForm with immutable Maker/Owner assignment, DRAFT editing, non-DRAFT submission freeze, and create case flow.
 - [x] FE-010 Case Detail Overview (#39) — Implemented Case Detail Overview with workflow tabs, Maker/Owner presentation, participant cards, and guarded Close action.
+- [x] FE-011 Participant assignment UI (#40) — Implemented participant assignment in DRAFT with strict Segregation of Duties (SoD), role cardinality, and non-DRAFT lock.

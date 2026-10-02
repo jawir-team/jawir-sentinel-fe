@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPatch } from "./client";
+import { apiGet, apiPost, apiPatch, apiDelete } from "./client";
 import {
   CaseDetail,
   CaseListItem,
@@ -9,7 +9,7 @@ import {
   CaseParticipant,
 } from "@/types/case";
 import { Pagination } from "@/types/api";
-import { initialCases, initialCaseTypes } from "@/mocks/mockData";
+import { initialCases, initialCaseTypes, initialUsers } from "@/mocks/mockData";
 import { ApiError } from "@/types/api";
 
 let mockCases: CaseDetail[] = [...initialCases];
@@ -174,20 +174,87 @@ export async function assignParticipant(
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
-    const found = mockCases.find((c) => c.id === caseId);
+    const found = mockCases.find((c) => c.id === caseId || c.case_number === caseId);
     if (!found) {
       throw new ApiError("CASE_NOT_FOUND", "Case tidak ditemukan", 404);
     }
+    if (found.status !== "DRAFT") {
+      throw new ApiError("INVALID_STATE_TRANSITION", "Participant hanya dapat ditambahkan saat DRAFT", 409);
+    }
+
+    const alreadyAssigned = found.participants.some(
+      (p) =>
+        (p.user_id === payload.user_id ||
+          (p.role === "MAKER" && found.maker.id === payload.user_id)) &&
+        p.status === "ACTIVE"
+    );
+    if (alreadyAssigned) {
+      throw new ApiError(
+        "SEGREGATION_OF_DUTIES_VIOLATION",
+        "Segregation of Duties: Satu pengguna tidak boleh memiliki lebih dari satu active role dalam case yang sama.",
+        403
+      );
+    }
+
+    if (
+      payload.role === "SIGNER" &&
+      found.participants.some((p) => p.role === "SIGNER" && p.status === "ACTIVE")
+    ) {
+      throw new ApiError(
+        "INVALID_STATE_TRANSITION",
+        "Case hanya dapat memiliki tepat 1 Signer aktif.",
+        409
+      );
+    }
+    if (
+      payload.role === "EXECUTER" &&
+      found.participants.some((p) => p.role === "EXECUTER" && p.status === "ACTIVE")
+    ) {
+      throw new ApiError(
+        "INVALID_STATE_TRANSITION",
+        "Case hanya dapat memiliki tepat 1 Executer aktif.",
+        409
+      );
+    }
+
+    const matchedUser = initialUsers.find((u) => u.id === payload.user_id);
     const newPart: CaseParticipant = {
       id: `part-${Date.now()}`,
       user_id: payload.user_id,
-      name: payload.user_id === "usr-risk" ? "Risk User" : payload.user_id === "usr-manager" ? "Manager User" : "Assigned User",
+      name: matchedUser ? matchedUser.name : "Assigned User",
       role: payload.role,
       required: true,
       status: "ACTIVE",
     };
     found.participants.push(newPart);
     return newPart;
+  }
+}
+
+export async function removeParticipant(
+  caseId: string,
+  participantId: string
+): Promise<{ id: string; status: "INACTIVE" }> {
+  try {
+    return await apiDelete<{ id: string; status: "INACTIVE" }>(
+      `/cases/${caseId}/participants/${participantId}`
+    );
+  } catch (err: unknown) {
+    if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
+      throw err;
+    }
+    const found = mockCases.find((c) => c.id === caseId || c.case_number === caseId);
+    if (!found) {
+      throw new ApiError("CASE_NOT_FOUND", "Case tidak ditemukan", 404);
+    }
+    if (found.status !== "DRAFT") {
+      throw new ApiError("INVALID_STATE_TRANSITION", "Participant hanya dapat dihapus saat DRAFT", 409);
+    }
+    const partIdx = found.participants.findIndex((p) => p.id === participantId);
+    if (partIdx !== -1) {
+      found.participants.splice(partIdx, 1);
+    }
+    return { id: participantId, status: "INACTIVE" };
   }
 }
 
