@@ -12,3 +12,4 @@
 - [x] FE-010 Case Detail Overview (#39) — Implemented Case Detail Overview with workflow tabs, Maker/Owner presentation, participant cards, and guarded Close action.
 - [x] FE-011 Participant assignment UI (#40) — Implemented participant assignment in DRAFT with strict Segregation of Duties (SoD), role cardinality, and non-DRAFT lock.
 - [x] FE-012 Submit Case UI (#41) — Implemented Maker case submission readiness checklist, freeze confirmation modal, and transition to AI_ANALYSIS.
+- [x] FE-013 Policy list/detail/version UI (#42) — Implemented Policy management with authority and indexing status badges, effective-window activation guards, and indexing recovery.
