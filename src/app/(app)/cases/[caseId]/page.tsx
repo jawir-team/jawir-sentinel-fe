@@ -13,6 +13,7 @@ import { ParticipantAssignmentSection } from "@/features/case/components/Partici
 import { SubmitCaseSection } from "@/features/case/components/SubmitCaseSection";
 import { EvidenceTab } from "@/features/evidence/components/EvidenceTab";
 import { AnalysisTab } from "@/features/analysis/components/AnalysisTab";
+import { ReviewTab } from "@/features/review/components/ReviewTab";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { getCaseById } from "@/services/api/cases";
@@ -224,11 +225,7 @@ export default function CaseDetailPage({
 
       {activeTab === "review" && (
         <div id="tab-review-container">
-          <EmptyState
-            icon={<CheckSquare className="h-8 w-8 text-amber-500" />}
-            title="Persetujuan Checker & Signer"
-            description={`Status alur verifikasi saat ini: ${caseData.status}.`}
-          />
+          <ReviewTab caseData={caseData} />
         </div>
       )}
 
