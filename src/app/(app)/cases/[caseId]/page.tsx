@@ -12,6 +12,7 @@ import { CaseParticipantsCard } from "@/features/case/components/CaseParticipant
 import { ParticipantAssignmentSection } from "@/features/case/components/ParticipantAssignmentSection";
 import { SubmitCaseSection } from "@/features/case/components/SubmitCaseSection";
 import { EvidenceTab } from "@/features/evidence/components/EvidenceTab";
+import { AnalysisTab } from "@/features/analysis/components/AnalysisTab";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { getCaseById } from "@/services/api/cases";
@@ -211,15 +212,7 @@ export default function CaseDetailPage({
       {/* Placeholders for subsequent issues */}
       {activeTab === "analysis" && (
         <div id="tab-analysis-container">
-          <EmptyState
-            icon={<Sparkles className="h-8 w-8 text-blue-500" />}
-            title="Analisis AI Sentinel"
-            description={
-              caseData.status === "DRAFT"
-                ? "Analisis AI akan dijalankan setelah case diajukan oleh Maker."
-                : `Analisis AI untuk status ${caseData.status}.`
-            }
-          />
+          <AnalysisTab caseData={caseData} />
         </div>
       )}
 
