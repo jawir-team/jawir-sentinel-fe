@@ -11,6 +11,7 @@ import { CaseDetailHeader } from "@/features/case/components/CaseDetailHeader";
 import { CaseParticipantsCard } from "@/features/case/components/CaseParticipantsCard";
 import { ParticipantAssignmentSection } from "@/features/case/components/ParticipantAssignmentSection";
 import { SubmitCaseSection } from "@/features/case/components/SubmitCaseSection";
+import { EvidenceTab } from "@/features/evidence/components/EvidenceTab";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { getCaseById } from "@/services/api/cases";
@@ -224,11 +225,7 @@ export default function CaseDetailPage({
 
       {activeTab === "evidence" && (
         <div id="tab-evidence-container">
-          <EmptyState
-            icon={<Paperclip className="h-8 w-8 text-slate-400" />}
-            title="Bukti Dokumen Pendukung"
-            description="Dokumen bukti yang dilampirkan oleh Maker untuk memvalidasi kasus operasional."
-          />
+          <EvidenceTab caseData={caseData} />
         </div>
       )}
 
