@@ -7,3 +7,4 @@
 - [x] FE-005 Firebase login flow (#34) — Implemented Firebase authentication service, session observer, token injection into API client, login page, and protected route layout.
 - [x] FE-006 Current user/session handling (#35) — Integrated GET /me Sentinel identity, system_role (USER vs ADMIN) navigation visibility, and 401/403 session de-authorization.
 - [x] FE-007 Unit/User/Case Type management UI (#36) — Implemented management UI and APIs for Units, Users, and Case Types with role guard and safety invariant checks.
+- [x] FE-008 Case list (#37) — Implemented case list with status/urgency/casetype filters, pagination, accessible status badges, and detail navigation.
