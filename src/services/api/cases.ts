@@ -198,7 +198,7 @@ export async function submitCase(caseId: string): Promise<CaseDetail> {
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
-    const index = mockCases.findIndex((c) => c.id === caseId);
+    const index = mockCases.findIndex((c) => c.id === caseId || c.case_number === caseId);
     if (index === -1) {
       throw new ApiError("CASE_NOT_FOUND", "Case tidak ditemukan", 404);
     }
@@ -207,3 +207,35 @@ export async function submitCase(caseId: string): Promise<CaseDetail> {
     return mockCases[index] as CaseDetail;
   }
 }
+
+export async function closeCase(
+  caseId: string,
+  payload: { reason: string }
+): Promise<CaseDetail> {
+  try {
+    return await apiPost<CaseDetail>(`/cases/${caseId}/close`, payload);
+  } catch (err: unknown) {
+    if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
+      throw err;
+    }
+    const index = mockCases.findIndex((c) => c.id === caseId || c.case_number === caseId);
+    if (index === -1) {
+      throw new ApiError("CASE_NOT_FOUND", "Case tidak ditemukan", 404);
+    }
+    const current = mockCases[index];
+    if (current.status === "DONE" || current.status === "CLOSED") {
+      throw new ApiError(
+        "INVALID_STATE_TRANSITION",
+        "Case yang sudah selesai atau ditutup tidak dapat ditutup kembali.",
+        409
+      );
+    }
+    mockCases[index] = {
+      ...current,
+      status: "CLOSED",
+      updated_at: new Date().toISOString(),
+    };
+    return mockCases[index] as CaseDetail;
+  }
+}
+

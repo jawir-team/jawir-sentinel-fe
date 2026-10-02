@@ -9,3 +9,4 @@
 - [x] FE-007 Unit/User/Case Type management UI (#36) — Implemented management UI and APIs for Units, Users, and Case Types with role guard and safety invariant checks.
 - [x] FE-008 Case list (#37) — Implemented case list with status/urgency/casetype filters, pagination, accessible status badges, and detail navigation.
 - [x] FE-009 Create/Edit Case (#38) — Implemented CaseForm with immutable Maker/Owner assignment, DRAFT editing, non-DRAFT submission freeze, and create case flow.
+- [x] FE-010 Case Detail Overview (#39) — Implemented Case Detail Overview with workflow tabs, Maker/Owner presentation, participant cards, and guarded Close action.
