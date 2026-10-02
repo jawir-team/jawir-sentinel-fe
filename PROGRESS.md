@@ -20,3 +20,4 @@
 - [x] FE-018 Policy/evidence reference viewer (#47) — Implemented ReferenceViewerDialog with historical policy clause excerpts, audit provenance integrity notices, and evidence reference details.
 - [x] FE-019 AI analysis loading/failure state (#48) — Implemented broker-abstracted polling for AI_ANALYSIS, reassuring queued/generating presentation, and EscalationNotice for VERIFIER_FAIL, TECHNICAL_RETRY_EXHAUSTED, and REANALYSIS_LIMIT_REACHED.
 - [x] FE-020 Checker review UI (#49) — Implemented CheckerDecisionModal with mandatory reason for REJECT, exact analysis_id binding, and role-guarded review actions.
+- [x] FE-021 Checker status UI (#50) — Implemented CheckerStatusCard with required vs optional quorum progress bar and active round checker completion tracking.
