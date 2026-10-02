@@ -6,6 +6,7 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { LoadingState } from "@/components/feedback/LoadingState";
+import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { LogOut } from "lucide-react";
 
@@ -15,39 +16,50 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { user, loading, logout } = useAuth();
+  const { user, currentUser, isAdmin, loading, logout } = useAuth();
 
   React.useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && (!user || !currentUser)) {
       router.push("/login");
     }
-  }, [user, loading, router]);
+  }, [user, currentUser, loading, router]);
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <LoadingState label="Memeriksa sesi pengguna..." />
+        <LoadingState label="Memuat profil pengguna..." />
       </div>
     );
   }
 
-  if (!user) {
+  if (!user || !currentUser) {
     return null;
   }
 
   const userSection = (
     <div className="flex items-center gap-3">
       <div className="text-right hidden sm:block">
-        <p className="text-sm font-semibold text-slate-800 leading-none">
-          {user.displayName || user.email?.split("@")[0] || "User"}
+        <div className="flex items-center justify-end gap-1.5">
+          <p className="text-sm font-semibold text-slate-800 leading-none">
+            {currentUser.name}
+          </p>
+          <Badge
+            variant={isAdmin ? "default" : "secondary"}
+            className="text-[10px] px-1.5 py-0"
+          >
+            {currentUser.system_role}
+          </Badge>
+        </div>
+        <p className="text-xs text-slate-500 mt-1">
+          {currentUser.unit?.name || "Sentinel"} ({currentUser.unit?.code || "GEN"})
         </p>
-        <p className="text-xs text-slate-500 mt-0.5">{user.email}</p>
       </div>
+
       <Button
         variant="ghost"
         size="sm"
         onClick={() => logout()}
-        className="text-slate-600 hover:text-red-600 gap-1"
+        className="text-slate-600 hover:text-red-600 gap-1.5"
         title="Keluar dari akun"
         aria-label="Keluar dari akun"
       >
@@ -61,7 +73,7 @@ export default function AppLayout({
     <div className="flex min-h-screen flex-col bg-slate-50">
       <AppHeader userSection={userSection} />
       <div className="flex flex-1">
-        <AppSidebar />
+        <AppSidebar isAdmin={isAdmin} />
         <main className="flex-1 overflow-x-hidden min-h-[calc(100vh-4rem)]">
           {children}
         </main>
