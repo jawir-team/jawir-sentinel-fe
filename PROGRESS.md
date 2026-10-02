@@ -24,3 +24,4 @@
 - [x] FE-022 Signer review UI (#51) — Implemented SignerDecisionModal with role gating, mandatory reason on REJECT, transition to EXECUTION or AI_ANALYSIS/ESCALATION_REQUIRED, and no-resume guard.
 - [x] FE-023 Execution UI (#52) — Implemented startExecution, ExecutionResultModal for SUCCESS/BLOCKED/FAILED with validation, historical execution records, and terminal DONE presentation.
 - [x] FE-024 Stale analysis handling (#53) — Implemented StaleAnalysisModal with non-replay governance safety, active dialog dismissal, and authoritative query invalidation on 409 STALE_ANALYSIS.
+- [x] FE-025 History timeline (#54) — Implemented HistoryTimeline with chronological audit events, actor/system role presentation, analysis version navigation, and escalation provenance.

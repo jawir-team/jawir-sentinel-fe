@@ -15,6 +15,7 @@ import { EvidenceTab } from "@/features/evidence/components/EvidenceTab";
 import { AnalysisTab } from "@/features/analysis/components/AnalysisTab";
 import { ReviewTab } from "@/features/review/components/ReviewTab";
 import { ExecutionTab } from "@/features/execution/components/ExecutionTab";
+import { HistoryTimeline } from "@/features/history/components/HistoryTimeline";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { getCaseById } from "@/services/api/cases";
@@ -238,11 +239,7 @@ export default function CaseDetailPage({
 
       {activeTab === "history" && (
         <div id="tab-history-container">
-          <EmptyState
-            icon={<History className="h-8 w-8 text-slate-400" />}
-            title="Timeline Riwayat Kasus"
-            description="Jejak audit immutable untuk setiap aksi dan transisi state dalam kasus ini."
-          />
+          <HistoryTimeline caseId={caseData.id} />
         </div>
       )}
     </ContentContainer>
