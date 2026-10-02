@@ -3,14 +3,17 @@
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CaseDetail } from "@/types/case";
+import { PolicyReference } from "@/types/analysis";
 import {
   getAnalyses,
   getCurrentAnalysis,
   getAnalysisById,
 } from "@/services/api/analyses";
+import { getEvidences } from "@/services/api/evidences";
 import { queryKeys } from "@/constants/queryKeys";
 import { AnalysisDetailView } from "./AnalysisDetailView";
 import { AnalysisVersionSelector } from "./AnalysisVersionSelector";
+import { ReferenceViewerDialog } from "./ReferenceViewerDialog";
 import { LoadingState } from "@/components/feedback/LoadingState";
 import { ErrorState } from "@/components/feedback/ErrorState";
 import { EmptyState } from "@/components/feedback/EmptyState";
@@ -35,10 +38,25 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
     enabled: !isDraft,
   });
 
+  // Fetch evidences to resolve provenance metadata
+  const { data: allEvidences = [] } = useQuery({
+    queryKey: queryKeys.evidences(caseData.id),
+    queryFn: () => getEvidences(caseData.id),
+    enabled: !isDraft,
+  });
+
   const currentAnalysisId = caseData.current_analysis?.id;
 
   // Selected analysis ID state
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
+
+  // Provenance viewer modal state
+  const [viewingPolicyRef, setViewingPolicyRef] =
+    React.useState<PolicyReference | null>(null);
+  const [viewingEvidence, setViewingEvidence] = React.useState<{
+    id: string;
+    usageType?: string;
+  } | null>(null);
 
   // Initialize selectedId once list or current analysis is known
   React.useEffect(() => {
@@ -167,8 +185,40 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
         </div>
       )}
 
-      {/* Main Analysis Detail View */}
-      <AnalysisDetailView analysis={activeAnalysis} isCurrent={isCurrent} />
+      {/* Main Analysis Detail View with provenance handlers */}
+      <AnalysisDetailView
+        analysis={activeAnalysis}
+        isCurrent={isCurrent}
+        onOpenPolicyRef={(ref) => setViewingPolicyRef(ref)}
+        onOpenEvidenceRef={(evidenceId) => {
+          const refItem = activeAnalysis.evidence_references?.find(
+            (r) => r.evidence_id === evidenceId
+          );
+          setViewingEvidence({
+            id: evidenceId,
+            usageType: refItem?.usage_type,
+          });
+        }}
+      />
+
+      {/* Provenance Inspection Dialogs */}
+      {viewingPolicyRef && (
+        <ReferenceViewerDialog
+          isOpen={Boolean(viewingPolicyRef)}
+          onClose={() => setViewingPolicyRef(null)}
+          policyRef={viewingPolicyRef}
+        />
+      )}
+
+      {viewingEvidence && (
+        <ReferenceViewerDialog
+          isOpen={Boolean(viewingEvidence)}
+          onClose={() => setViewingEvidence(null)}
+          evidenceRefId={viewingEvidence.id}
+          evidenceUsageType={viewingEvidence.usageType}
+          allEvidences={allEvidences}
+        />
+      )}
     </div>
   );
 }

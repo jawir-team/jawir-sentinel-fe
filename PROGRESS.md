@@ -17,3 +17,4 @@
 - [x] FE-015 File evidence upload UI (#44) — Implemented direct-to-GCS file evidence upload with PDF/JPEG/PNG MIME allowlist validation and backend registration.
 - [x] FE-016 AI Analysis page/tab (#45) — Implemented AnalysisDetailView, safe null-rendering for FAILED attempts, verification badges, and AnalysisTab mounting.
 - [x] FE-017 Analysis version selector (#46) — Implemented AnalysisVersionSelector with distinct CURRENT vs LATEST ATTEMPT badges, historical attempt selection, and read-only mode.
+- [x] FE-018 Policy/evidence reference viewer (#47) — Implemented ReferenceViewerDialog with historical policy clause excerpts, audit provenance integrity notices, and evidence reference details.
