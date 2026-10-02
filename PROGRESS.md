@@ -14,3 +14,4 @@
 - [x] FE-012 Submit Case UI (#41) — Implemented Maker case submission readiness checklist, freeze confirmation modal, and transition to AI_ANALYSIS.
 - [x] FE-013 Policy list/detail/version UI (#42) — Implemented Policy management with authority and indexing status badges, effective-window activation guards, and indexing recovery.
 - [x] FE-014 Evidence tab (#43) — Implemented Evidence tab with historical evidence rendering, state-aware creation permissions, and derived source roles.
+- [x] FE-015 File evidence upload UI (#44) — Implemented direct-to-GCS file evidence upload with PDF/JPEG/PNG MIME allowlist validation and backend registration.

@@ -18,6 +18,7 @@ import { Alert } from "@/components/ui/Alert";
 import { LoadingState } from "@/components/feedback/LoadingState";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { ErrorState } from "@/components/feedback/ErrorState";
+import { FileUploadDialog } from "./FileUploadDialog";
 import {
   FileText,
   Paperclip,
@@ -27,6 +28,7 @@ import {
   User,
   ShieldCheck,
   FileCode,
+  UploadCloud,
 } from "lucide-react";
 
 export interface EvidenceTabProps {
@@ -38,6 +40,7 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
   const { currentUser } = useAuth();
 
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isUploadOpen, setIsUploadOpen] = React.useState(false);
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
   const [formError, setFormError] = React.useState<string | null>(null);
@@ -140,10 +143,19 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
         </div>
 
         {canAddEvidence ? (
-          <Button variant="primary" onClick={() => setIsDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-1.5" aria-hidden="true" />
-            Tambah Catatan Bukti
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsUploadOpen(true)}
+            >
+              <UploadCloud className="h-4 w-4 mr-1.5 text-blue-600" aria-hidden="true" />
+              Unggah Berkas (PDF/JPG/PNG)
+            </Button>
+            <Button variant="primary" onClick={() => setIsDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-1.5" aria-hidden="true" />
+              Tambah Catatan
+            </Button>
+          </div>
         ) : (
           <div className="flex items-center gap-1.5 text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-md border border-slate-200">
             <Lock className="h-3.5 w-3.5" aria-hidden="true" />
@@ -302,6 +314,12 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
           </FormField>
         </form>
       </Dialog>
+
+      <FileUploadDialog
+        caseId={caseData.id}
+        isOpen={isUploadOpen}
+        onClose={() => setIsUploadOpen(false)}
+      />
     </div>
   );
 }
