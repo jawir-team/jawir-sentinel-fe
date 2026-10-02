@@ -14,6 +14,7 @@ import { SubmitCaseSection } from "@/features/case/components/SubmitCaseSection"
 import { EvidenceTab } from "@/features/evidence/components/EvidenceTab";
 import { AnalysisTab } from "@/features/analysis/components/AnalysisTab";
 import { ReviewTab } from "@/features/review/components/ReviewTab";
+import { ExecutionTab } from "@/features/execution/components/ExecutionTab";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { getCaseById } from "@/services/api/cases";
@@ -231,11 +232,7 @@ export default function CaseDetailPage({
 
       {activeTab === "execution" && (
         <div id="tab-execution-container">
-          <EmptyState
-            icon={<PlayCircle className="h-8 w-8 text-emerald-500" />}
-            title="Eksekusi Operasional"
-            description="Langkah tindakan eksekusi setelah persetujuan otorisasi selesai."
-          />
+          <ExecutionTab caseData={caseData} />
         </div>
       )}
 

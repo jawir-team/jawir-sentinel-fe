@@ -22,3 +22,4 @@
 - [x] FE-020 Checker review UI (#49) — Implemented CheckerDecisionModal with mandatory reason for REJECT, exact analysis_id binding, and role-guarded review actions.
 - [x] FE-021 Checker status UI (#50) — Implemented CheckerStatusCard with required vs optional quorum progress bar and active round checker completion tracking.
 - [x] FE-022 Signer review UI (#51) — Implemented SignerDecisionModal with role gating, mandatory reason on REJECT, transition to EXECUTION or AI_ANALYSIS/ESCALATION_REQUIRED, and no-resume guard.
+- [x] FE-023 Execution UI (#52) — Implemented startExecution, ExecutionResultModal for SUCCESS/BLOCKED/FAILED with validation, historical execution records, and terminal DONE presentation.
