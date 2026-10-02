@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CaseDetail } from "@/types/case";
 import { PolicyReference } from "@/types/analysis";
 import {
@@ -14,20 +14,26 @@ import { queryKeys } from "@/constants/queryKeys";
 import { AnalysisDetailView } from "./AnalysisDetailView";
 import { AnalysisVersionSelector } from "./AnalysisVersionSelector";
 import { ReferenceViewerDialog } from "./ReferenceViewerDialog";
+import { EscalationNotice, EscalationCause } from "./EscalationNotice";
 import { LoadingState } from "@/components/feedback/LoadingState";
 import { ErrorState } from "@/components/feedback/ErrorState";
 import { EmptyState } from "@/components/feedback/EmptyState";
-import { Sparkles, Clock, AlertTriangle, Info } from "lucide-react";
+import { Sparkles, Clock, AlertTriangle, Info, RefreshCw, ShieldAlert } from "lucide-react";
 
 interface AnalysisTabProps {
   caseData: CaseDetail;
 }
 
 export function AnalysisTab({ caseData }: AnalysisTabProps) {
+  const queryClient = useQueryClient();
   const isDraft = caseData.status === "DRAFT";
   const isAiAnalysisRunning = caseData.status === "AI_ANALYSIS";
+  const isEscalationRequired = caseData.status === "ESCALATION_REQUIRED";
 
-  // Fetch all persisted analysis attempts
+  // Polling interval: 3000ms while AI_ANALYSIS is running; false otherwise
+  const pollInterval = isAiAnalysisRunning ? 3000 : false;
+
+  // Fetch all persisted analysis attempts with polling support
   const {
     data: analyses = [],
     isLoading: isLoadingList,
@@ -36,6 +42,7 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
     queryKey: queryKeys.analyses(caseData.id),
     queryFn: () => getAnalyses(caseData.id),
     enabled: !isDraft,
+    refetchInterval: pollInterval,
   });
 
   // Fetch evidences to resolve provenance metadata
@@ -64,7 +71,6 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
       if (currentAnalysisId) {
         setSelectedId(currentAnalysisId);
       } else if (analyses && analyses.length > 0) {
-        // Default to latest attempt if no current analysis
         const sorted = [...analyses].sort((a, b) => b.version - a.version);
         setSelectedId(sorted[0].id);
       }
@@ -90,8 +96,16 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
       return getCurrentAnalysis(caseData.id);
     },
     enabled: !isDraft && Boolean(activeAnalysisId || isAiAnalysisRunning),
-    retry: isAiAnalysisRunning ? 5 : 1,
+    refetchInterval: pollInterval,
+    retry: isAiAnalysisRunning ? 10 : 1,
   });
+
+  // When polling discovers completed analysis, refresh case root query to transition out of AI_ANALYSIS
+  React.useEffect(() => {
+    if (isAiAnalysisRunning && analyses.some((a) => a.status === "COMPLETED")) {
+      queryClient.invalidateQueries({ queryKey: queryKeys.case(caseData.id) });
+    }
+  }, [isAiAnalysisRunning, analyses, caseData.id, queryClient]);
 
   if (isDraft) {
     return (
@@ -103,44 +117,84 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
     );
   }
 
+  // Active generating state during initial AI_ANALYSIS when no analysis is available yet
+  if (isAiAnalysisRunning && !activeAnalysis) {
+    return (
+      <div className="py-12 px-6 max-w-2xl mx-auto text-center space-y-6">
+        <div className="inline-flex p-4 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 shadow-sm animate-pulse">
+          <Sparkles className="h-8 w-8" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-bold text-slate-900">
+            Sistem Sedang Menjalankan Analisis AI Sentinel
+          </h3>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            AI Sentinel sedang mengekstrak fakta dari bukti kasus, melakukan pencarian semantik terhadap klausul kebijakan, dan memverifikasi rekomendasi tindakan.
+          </p>
+        </div>
+
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-left space-y-2.5">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+            <RefreshCw className="h-3.5 w-3.5 animate-spin text-blue-600" />
+            <span>Status Siklus Inferensi & Verifikasi:</span>
+          </div>
+          <ul className="text-xs text-slate-600 space-y-1.5 pl-5 list-disc">
+            <li>Memvalidasi bukti dokumen yang diunggah Maker...</li>
+            <li>Mencocokkan klausul SOP / Policy yang relevan...</li>
+            <li>Menjalankan verifikasi anti-halusinasi dan konsistensi fakta...</li>
+          </ul>
+        </div>
+
+        <p className="text-xs text-slate-400 font-mono">
+          Halaman akan diperbarui secara otomatis begitu hasil verifikasi diterbitkan.
+        </p>
+      </div>
+    );
+  }
+
   const isLoading = (isLoadingList || isLoadingDetail) && !activeAnalysis;
 
   if (isLoading) {
     return (
       <div className="py-12 flex flex-col items-center justify-center space-y-3">
-        <LoadingState
-          label={
-            isAiAnalysisRunning
-              ? "Sedang menjalankan analisis inferensi AI Sentinel... Mengumpulkan bukti & mengevaluasi klausul kebijakan."
-              : "Memuat data analisis AI..."
-          }
-        />
-        {isAiAnalysisRunning && (
-          <p className="text-xs text-slate-500 flex items-center gap-1.5 animate-pulse">
-            <Clock className="h-3.5 w-3.5" />
-            <span>Memeriksa hasil verifikasi model secara berkala...</span>
-          </p>
-        )}
+        <LoadingState label="Memuat data analisis AI..." />
       </div>
     );
   }
 
-  if (isErrorDetail || !activeAnalysis) {
-    // If case is AI_ANALYSIS but not yet ready, show generating status
-    if (isAiAnalysisRunning) {
+  // Determine escalation cause if case or analysis indicates failure/escalation
+  const latestAttempt = analyses && analyses.length > 0
+    ? [...analyses].sort((a, b) => b.version - a.version)[0]
+    : null;
+
+  let escalationCause: EscalationCause = "UNKNOWN";
+  if (latestAttempt?.verification_status === "FAIL") {
+    escalationCause = "VERIFIER_FAIL";
+  } else if (analyses.length >= 4) {
+    escalationCause = "REANALYSIS_LIMIT_REACHED";
+  } else if (activeAnalysis?.failure_reason?.toLowerCase().includes("timeout") ||
+             activeAnalysis?.failure_reason?.toLowerCase().includes("retry")) {
+    escalationCause = "TECHNICAL_RETRY_EXHAUSTED";
+  } else if (activeAnalysis?.status === "FAILED") {
+    escalationCause = "VERIFIER_FAIL";
+  }
+
+  if (isErrorDetail && !activeAnalysis) {
+    if (isEscalationRequired) {
       return (
-        <div className="p-8 text-center space-y-4 bg-blue-50/50 border border-blue-200 rounded-lg">
-          <div className="inline-flex p-3 rounded-full bg-blue-100 text-blue-700 animate-pulse">
-            <Sparkles className="h-6 w-6" />
-          </div>
-          <div>
-            <h4 className="font-semibold text-slate-900 text-sm">
-              Analisis Sedang Berlangsung
-            </h4>
-            <p className="text-xs text-slate-600 mt-1 max-w-md mx-auto">
-              Sistem AI Sentinel sedang memverifikasi bukti dokumen dan mengevaluasi kepatuhan SOP perbankan. Hasil analisis reviewable akan muncul setelah lolos verifikasi.
-            </p>
-          </div>
+        <div className="space-y-6">
+          <EscalationNotice
+            cause={escalationCause}
+            versionCount={analyses.length}
+          />
+          {analyses.length > 0 && (
+            <AnalysisVersionSelector
+              analyses={analyses}
+              currentAnalysisId={currentAnalysisId}
+              selectedAnalysisId={analyses[0].id}
+              onSelectAnalysis={(id) => setSelectedId(id)}
+            />
+          )}
         </div>
       );
     }
@@ -157,22 +211,31 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
     );
   }
 
-  const isCurrent = activeAnalysis.id === currentAnalysisId;
+  const isCurrent = activeAnalysis ? activeAnalysis.id === currentAnalysisId : false;
 
   return (
     <div className="space-y-6">
+      {/* Escalation notice if case requires escalation */}
+      {isEscalationRequired && (
+        <EscalationNotice
+          cause={escalationCause}
+          failureReason={activeAnalysis?.failure_reason}
+          versionCount={analyses.length}
+        />
+      )}
+
       {/* Version Selector for multiple attempts */}
       {analyses.length > 0 && (
         <AnalysisVersionSelector
           analyses={analyses}
           currentAnalysisId={currentAnalysisId}
-          selectedAnalysisId={activeAnalysis.id}
+          selectedAnalysisId={activeAnalysis ? activeAnalysis.id : ""}
           onSelectAnalysis={(id) => setSelectedId(id)}
         />
       )}
 
       {/* Historical or non-current notice banner */}
-      {!isCurrent && (
+      {activeAnalysis && !isCurrent && (
         <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3 text-xs text-amber-900">
           <Info className="h-4 w-4 text-amber-600 shrink-0" />
           <p>
@@ -186,20 +249,22 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
       )}
 
       {/* Main Analysis Detail View with provenance handlers */}
-      <AnalysisDetailView
-        analysis={activeAnalysis}
-        isCurrent={isCurrent}
-        onOpenPolicyRef={(ref) => setViewingPolicyRef(ref)}
-        onOpenEvidenceRef={(evidenceId) => {
-          const refItem = activeAnalysis.evidence_references?.find(
-            (r) => r.evidence_id === evidenceId
-          );
-          setViewingEvidence({
-            id: evidenceId,
-            usageType: refItem?.usage_type,
-          });
-        }}
-      />
+      {activeAnalysis && (
+        <AnalysisDetailView
+          analysis={activeAnalysis}
+          isCurrent={isCurrent}
+          onOpenPolicyRef={(ref) => setViewingPolicyRef(ref)}
+          onOpenEvidenceRef={(evidenceId) => {
+            const refItem = activeAnalysis.evidence_references?.find(
+              (r) => r.evidence_id === evidenceId
+            );
+            setViewingEvidence({
+              id: evidenceId,
+              usageType: refItem?.usage_type,
+            });
+          }}
+        />
+      )}
 
       {/* Provenance Inspection Dialogs */}
       {viewingPolicyRef && (
