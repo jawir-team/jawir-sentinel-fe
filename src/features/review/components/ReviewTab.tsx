@@ -97,18 +97,18 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
     return (
       <EmptyState
         icon={<CheckSquare className="h-8 w-8 text-slate-400" />}
-        title="Persetujuan Belum Dibuka"
+        title="Reviews Not Yet Open"
         description={
           caseData.status === "DRAFT"
-            ? "Persetujuan Checker akan dimulai setelah case diajukan oleh Maker dan lolos analisis AI."
-            : `Persetujuan belum dapat dilakukan pada status ${caseData.status}.`
+            ? "Checker reviews will begin once the case is submitted by Maker and passes AI analysis."
+            : `Reviews cannot be conducted in ${caseData.status} status.`
         }
       />
     );
   }
 
   if (isLoadingStatus) {
-    return <LoadingState label="Memuat status verifikasi Checker & Signer..." />;
+    return <LoadingState label="Loading Checker & Signer verification status..." />;
   }
 
   return (
@@ -120,10 +120,10 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2 text-purple-950">
                 <FileCheck className="h-4 w-4 text-purple-700" />
-                <span>Tahap Otorisasi Eksekutif (Signer Review)</span>
+                <span>Executive Authorization (Signer Review)</span>
               </CardTitle>
               <Badge variant="outline" className="font-mono text-xs border-purple-300 text-purple-900 bg-purple-50">
-                SIGNER: {signerParticipant?.name || "Belum Ditugaskan"}
+                SIGNER: {signerParticipant?.name || "Unassigned"}
               </Badge>
             </div>
           </CardHeader>
@@ -132,10 +132,10 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
               <div className="space-y-3">
                 <div className="p-3 bg-purple-100/60 border border-purple-200 rounded-lg text-purple-950 leading-relaxed">
                   <p className="font-semibold text-xs mb-1">
-                    Seluruh Checker Wajib Telah Memberikan Persetujuan (Korum Terpenuhi).
+                    All Required Checkers Have Approved (Quorum Met).
                   </p>
                   <p className="text-[11px] text-purple-900">
-                    Sebagai Signer berwenang, Anda memegang mandat untuk mengotorisasi eksekusi rencana tindakan ini atau menolak dengan alasan tertulis.
+                    As the designated Signer, you are empowered to authorize execution of this action plan or reject with written justification.
                   </p>
                 </div>
 
@@ -150,7 +150,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
                     className="bg-purple-700 hover:bg-purple-800 text-white gap-1.5 shadow-sm"
                   >
                     <ShieldCheck className="h-4 w-4" />
-                    <span>Otorisasi Kasus (Signer Approve)</span>
+                    <span>Authorize Case (Signer Approve)</span>
                   </Button>
 
                   <Button
@@ -163,7 +163,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
                     className="gap-1.5"
                   >
                     <XCircle className="h-4 w-4" />
-                    <span>Tolak Otorisasi (Signer Reject)</span>
+                    <span>Reject Authorization (Signer Reject)</span>
                   </Button>
                 </div>
               </div>
@@ -171,7 +171,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-3 text-slate-700">
                 <Info className="h-4 w-4 text-purple-600 shrink-0" />
                 <p>
-                  Seluruh Checker wajib telah menyetujui. Kasus saat ini sedang menunggu otorisasi akhir dari Signer yang berwenang (
+                  All required Checkers have approved. The case is currently awaiting final executive authorization from the designated Signer (
                   <strong className="text-purple-950">{signerParticipant?.name}</strong>).
                 </p>
               </div>
@@ -187,7 +187,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2 text-blue-950">
                 <CheckSquare className="h-4 w-4 text-blue-600" />
-                <span>Aksi Verifikasi Checker Anda</span>
+                <span>Your Checker Verification Action</span>
               </CardTitle>
               <Badge variant="outline" className="font-mono text-xs">
                 {currentUser?.name} &bull; CHECKER
@@ -199,9 +199,9 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
               <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-3 text-emerald-900">
                 <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
                 <div>
-                  <p className="font-bold text-sm">Persetujuan Terkirim</p>
+                  <p className="font-bold text-sm">Approval Submitted</p>
                   <p className="text-[11px] text-emerald-800 mt-0.5">
-                    Anda telah menyetujui hasil analisis ini. Menunggu Checker wajib lainnya untuk menyelesaikan korum persetujuan.
+                    You have approved this analysis. Awaiting remaining required Checkers to complete quorum.
                   </p>
                 </div>
               </div>
@@ -209,16 +209,16 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
               <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-lg flex items-center gap-3 text-rose-900">
                 <XCircle className="h-5 w-5 text-rose-600 shrink-0" />
                 <div>
-                  <p className="font-bold text-sm">Penolakan Terkirim</p>
+                  <p className="font-bold text-sm">Rejection Submitted</p>
                   <p className="text-[11px] text-rose-800 mt-0.5">
-                    Anda telah menolak hasil analisis putaran ini. Sistem sedang mengalihkan kasus ke re-analisis atau eskalasi.
+                    You have rejected this analysis round. The system is routing the case to re-analysis or escalation.
                   </p>
                 </div>
               </div>
             ) : (
               <div className="space-y-3">
                 <p className="text-slate-700 leading-relaxed">
-                  Sebagai Checker yang ditugaskan, silakan periksa ringkasan analisis, validitas klausul SOP yang dikutip, dan kelengkapan bukti pendukung pada tab Analisis AI sebelum memberikan keputusan.
+                  As an assigned Checker, please inspect the analysis summary, cited SOP clause validity, and supporting evidence in the AI Analysis tab before recording your decision.
                 </p>
                 <div className="flex flex-wrap items-center gap-3 pt-1">
                   <Button
@@ -231,7 +231,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
                     className="gap-1.5"
                   >
                     <CheckCircle2 className="h-4 w-4" />
-                    <span>Setujui Hasil Analisis (Approve)</span>
+                    <span>Approve Analysis (Approve)</span>
                   </Button>
 
                   <Button
@@ -244,7 +244,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
                     className="gap-1.5"
                   >
                     <XCircle className="h-4 w-4" />
-                    <span>Tolak Hasil Analisis (Reject)</span>
+                    <span>Reject Analysis (Reject)</span>
                   </Button>
                 </div>
               </div>
@@ -258,7 +258,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
         <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-3 text-xs text-slate-700">
           <Info className="h-4 w-4 text-slate-500 shrink-0" />
           <p>
-            Kasus saat ini berada pada tahap <strong>CHECKING</strong>. Hanya pengguna yang terdaftar sebagai <strong>Checker</strong> pada kasus ini yang dapat mengirimkan persetujuan atau penolakan.
+            The case is currently in <strong>CHECKING</strong> status. Only users assigned as <strong>Checkers</strong> on this case may submit approvals or rejections.
           </p>
         </div>
       )}
@@ -268,9 +268,9 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
         <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-3 text-xs text-emerald-900">
           <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
           <div>
-            <p className="font-bold text-sm">Otorisasi Selesai</p>
+            <p className="font-bold text-sm">Authorization Completed</p>
             <p className="text-[11px] text-emerald-800 mt-0.5">
-              Kasus ini telah berhasil diotorisasi oleh Signer dan saat ini berada dalam tahap Eksekusi Operasional.
+              This case has been authorized by the Signer and is currently in the Operational Execution stage.
             </p>
           </div>
         </div>

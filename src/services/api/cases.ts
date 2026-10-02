@@ -83,7 +83,7 @@ export async function getCaseById(caseId: string): Promise<CaseDetail> {
     }
     const found = mockCases.find((c) => c.id === caseId || c.case_number === caseId);
     if (!found) {
-      throw new ApiError("CASE_NOT_FOUND", "Case tidak ditemukan", 404);
+      throw new ApiError("CASE_NOT_FOUND", "Case not found", 404);
     }
     return found as CaseDetail;
   }
@@ -150,7 +150,7 @@ export async function updateCase(
     }
     const index = mockCases.findIndex((c) => c.id === caseId);
     if (index === -1) {
-      throw new ApiError("CASE_NOT_FOUND", "Case tidak ditemukan", 404);
+      throw new ApiError("CASE_NOT_FOUND", "Case not found", 404);
     }
     mockCases[index] = {
       ...mockCases[index],
@@ -176,10 +176,10 @@ export async function assignParticipant(
     }
     const found = mockCases.find((c) => c.id === caseId || c.case_number === caseId);
     if (!found) {
-      throw new ApiError("CASE_NOT_FOUND", "Case tidak ditemukan", 404);
+      throw new ApiError("CASE_NOT_FOUND", "Case not found", 404);
     }
     if (found.status !== "DRAFT") {
-      throw new ApiError("INVALID_STATE_TRANSITION", "Participant hanya dapat ditambahkan saat DRAFT", 409);
+      throw new ApiError("INVALID_STATE_TRANSITION", "Participants can only be added while in DRAFT", 409);
     }
 
     const alreadyAssigned = found.participants.some(
@@ -191,7 +191,7 @@ export async function assignParticipant(
     if (alreadyAssigned) {
       throw new ApiError(
         "SEGREGATION_OF_DUTIES_VIOLATION",
-        "Segregation of Duties: Satu pengguna tidak boleh memiliki lebih dari satu active role dalam case yang sama.",
+        "Segregation of Duties: A single user cannot hold more than one active role in the same case.",
         403
       );
     }
@@ -202,7 +202,7 @@ export async function assignParticipant(
     ) {
       throw new ApiError(
         "INVALID_STATE_TRANSITION",
-        "Case hanya dapat memiliki tepat 1 Signer aktif.",
+        "A case can only have exactly 1 active Signer.",
         409
       );
     }
@@ -212,7 +212,7 @@ export async function assignParticipant(
     ) {
       throw new ApiError(
         "INVALID_STATE_TRANSITION",
-        "Case hanya dapat memiliki tepat 1 Executer aktif.",
+        "A case can only have exactly 1 active Executer.",
         409
       );
     }
@@ -245,10 +245,10 @@ export async function removeParticipant(
     }
     const found = mockCases.find((c) => c.id === caseId || c.case_number === caseId);
     if (!found) {
-      throw new ApiError("CASE_NOT_FOUND", "Case tidak ditemukan", 404);
+      throw new ApiError("CASE_NOT_FOUND", "Case not found", 404);
     }
     if (found.status !== "DRAFT") {
-      throw new ApiError("INVALID_STATE_TRANSITION", "Participant hanya dapat dihapus saat DRAFT", 409);
+      throw new ApiError("INVALID_STATE_TRANSITION", "Participants can only be removed while in DRAFT", 409);
     }
     const partIdx = found.participants.findIndex((p) => p.id === participantId);
     if (partIdx !== -1) {
@@ -267,7 +267,7 @@ export async function submitCase(caseId: string): Promise<CaseDetail> {
     }
     const index = mockCases.findIndex((c) => c.id === caseId || c.case_number === caseId);
     if (index === -1) {
-      throw new ApiError("CASE_NOT_FOUND", "Case tidak ditemukan", 404);
+      throw new ApiError("CASE_NOT_FOUND", "Case not found", 404);
     }
     mockCases[index].status = "AI_ANALYSIS";
     mockCases[index].updated_at = new Date().toISOString();
@@ -287,13 +287,13 @@ export async function closeCase(
     }
     const index = mockCases.findIndex((c) => c.id === caseId || c.case_number === caseId);
     if (index === -1) {
-      throw new ApiError("CASE_NOT_FOUND", "Case tidak ditemukan", 404);
+      throw new ApiError("CASE_NOT_FOUND", "Case not found", 404);
     }
     const current = mockCases[index];
     if (current.status === "DONE" || current.status === "CLOSED") {
       throw new ApiError(
         "INVALID_STATE_TRANSITION",
-        "Case yang sudah selesai atau ditutup tidak dapat ditutup kembali.",
+        "Completed or closed cases cannot be closed again.",
         409
       );
     }

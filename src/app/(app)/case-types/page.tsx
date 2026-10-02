@@ -50,7 +50,7 @@ export default function CaseTypesPage() {
     },
     onError: (err: unknown) => {
       const msg =
-        err instanceof Error ? err.message : "Gagal membuat case type.";
+        err instanceof Error ? err.message : "Failed to create case type.";
       setFormError(msg);
     },
   });
@@ -70,7 +70,7 @@ export default function CaseTypesPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!code.trim() || !name.trim()) {
-      setFormError("Kode dan nama case type wajib diisi.");
+      setFormError("Case type code and name are required.");
       return;
     }
     createMutation.mutate({
@@ -83,31 +83,31 @@ export default function CaseTypesPage() {
   return (
     <ContentContainer>
       <PageHeader
-        title="Manajemen Case Types"
-        description="Definisi jenis case dan template proses workflow tata kelola Sentinel."
+        title="Case Type Management"
+        description="Case type definitions and workflow process templates for Sentinel governance."
         action={
           isAdmin && (
             <Button variant="primary" onClick={handleOpenDialog}>
               <Plus className="h-4 w-4 mr-1.5" aria-hidden="true" />
-              Tambah Case Type
+              Add Case Type
             </Button>
           )
         }
       />
 
       {isLoading ? (
-        <LoadingState label="Memuat case types..." />
+        <LoadingState label="Loading case types..." />
       ) : isError ? (
         <ErrorState onRetry={() => refetch()} />
       ) : !caseTypes || caseTypes.length === 0 ? (
         <EmptyState
           icon={<FileSpreadsheet className="h-8 w-8 text-slate-400" />}
-          title="Belum Ada Case Type"
-          description="Belum ada tipe case yang terdaftar di sistem."
+          title="No Case Types Found"
+          description="No case types have been registered in the system yet."
           action={
             isAdmin && (
               <Button variant="primary" onClick={handleOpenDialog}>
-                Tambah Case Type Pertama
+                Add First Case Type
               </Button>
             )
           }
@@ -116,9 +116,9 @@ export default function CaseTypesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-56">Kode Tipe</TableHead>
-              <TableHead className="w-64">Nama Tipe</TableHead>
-              <TableHead>Deskripsi</TableHead>
+              <TableHead className="w-56">Type Code</TableHead>
+              <TableHead className="w-64">Type Name</TableHead>
+              <TableHead>Description</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -143,8 +143,8 @@ export default function CaseTypesPage() {
       <Dialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        title="Tambah Case Type Baru"
-        description="Daftarkan tipe case baru yang dapat dipilih saat membuat case."
+        title="Add New Case Type"
+        description="Register a new case type that can be selected when creating cases."
         footer={
           <>
             <Button
@@ -152,30 +152,30 @@ export default function CaseTypesPage() {
               onClick={() => setIsDialogOpen(false)}
               disabled={createMutation.isPending}
             >
-              Batal
+              Cancel
             </Button>
             <Button
               variant="primary"
               onClick={handleSubmit}
               isLoading={createMutation.isPending}
             >
-              Simpan Case Type
+              Save Case Type
             </Button>
           </>
         }
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           {formError && (
-            <Alert variant="destructive" title="Gagal Menyimpan">
+            <Alert variant="destructive" title="Save Failed">
               {formError}
             </Alert>
           )}
 
           <FormField
-            label="Kode Case Type"
+            label="Case Type Code"
             id="ct-code"
             required
-            hint="Contoh: SETTLEMENT_EXCEPTION, CREDIT_OVERRIDE"
+            hint="Example: SETTLEMENT_EXCEPTION, CREDIT_OVERRIDE"
           >
             <Input
               id="ct-code"
@@ -186,7 +186,7 @@ export default function CaseTypesPage() {
             />
           </FormField>
 
-          <FormField label="Nama Tipe" id="ct-name" required>
+          <FormField label="Type Name" id="ct-name" required>
             <Input
               id="ct-name"
               placeholder="Settlement Exception"
@@ -196,10 +196,10 @@ export default function CaseTypesPage() {
             />
           </FormField>
 
-          <FormField label="Deskripsi (Opsional)" id="ct-desc">
+          <FormField label="Description (Optional)" id="ct-desc">
             <Textarea
               id="ct-desc"
-              placeholder="Keterangan alur dan skenario penggunaan..."
+              placeholder="Description of workflow and usage scenarios..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={createMutation.isPending}

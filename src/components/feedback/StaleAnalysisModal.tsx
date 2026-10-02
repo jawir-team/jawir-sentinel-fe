@@ -38,8 +38,8 @@ export function StaleAnalysisModal({
     <Dialog
       isOpen={isOpen}
       onClose={handleRefreshAndClose}
-      title="Konflik Versi Analisis (STALE_ANALYSIS)"
-      description="Hasil analisis atau konteks alur kerja kasus telah berubah sebelum keputusan Anda diproses."
+      title="Analysis Version Conflict (STALE_ANALYSIS)"
+      description="The analysis results or case workflow context changed before your decision could be processed."
       footer={
         <Button
           type="button"
@@ -49,7 +49,7 @@ export function StaleAnalysisModal({
           className="gap-1.5"
         >
           <RefreshCw className="h-4 w-4" />
-          <span>Muat Ulang & Tinjau Analisis Terkini</span>
+          <span>Reload & Review Latest Analysis</span>
         </Button>
       }
     >
@@ -58,22 +58,22 @@ export function StaleAnalysisModal({
           <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <p className="font-bold text-sm">
-              Keputusan Anda Tidak Diterapkan
+              Your Decision Was Not Applied
             </p>
             <p className="text-[11px] leading-relaxed text-amber-900">
-              Sistem backend menolak aksi review/otorisasi Anda (kode: <code>409 STALE_ANALYSIS</code>) karena versi analisis yang Anda lihat telah digantikan oleh analisis baru atau status kasus telah mengalami transisi.
+              The backend rejected your review/authorization action (code: <code>409 STALE_ANALYSIS</code>) because the analysis version you were viewing was superseded by a newer version or the case status transitioned.
             </p>
           </div>
         </div>
 
         <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2 text-slate-700">
           <span className="font-semibold text-slate-900 block">
-            Prinsip Tata Kelola Integritas (Governance Safety):
+            Governance Safety Principles:
           </span>
           <ul className="list-disc pl-5 space-y-1 text-[11px]">
-            <li>Sistem <strong>tidak akan pernah</strong> mengulang atau menerapkan keputusan Anda secara otomatis ke versi analisis yang baru.</li>
-            <li>Seluruh data versi kasus dan catatan verifikasi terkini akan disinkronkan kembali ke antarmuka Anda.</li>
-            <li>Silakan periksa kembali klausul rekomendasi pada analisis terbaru sebelum memberikan persetujuan atau arahan baru.</li>
+            <li>The system will <strong>never</strong> automatically re-apply or retry your decision on a newer analysis version.</li>
+            <li>All case versions and authoritative verification records will be resynchronized to your interface.</li>
+            <li>Please re-evaluate the recommendation clauses on the latest analysis before submitting a new approval or directive.</li>
           </ul>
         </div>
       </div>

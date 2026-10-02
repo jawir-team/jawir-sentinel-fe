@@ -82,13 +82,13 @@ export default function CasesPage() {
   return (
     <ContentContainer>
       <PageHeader
-        title="Daftar Kasus (Cases)"
-        description="Pantau dan kelola seluruh case workflow dalam tata kelola Sentinel."
+        title="Cases"
+        description="Monitor and manage all case workflows under Sentinel governance."
         action={
           <Link href="/cases/new">
             <Button variant="primary">
               <Plus className="h-4 w-4 mr-1.5" aria-hidden="true" />
-              Buat Case Baru
+              Create New Case
             </Button>
           </Link>
         }
@@ -98,7 +98,7 @@ export default function CasesPage() {
       <div className="mb-6 flex flex-wrap items-center gap-4 bg-white p-4 rounded-xl border border-slate-200">
         <div className="w-40">
           <label htmlFor="filter-status" className="block text-xs font-semibold text-slate-500 mb-1">
-            Status Workflow
+            Workflow Status
           </label>
           <Select
             id="filter-status"
@@ -108,7 +108,7 @@ export default function CasesPage() {
               setPage(1);
             }}
           >
-            <option value="">Semua Status</option>
+            <option value="">All Statuses</option>
             <option value="DRAFT">DRAFT</option>
             <option value="AI_ANALYSIS">AI_ANALYSIS</option>
             <option value="CHECKING">CHECKING</option>
@@ -122,7 +122,7 @@ export default function CasesPage() {
 
         <div className="w-36">
           <label htmlFor="filter-urgency" className="block text-xs font-semibold text-slate-500 mb-1">
-            Urgensi
+            Urgency
           </label>
           <Select
             id="filter-urgency"
@@ -132,7 +132,7 @@ export default function CasesPage() {
               setPage(1);
             }}
           >
-            <option value="">Semua Urgensi</option>
+            <option value="">All Urgencies</option>
             <option value="LOW">LOW</option>
             <option value="MEDIUM">MEDIUM</option>
             <option value="HIGH">HIGH</option>
@@ -142,7 +142,7 @@ export default function CasesPage() {
 
         <div className="w-48">
           <label htmlFor="filter-casetype" className="block text-xs font-semibold text-slate-500 mb-1">
-            Tipe Kasus
+            Case Type
           </label>
           <Select
             id="filter-casetype"
@@ -152,7 +152,7 @@ export default function CasesPage() {
               setPage(1);
             }}
           >
-            <option value="">Semua Tipe</option>
+            <option value="">All Types</option>
             {caseTypes?.map((ct) => (
               <option key={ct.id} value={ct.id}>
                 {ct.name}
@@ -172,7 +172,7 @@ export default function CasesPage() {
               }}
               className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
             />
-            Ditugaskan ke Saya
+            Assigned to Me
           </label>
         </div>
 
@@ -184,24 +184,24 @@ export default function CasesPage() {
               onClick={resetFilters}
               className="text-xs text-slate-500 hover:text-slate-800"
             >
-              Reset Filter
+              Reset Filters
             </Button>
           </div>
         )}
       </div>
 
       {isLoading ? (
-        <LoadingState label="Memuat daftar case..." />
+        <LoadingState label="Loading cases..." />
       ) : isError ? (
         <ErrorState onRetry={() => refetch()} />
       ) : cases.length === 0 ? (
         <EmptyState
           icon={<Briefcase className="h-8 w-8 text-slate-400" />}
-          title="Tidak Ada Case Ditemukan"
-          description="Tidak ada case yang cocok dengan filter atau belum ada case yang dibuat."
+          title="No Cases Found"
+          description="No cases match your filters or no cases have been created yet."
           action={
             <Link href="/cases/new">
-              <Button variant="primary">Buat Case Pertama</Button>
+              <Button variant="primary">Create First Case</Button>
             </Link>
           }
         />
@@ -210,12 +210,12 @@ export default function CasesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-40">Nomor Case</TableHead>
-                <TableHead>Judul</TableHead>
-                <TableHead className="w-44">Tipe Case</TableHead>
-                <TableHead className="w-28">Urgensi</TableHead>
+                <TableHead className="w-40">Case Number</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead className="w-44">Case Type</TableHead>
+                <TableHead className="w-28">Urgency</TableHead>
                 <TableHead className="w-36">Status</TableHead>
-                <TableHead className="w-36">Waktu Dibuat</TableHead>
+                <TableHead className="w-36">Created At</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -231,7 +231,7 @@ export default function CasesPage() {
                     }
                   }}
                   role="button"
-                  aria-label={`Buka detail case ${c.case_number}: ${c.title}`}
+                  aria-label={`Open details for case ${c.case_number}: ${c.title}`}
                 >
                   <TableCell className="font-mono font-semibold text-blue-600">
                     {c.case_number}
@@ -249,7 +249,7 @@ export default function CasesPage() {
                     <CaseStatusBadge status={c.status} />
                   </TableCell>
                   <TableCell className="text-xs text-slate-500 font-mono">
-                    {new Date(c.created_at).toLocaleString("id-ID", {
+                    {new Date(c.created_at).toLocaleString("en-US", {
                       dateStyle: "short",
                       timeStyle: "short",
                     })}
@@ -262,7 +262,7 @@ export default function CasesPage() {
           {/* Pagination */}
           <div className="flex items-center justify-between px-2 text-sm text-slate-600">
             <div>
-              Menampilkan {cases.length} dari {total} total kasus
+              Showing {cases.length} of {total} total cases
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -270,22 +270,22 @@ export default function CasesPage() {
                 size="sm"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                aria-label="Halaman sebelumnya"
+                aria-label="Previous page"
               >
                 <ChevronLeft className="h-4 w-4 mr-1" aria-hidden="true" />
-                Sebelumnya
+                Previous
               </Button>
               <span className="text-xs font-medium px-2">
-                Halaman {page} dari {totalPages}
+                Page {page} of {totalPages}
               </span>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                aria-label="Halaman berikutnya"
+                aria-label="Next page"
               >
-                Berikutnya
+                Next
                 <ChevronRight className="h-4 w-4 ml-1" aria-hidden="true" />
               </Button>
             </div>

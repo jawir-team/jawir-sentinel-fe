@@ -28,7 +28,7 @@ const initialPolicies: PolicyDetail[] = [
         version: "1.0",
         status: "ACTIVE",
         index_status: "READY",
-        content: "Prosedur Penanganan Selisih Rekonsiliasi:\n1. Transaksi dengan selisih wajib diverifikasi dalam 90 menit.\n2. Jika bukti otorisasi belum lengkap, transaksi terdampak wajib di-hold.\n3. Checker dari Unit Risiko dan Unit TI wajib menyetujui sebelum eksekusi.",
+        content: "Reconciliation Discrepancy Handling Procedure:\n1. Transactions with discrepancies must be verified within 90 minutes.\n2. If authorization evidence is incomplete, affected transactions must be placed on hold.\n3. Checkers from Risk Unit and IT Unit must approve before execution.",
         effective_from: "2026-01-01T00:00:00Z",
         effective_until: null,
         created_at: "2026-01-01T00:00:00Z",
@@ -42,7 +42,7 @@ const initialPolicies: PolicyDetail[] = [
         version: "2.0-DRAFT",
         status: "DRAFT",
         index_status: "NOT_STARTED",
-        content: "Pembaruan SOP 2.0: Batas waktu verifikasi diperpanjang menjadi 120 menit dengan SLA eskalasi otomatis.",
+        content: "SOP 2.0 Update: Verification window extended to 120 minutes with automated escalation SLA.",
         effective_from: "2026-01-01T00:00:00Z",
         effective_until: null,
         created_at: "2026-10-01T08:00:00Z",
@@ -68,7 +68,7 @@ const initialPolicies: PolicyDetail[] = [
         version: "1.0",
         status: "ACTIVE",
         index_status: "READY",
-        content: "Kebijakan Pelampauan Batas Kredit Intraday:\n1. Membutuhkan persetujuan Signer setingkat Manager.\n2. Nilai pelampauan maksimal 20% dari buffer likuiditas harian.",
+        content: "Intraday Credit Limit Override Policy:\n1. Requires Signer approval at the Manager level.\n2. Maximum override value is 20% of daily liquidity buffer.",
         effective_from: "2026-01-01T00:00:00Z",
         effective_until: null,
         created_at: "2026-01-01T00:00:00Z",
@@ -152,7 +152,7 @@ export async function getPolicyById(policyId: string): Promise<PolicyDetail> {
     }
     const found = mockPolicies.find((p) => p.id === policyId || p.code === policyId);
     if (!found) {
-      throw new ApiError("POLICY_NOT_FOUND", "Kebijakan tidak ditemukan", 404);
+      throw new ApiError("POLICY_NOT_FOUND", "Policy not found", 404);
     }
     const active = found.versions.find((v) => v.status === "ACTIVE") || null;
     return { ...found, active_version: active };
@@ -201,14 +201,14 @@ export async function createPolicyVersion(
     }
     const policy = mockPolicies.find((p) => p.id === policyId);
     if (!policy) {
-      throw new ApiError("POLICY_NOT_FOUND", "Policy tidak ditemukan", 404);
+      throw new ApiError("POLICY_NOT_FOUND", "Policy not found", 404);
     }
 
     if (payload.effective_from && payload.effective_until) {
       if (new Date(payload.effective_until) <= new Date(payload.effective_from)) {
         throw new ApiError(
           "INVALID_REQUEST",
-          "effective_until harus setelah effective_from",
+          "effective_until must be after effective_from",
           400
         );
       }
@@ -246,11 +246,11 @@ export async function activatePolicyVersion(
     }
     const policy = mockPolicies.find((p) => p.id === policyId);
     if (!policy) {
-      throw new ApiError("POLICY_NOT_FOUND", "Policy tidak ditemukan", 404);
+      throw new ApiError("POLICY_NOT_FOUND", "Policy not found", 404);
     }
     const target = policy.versions.find((v) => v.id === versionId);
     if (!target) {
-      throw new ApiError("VERSION_NOT_FOUND", "Versi policy tidak ditemukan", 404);
+      throw new ApiError("VERSION_NOT_FOUND", "Policy version not found", 404);
     }
 
     // Effective time guard
@@ -258,14 +258,14 @@ export async function activatePolicyVersion(
     if (target.effective_from && new Date(target.effective_from) > now) {
       throw new ApiError(
         "INVALID_STATE_TRANSITION",
-        "Versi policy belum mencapai tanggal efektif (future-effective).",
+        "Policy version has not reached its effective date (future-effective).",
         409
       );
     }
     if (target.effective_until && new Date(target.effective_until) <= now) {
       throw new ApiError(
         "INVALID_STATE_TRANSITION",
-        "Versi policy sudah kadaluarsa (expired).",
+        "Policy version has expired.",
         409
       );
     }
@@ -300,11 +300,11 @@ export async function recoverPolicyIndexing(
     }
     const policy = mockPolicies.find((p) => p.id === policyId);
     if (!policy) {
-      throw new ApiError("POLICY_NOT_FOUND", "Policy tidak ditemukan", 404);
+      throw new ApiError("POLICY_NOT_FOUND", "Policy not found", 404);
     }
     const target = policy.versions.find((v) => v.id === versionId);
     if (!target) {
-      throw new ApiError("VERSION_NOT_FOUND", "Versi policy tidak ditemukan", 404);
+      throw new ApiError("VERSION_NOT_FOUND", "Policy version not found", 404);
     }
 
     target.index_status = "READY";

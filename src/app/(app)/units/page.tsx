@@ -49,7 +49,7 @@ export default function UnitsPage() {
       resetForm();
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : "Gagal membuat unit.";
+      const msg = err instanceof Error ? err.message : "Failed to create business unit.";
       setFormError(msg);
     },
   });
@@ -69,7 +69,7 @@ export default function UnitsPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!code.trim() || !name.trim()) {
-      setFormError("Kode dan nama unit wajib diisi.");
+      setFormError("Unit code and name are required.");
       return;
     }
     createMutation.mutate({
@@ -82,31 +82,31 @@ export default function UnitsPage() {
   return (
     <ContentContainer>
       <PageHeader
-        title="Manajemen Unit Kerja"
-        description="Daftar unit organisasi Sentinel yang digunakan untuk penugasan partisipan dan tata kelola."
+        title="Business Unit Management"
+        description="Sentinel organizational business units used for participant assignments and governance."
         action={
           isAdmin && (
             <Button variant="primary" onClick={handleOpenDialog}>
               <Plus className="h-4 w-4 mr-1.5" aria-hidden="true" />
-              Tambah Unit
+              Add Unit
             </Button>
           )
         }
       />
 
       {isLoading ? (
-        <LoadingState label="Memuat data unit..." />
+        <LoadingState label="Loading business units..." />
       ) : isError ? (
         <ErrorState onRetry={() => refetch()} />
       ) : !units || units.length === 0 ? (
         <EmptyState
           icon={<Building2 className="h-8 w-8 text-slate-400" />}
-          title="Belum Ada Unit"
-          description="Belum ada unit kerja yang terdaftar di sistem."
+          title="No Business Units"
+          description="No business units have been registered in the system yet."
           action={
             isAdmin && (
               <Button variant="primary" onClick={handleOpenDialog}>
-                Tambah Unit Pertama
+                Add First Unit
               </Button>
             )
           }
@@ -115,9 +115,9 @@ export default function UnitsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-32">Kode</TableHead>
-              <TableHead className="w-64">Nama Unit</TableHead>
-              <TableHead>Deskripsi</TableHead>
+              <TableHead className="w-32">Code</TableHead>
+              <TableHead className="w-64">Unit Name</TableHead>
+              <TableHead>Description</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -142,8 +142,8 @@ export default function UnitsPage() {
       <Dialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        title="Tambah Unit Baru"
-        description="Daftarkan unit kerja baru ke dalam sistem."
+        title="Add New Unit"
+        description="Register a new business unit into the system."
         footer={
           <>
             <Button
@@ -151,26 +151,26 @@ export default function UnitsPage() {
               onClick={() => setIsDialogOpen(false)}
               disabled={createMutation.isPending}
             >
-              Batal
+              Cancel
             </Button>
             <Button
               variant="primary"
               onClick={handleSubmit}
               isLoading={createMutation.isPending}
             >
-              Simpan Unit
+              Save Unit
             </Button>
           </>
         }
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           {formError && (
-            <Alert variant="destructive" title="Gagal Menyimpan">
+            <Alert variant="destructive" title="Save Failed">
               {formError}
             </Alert>
           )}
 
-          <FormField label="Kode Unit" id="unit-code" required hint="Contoh: OPS, RISK, FIN">
+          <FormField label="Unit Code" id="unit-code" required hint="Example: OPS, RISK, FIN">
             <Input
               id="unit-code"
               placeholder="OPS"
@@ -181,7 +181,7 @@ export default function UnitsPage() {
             />
           </FormField>
 
-          <FormField label="Nama Unit" id="unit-name" required>
+          <FormField label="Unit Name" id="unit-name" required>
             <Input
               id="unit-name"
               placeholder="Operations"
@@ -191,10 +191,10 @@ export default function UnitsPage() {
             />
           </FormField>
 
-          <FormField label="Deskripsi (Opsional)" id="unit-desc">
+          <FormField label="Description (Optional)" id="unit-desc">
             <Textarea
               id="unit-desc"
-              placeholder="Penjelasan fungsi unit..."
+              placeholder="Description of business unit function..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={createMutation.isPending}

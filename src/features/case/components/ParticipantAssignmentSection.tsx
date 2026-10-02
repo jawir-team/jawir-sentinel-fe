@@ -67,7 +67,7 @@ export function ParticipantAssignmentSection({
       const msg =
         err instanceof Error
           ? err.message
-          : "Gagal menugaskan partisipan karena pelanggaran Segregation of Duties.";
+          : "Failed to assign participant due to Segregation of Duties violation.";
       setErrorMessage(msg);
     },
   });
@@ -82,7 +82,7 @@ export function ParticipantAssignmentSection({
     onError: (err: unknown) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.case(caseData.id) });
       const msg =
-        err instanceof Error ? err.message : "Gagal menghapus penugasan partisipan.";
+        err instanceof Error ? err.message : "Failed to remove participant assignment.";
       setErrorMessage(msg);
     },
   });
@@ -112,25 +112,25 @@ export function ParticipantAssignmentSection({
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-blue-600" aria-hidden="true" />
             <CardTitle className="text-base font-semibold">
-              Penugasan Partisipan Alur Kerja (Workflow Roles)
+              Workflow Participant Assignments (Workflow Roles)
             </CardTitle>
           </div>
           {!isDraft && (
             <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium bg-slate-100 px-2.5 py-1 rounded">
               <Lock className="h-3.5 w-3.5" aria-hidden="true" />
-              Terkunci (Read-Only)
+              Locked (Read-Only)
             </div>
           )}
         </div>
         <CardDescription>
-          Segregation of Duties: Setiap peran diisi oleh pengguna berbeda. Minimal 1
-          Checker, tepat 1 Signer, dan tepat 1 Executer.
+          Segregation of Duties: Each role must be fulfilled by distinct individuals. Minimal 1
+          Checker, exactly 1 Signer, and exactly 1 Executer.
         </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6 pt-3">
         {errorMessage && (
-          <Alert variant="destructive" title="Pelanggaran Aturan Penugasan">
+          <Alert variant="destructive" title="Assignment Policy Violation">
             <div className="flex items-center gap-2 mt-1">
               <ShieldAlert className="h-4 w-4 shrink-0 text-red-600" />
               <span>{errorMessage}</span>
@@ -144,14 +144,14 @@ export function ParticipantAssignmentSection({
             <div className="flex items-center gap-2">
               <Badge variant="default">MAKER</Badge>
               <span className="text-sm font-semibold text-slate-900">
-                Inisiator Kasus (Tepat 1)
+                Case Initiator (Exactly 1)
               </span>
             </div>
             <span className="text-xs text-slate-400 font-mono">Immutable</span>
           </div>
           <div className="flex items-center justify-between text-sm text-slate-700 bg-white p-2.5 rounded border border-slate-200">
             <span className="font-medium">{caseData.maker?.name}</span>
-            <span className="text-xs text-slate-500">(Pembuat & Pemilik Kasus)</span>
+            <span className="text-xs text-slate-500">(Case Creator & Owner)</span>
           </div>
         </div>
 
@@ -161,17 +161,17 @@ export function ParticipantAssignmentSection({
             <div className="flex items-center gap-2">
               <Badge variant="warning">CHECKER</Badge>
               <span className="text-sm font-semibold text-slate-900">
-                Verifikator Teknis / Risiko (1 atau Lebih)
+                Technical / Risk Verifiers (1 or More)
               </span>
             </div>
             <span className="text-xs text-slate-500">
-              {currentCheckers.length} Ditugaskan
+              {currentCheckers.length} Assigned
             </span>
           </div>
 
           {currentCheckers.length === 0 ? (
             <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
-              ⚠️ Minimal 1 Checker wajib ditugaskan sebelum case dapat diajukan.
+              ⚠️ At least 1 Checker must be assigned before the case can be submitted.
             </p>
           ) : (
             <div className="space-y-2">
@@ -191,7 +191,7 @@ export function ParticipantAssignmentSection({
                       onClick={() => removeMutation.mutate(c.id)}
                       disabled={removeMutation.isPending}
                       className="text-slate-400 hover:text-red-600 h-7 w-7 p-0"
-                      aria-label={`Hapus checker ${c.name}`}
+                      aria-label={`Remove checker ${c.name}`}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
@@ -208,9 +208,9 @@ export function ParticipantAssignmentSection({
                 onChange={(e) => setSelectedCheckerId(e.target.value)}
                 disabled={assignMutation.isPending || availableUsers.length === 0}
                 className="flex-1"
-                aria-label="Pilih Checker tambahan"
+                aria-label="Select additional Checker"
               >
-                <option value="">-- Pilih Pengguna untuk Checker --</option>
+                <option value="">-- Select User for Checker --</option>
                 {availableUsers.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.name} ({u.unit?.code} - {u.email})
@@ -224,7 +224,7 @@ export function ParticipantAssignmentSection({
                 disabled={!selectedCheckerId || assignMutation.isPending}
               >
                 <Plus className="h-4 w-4 mr-1" />
-                Tambah Checker
+                Add Checker
               </Button>
             </div>
           )}
@@ -236,11 +236,11 @@ export function ParticipantAssignmentSection({
             <div className="flex items-center gap-2">
               <Badge variant="success">SIGNER</Badge>
               <span className="text-sm font-semibold text-slate-900">
-                Otorisator / Penandatangan (Tepat 1)
+                Authorizer / Signatory (Exactly 1)
               </span>
             </div>
             <span className="text-xs text-slate-500">
-              {currentSigner ? "1 Ditugaskan" : "Belum Ada"}
+              {currentSigner ? "1 Assigned" : "Unassigned"}
             </span>
           </div>
 
@@ -257,7 +257,7 @@ export function ParticipantAssignmentSection({
                   onClick={() => removeMutation.mutate(currentSigner.id)}
                   disabled={removeMutation.isPending}
                   className="text-slate-400 hover:text-red-600 h-7 w-7 p-0"
-                  aria-label="Ganti signer"
+                  aria-label="Remove signer"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
@@ -265,7 +265,7 @@ export function ParticipantAssignmentSection({
             </div>
           ) : (
             <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
-              ⚠️ Tepat 1 Signer wajib ditugaskan sebelum case dapat diajukan.
+              ⚠️ Exactly 1 Signer must be assigned before the case can be submitted.
             </p>
           )}
 
@@ -276,9 +276,9 @@ export function ParticipantAssignmentSection({
                 onChange={(e) => setSelectedSignerId(e.target.value)}
                 disabled={assignMutation.isPending || availableUsers.length === 0}
                 className="flex-1"
-                aria-label="Pilih Signer"
+                aria-label="Select Signer"
               >
-                <option value="">-- Pilih Pengguna untuk Signer --</option>
+                <option value="">-- Select User for Signer --</option>
                 {availableUsers.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.name} ({u.unit?.code} - {u.email})
@@ -292,7 +292,7 @@ export function ParticipantAssignmentSection({
                 disabled={!selectedSignerId || assignMutation.isPending}
               >
                 <Plus className="h-4 w-4 mr-1" />
-                Tugaskan Signer
+                Assign Signer
               </Button>
             </div>
           )}
@@ -304,11 +304,11 @@ export function ParticipantAssignmentSection({
             <div className="flex items-center gap-2">
               <Badge variant="secondary">EXECUTER</Badge>
               <span className="text-sm font-semibold text-slate-900">
-                Pelaksana Eksekusi (Tepat 1)
+                Operational Executer (Exactly 1)
               </span>
             </div>
             <span className="text-xs text-slate-500">
-              {currentExecuter ? "1 Ditugaskan" : "Belum Ada"}
+              {currentExecuter ? "1 Assigned" : "Unassigned"}
             </span>
           </div>
 
@@ -325,7 +325,7 @@ export function ParticipantAssignmentSection({
                   onClick={() => removeMutation.mutate(currentExecuter.id)}
                   disabled={removeMutation.isPending}
                   className="text-slate-400 hover:text-red-600 h-7 w-7 p-0"
-                  aria-label="Ganti executer"
+                  aria-label="Remove executer"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
@@ -333,7 +333,7 @@ export function ParticipantAssignmentSection({
             </div>
           ) : (
             <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
-              ⚠️ Tepat 1 Executer wajib ditugaskan sebelum case dapat diajukan.
+              ⚠️ Exactly 1 Executer must be assigned before the case can be submitted.
             </p>
           )}
 
@@ -344,9 +344,9 @@ export function ParticipantAssignmentSection({
                 onChange={(e) => setSelectedExecuterId(e.target.value)}
                 disabled={assignMutation.isPending || availableUsers.length === 0}
                 className="flex-1"
-                aria-label="Pilih Executer"
+                aria-label="Select Executer"
               >
-                <option value="">-- Pilih Pengguna untuk Executer --</option>
+                <option value="">-- Select User for Executer --</option>
                 {availableUsers.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.name} ({u.unit?.code} - {u.email})
@@ -360,7 +360,7 @@ export function ParticipantAssignmentSection({
                 disabled={!selectedExecuterId || assignMutation.isPending}
               >
                 <Plus className="h-4 w-4 mr-1" />
-                Tugaskan Executer
+                Assign Executer
               </Button>
             </div>
           )}

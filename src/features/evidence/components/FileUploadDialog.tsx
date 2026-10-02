@@ -51,7 +51,7 @@ export function FileUploadDialog({
 
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
       setErrorMessage(
-        "Tipe berkas tidak didukung. Format yang diizinkan untuk analisis Gemini: PDF, JPEG, dan PNG."
+        "Unsupported file type. Formats allowed for Gemini AI analysis: PDF, JPEG, and PNG."
       );
       setSelectedFile(null);
       e.target.value = "";
@@ -67,11 +67,11 @@ export function FileUploadDialog({
   const handleUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
-      setErrorMessage("Silakan pilih file bukti terlebih dahulu.");
+      setErrorMessage("Please select an evidence file first.");
       return;
     }
     if (!title.trim()) {
-      setErrorMessage("Judul dokumen bukti wajib diisi.");
+      setErrorMessage("Evidence document title is required.");
       return;
     }
 
@@ -106,7 +106,7 @@ export function FileUploadDialog({
       const msg =
         err instanceof Error
           ? err.message
-          : "Gagal mengunggah berkas bukti. Status alur kasus mungkin telah berubah (stale state).";
+          : "Failed to upload evidence file. Case workflow status may have changed (stale state).";
       setErrorMessage(msg);
     }
   };
@@ -116,13 +116,13 @@ export function FileUploadDialog({
   const getStepText = () => {
     switch (uploadStep) {
       case "requesting_url":
-        return "1/3 Meminta Signed URL dari Backend...";
+        return "1/3 Requesting Signed URL from Sentinel API...";
       case "uploading_gcs":
-        return "2/3 Mengunggah berkas langsung ke Google Cloud Storage...";
+        return "2/3 Uploading file directly to Google Cloud Storage...";
       case "registering":
-        return "3/3 Mendaftarkan bukti ke Sentinel API...";
+        return "3/3 Registering evidence with Sentinel API...";
       default:
-        return "Mengunggah...";
+        return "Uploading...";
     }
   };
 
@@ -130,8 +130,8 @@ export function FileUploadDialog({
     <Dialog
       isOpen={isOpen}
       onClose={isUploading ? () => {} : onClose}
-      title="Unggah Berkas Bukti (Direct-to-GCS)"
-      description="Unggah dokumen transaksi atau bukti persetujuan untuk diverifikasi oleh AI Sentinel."
+      title="Upload Evidence File (Direct-to-GCS)"
+      description="Upload transaction documents or approval records for Sentinel AI verification."
       footer={
         <>
           <Button
@@ -139,7 +139,7 @@ export function FileUploadDialog({
             onClick={onClose}
             disabled={isUploading}
           >
-            Batal
+            Cancel
           </Button>
           <Button
             variant="primary"
@@ -148,14 +148,14 @@ export function FileUploadDialog({
             disabled={!selectedFile || !title.trim()}
           >
             <Upload className="h-4 w-4 mr-1.5" />
-            {isUploading ? "Memproses..." : "Mulai Unggah"}
+            {isUploading ? "Processing..." : "Start Upload"}
           </Button>
         </>
       }
     >
       <form onSubmit={handleUploadSubmit} className="space-y-4">
         {errorMessage && (
-          <Alert variant="destructive" title="Kesalahan Unggah">
+          <Alert variant="destructive" title="Upload Error">
             <div className="flex items-center gap-2 mt-1">
               <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
               <span>{errorMessage}</span>
@@ -166,18 +166,18 @@ export function FileUploadDialog({
         <div className="rounded-lg bg-blue-50/50 p-3 border border-blue-100 text-xs text-blue-900 space-y-1">
           <div className="flex items-center gap-1.5 font-semibold">
             <ShieldCheck className="h-4 w-4 text-blue-600" />
-            <span>Format yang Didukung AI Gemini</span>
+            <span>Supported Formats for Gemini AI</span>
           </div>
           <p className="text-[11px] text-blue-800">
-            Hanya berkas berformat <strong>PDF, JPEG, atau PNG</strong> yang dapat
-            dianalisis langsung oleh model Vertex AI Gemini.
+            Only files in <strong>PDF, JPEG, or PNG</strong> format can be
+            ingested and analyzed directly by Vertex AI Gemini.
           </p>
         </div>
 
-        <FormField label="Judul Dokumen Bukti" id="upload-title" required>
+        <FormField label="Evidence Document Title" id="upload-title" required>
           <Input
             id="upload-title"
-            placeholder="Contoh: Log Rekonsiliasi Cutoff"
+            placeholder="Example: Cutoff Reconciliation Log"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             disabled={isUploading}
@@ -185,10 +185,10 @@ export function FileUploadDialog({
         </FormField>
 
         <FormField
-          label="Pilih Berkas (PDF, JPG, PNG)"
+          label="Select File (PDF, JPG, PNG)"
           id="upload-file"
           required
-          hint="Maksimal ukuran berkas 25MB"
+          hint="Maximum file size: 25MB"
         >
           <Input
             id="upload-file"

@@ -77,7 +77,7 @@ export async function updateUser(
 
     const index = mockUsers.findIndex((u) => u.id === userId);
     if (index === -1) {
-      throw new ApiError("USER_NOT_FOUND", "Pengguna tidak ditemukan", 404);
+      throw new ApiError("USER_NOT_FOUND", "User not found", 404);
     }
 
     const current = mockUsers[index];
@@ -94,7 +94,7 @@ export async function updateUser(
       if (activeAdminCount <= 1) {
         throw new ApiError(
           "INVALID_STATE_TRANSITION",
-          "Tidak dapat menurunkan role atau menonaktifkan ACTIVE ADMIN terakhir di sistem.",
+          "Cannot demote role or deactivate the last ACTIVE ADMIN in the system.",
           409,
           { reason: "LAST_ACTIVE_ADMIN" }
         );
@@ -106,7 +106,7 @@ export async function updateUser(
       // Mock guard check for active cases
       throw new ApiError(
         "INVALID_STATE_TRANSITION",
-        "Pengguna masih menjadi partisipan aktif pada case yang sedang berjalan.",
+        "User is still an active participant in an in-flight case.",
         409,
         { reason: "IN_FLIGHT_CASE_PARTICIPANT" }
       );

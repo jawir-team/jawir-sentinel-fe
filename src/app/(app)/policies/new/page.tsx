@@ -5,8 +5,8 @@ export default function NewPolicyPage() {
   return (
     <ContentContainer>
       <PageHeader
-        title="Buat Policy Baru"
-        description="Daftarkan aturan kebijakan baru ke dalam database regulasi Sentinel."
+        title="Create New Policy"
+        description="Register a new policy rule in the Sentinel regulatory repository."
       />
     </ContentContainer>
   );

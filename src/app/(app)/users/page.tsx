@@ -80,7 +80,7 @@ export default function UsersPage() {
       resetCreateForm();
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : "Gagal membuat pengguna.";
+      const msg = err instanceof Error ? err.message : "Failed to create user.";
       setCreateError(msg);
     },
   });
@@ -109,7 +109,7 @@ export default function UsersPage() {
       const msg =
         err instanceof Error
           ? err.message
-          : "Gagal memperbarui pengguna karena pelanggaran validasi status.";
+          : "Failed to update user due to status validation violation.";
       setEditError(msg);
     },
   });
@@ -140,7 +140,7 @@ export default function UsersPage() {
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!createName.trim() || !createEmail.trim()) {
-      setCreateError("Nama dan email pengguna wajib diisi.");
+      setCreateError("User name and email are required.");
       return;
     }
     createMutation.mutate({
@@ -170,13 +170,13 @@ export default function UsersPage() {
   return (
     <ContentContainer>
       <PageHeader
-        title="Manajemen Pengguna"
-        description="Direktori pengguna internal dan konfigurasi peran sistem Sentinel."
+        title="User Management"
+        description="Internal user directory and Sentinel system role configurations."
         action={
           isAdmin && (
             <Button variant="primary" onClick={handleOpenCreate}>
               <Plus className="h-4 w-4 mr-1.5" aria-hidden="true" />
-              Tambah Pengguna
+              Add User
             </Button>
           )
         }
@@ -186,14 +186,14 @@ export default function UsersPage() {
       <div className="mb-6 flex flex-wrap items-center gap-4 bg-white p-4 rounded-xl border border-slate-200">
         <div className="w-48">
           <label htmlFor="filter-unit" className="block text-xs font-semibold text-slate-500 mb-1">
-            Unit Kerja
+            Business Unit
           </label>
           <Select
             id="filter-unit"
             value={filterUnit}
             onChange={(e) => setFilterUnit(e.target.value)}
           >
-            <option value="">Semua Unit</option>
+            <option value="">All Units</option>
             {units?.map((u) => (
               <option key={u.id} value={u.id}>
                 {u.name} ({u.code})
@@ -204,14 +204,14 @@ export default function UsersPage() {
 
         <div className="w-40">
           <label htmlFor="filter-status" className="block text-xs font-semibold text-slate-500 mb-1">
-            Status Akun
+            Account Status
           </label>
           <Select
             id="filter-status"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
           >
-            <option value="">Semua Status</option>
+            <option value="">All Statuses</option>
             <option value="ACTIVE">ACTIVE</option>
             <option value="INACTIVE">INACTIVE</option>
           </Select>
@@ -228,32 +228,32 @@ export default function UsersPage() {
               }}
               className="text-xs text-slate-500 hover:text-slate-800"
             >
-              Reset Filter
+              Reset Filters
             </Button>
           </div>
         )}
       </div>
 
       {isLoading ? (
-        <LoadingState label="Memuat direktori pengguna..." />
+        <LoadingState label="Loading user directory..." />
       ) : isError ? (
         <ErrorState onRetry={() => refetch()} />
       ) : !users || users.length === 0 ? (
         <EmptyState
           icon={<Users className="h-8 w-8 text-slate-400" />}
-          title="Tidak Ada Pengguna"
-          description="Tidak ada pengguna yang cocok dengan kriteria filter."
+          title="No Users Found"
+          description="No users match the selected filter criteria."
         />
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nama Pengguna</TableHead>
+              <TableHead>User Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Unit</TableHead>
               <TableHead>System Role</TableHead>
               <TableHead>Status</TableHead>
-              {isAdmin && <TableHead className="w-20 text-right">Aksi</TableHead>}
+              {isAdmin && <TableHead className="w-20 text-right">Action</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -290,10 +290,10 @@ export default function UsersPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleOpenEdit(u)}
-                      aria-label={`Ubah pengguna ${u.name}`}
+                      aria-label={`Edit user ${u.name}`}
                     >
                       <Edit3 className="h-3.5 w-3.5 mr-1 text-slate-600" aria-hidden="true" />
-                      Ubah
+                      Edit
                     </Button>
                   </TableCell>
                 )}
@@ -307,8 +307,8 @@ export default function UsersPage() {
       <Dialog
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
-        title="Tambah Pengguna Baru"
-        description="Daftarkan pengguna baru ke dalam Sentinel."
+        title="Add New User"
+        description="Register a new user into Sentinel."
         footer={
           <>
             <Button
@@ -316,26 +316,26 @@ export default function UsersPage() {
               onClick={() => setIsCreateOpen(false)}
               disabled={createMutation.isPending}
             >
-              Batal
+              Cancel
             </Button>
             <Button
               variant="primary"
               onClick={handleCreateSubmit}
               isLoading={createMutation.isPending}
             >
-              Simpan Pengguna
+              Save User
             </Button>
           </>
         }
       >
         <form onSubmit={handleCreateSubmit} className="space-y-4">
           {createError && (
-            <Alert variant="destructive" title="Gagal Menambahkan">
+            <Alert variant="destructive" title="Failed to Add User">
               {createError}
             </Alert>
           )}
 
-          <FormField label="Nama Lengkap" id="create-name" required>
+          <FormField label="Full Name" id="create-name" required>
             <Input
               id="create-name"
               placeholder="Risk Analyst 1"
@@ -356,7 +356,7 @@ export default function UsersPage() {
             />
           </FormField>
 
-          <FormField label="Unit Kerja" id="create-unit" required>
+          <FormField label="Business Unit" id="create-unit" required>
             <Select
               id="create-unit"
               value={createUnitId}
@@ -375,7 +375,7 @@ export default function UsersPage() {
             label="System Role"
             id="create-role"
             required
-            hint="System role menentukan akses menu administrasi, bukan workflow role."
+            hint="System role controls administrative menu access, distinct from workflow roles."
           >
             <Select
               id="create-role"
@@ -394,8 +394,8 @@ export default function UsersPage() {
       <Dialog
         isOpen={!!editingUser}
         onClose={() => setEditingUser(null)}
-        title={`Ubah Pengguna: ${editingUser?.name || ""}`}
-        description="Perbarui profil, unit kerja, peran sistem, atau status akun."
+        title={`Edit User: ${editingUser?.name || ""}`}
+        description="Update profile, business unit, system role, or account status."
         footer={
           <>
             <Button
@@ -403,14 +403,14 @@ export default function UsersPage() {
               onClick={() => setEditingUser(null)}
               disabled={updateMutation.isPending}
             >
-              Tutup
+              Close
             </Button>
             <Button
               variant="primary"
               onClick={handleEditSubmit}
               isLoading={updateMutation.isPending}
             >
-              Simpan Perubahan
+              Save Changes
             </Button>
           </>
         }
@@ -419,7 +419,7 @@ export default function UsersPage() {
           {editError && (
             <Alert
               variant="warning"
-              title="Perubahan Ditolak Oleh Aturan Keamanan (Guard)"
+              title="Update Rejected by Security Guard"
             >
               <div className="flex items-start gap-2 mt-1">
                 <ShieldAlert className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" aria-hidden="true" />
@@ -428,7 +428,7 @@ export default function UsersPage() {
             </Alert>
           )}
 
-          <FormField label="Nama Lengkap" id="edit-name" required>
+          <FormField label="Full Name" id="edit-name" required>
             <Input
               id="edit-name"
               value={editName}
@@ -437,7 +437,7 @@ export default function UsersPage() {
             />
           </FormField>
 
-          <FormField label="Unit Kerja" id="edit-unit" required>
+          <FormField label="Business Unit" id="edit-unit" required>
             <Select
               id="edit-unit"
               value={editUnitId}
@@ -456,7 +456,7 @@ export default function UsersPage() {
             label="System Role"
             id="edit-role"
             required
-            hint="Perhatian: Sistem harus selalu memiliki minimal satu ACTIVE ADMIN."
+            hint="Notice: The system must maintain at least one ACTIVE ADMIN at all times."
           >
             <Select
               id="edit-role"
@@ -470,10 +470,10 @@ export default function UsersPage() {
           </FormField>
 
           <FormField
-            label="Status Akun"
+            label="Account Status"
             id="edit-status"
             required
-            hint="Pengguna yang menjadi partisipan aktif pada case yang belum selesai tidak dapat dinonaktifkan."
+            hint="Users who are active participants in in-flight cases cannot be deactivated."
           >
             <Select
               id="edit-status"

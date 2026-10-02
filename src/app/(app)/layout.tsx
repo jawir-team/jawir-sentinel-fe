@@ -27,7 +27,7 @@ export default function AppLayout({
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <LoadingState label="Memuat profil pengguna..." />
+        <LoadingState label="Loading user profile..." />
       </div>
     );
   }
@@ -60,11 +60,11 @@ export default function AppLayout({
         size="sm"
         onClick={() => logout()}
         className="text-slate-600 hover:text-red-600 gap-1.5"
-        title="Keluar dari akun"
-        aria-label="Keluar dari akun"
+        title="Sign out"
+        aria-label="Sign out"
       >
         <LogOut className="h-4 w-4" aria-hidden="true" />
-        <span className="hidden md:inline">Keluar</span>
+        <span className="hidden md:inline">Sign Out</span>
       </Button>
     </div>
   );

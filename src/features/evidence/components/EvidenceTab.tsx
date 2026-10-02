@@ -99,7 +99,7 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
       setFormError(null);
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : "Gagal menambahkan bukti dokumen.";
+      const msg = err instanceof Error ? err.message : "Failed to add evidence record.";
       setFormError(msg);
     },
   });
@@ -107,7 +107,7 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
-      setFormError("Judul dan isi catatan bukti wajib diisi.");
+      setFormError("Evidence title and content are required.");
       return;
     }
     createMutation.mutate({ title: title.trim(), content: content.trim() });
@@ -135,10 +135,10 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold tracking-tight text-slate-900">
-            Daftar Bukti Dokumen & Konteks Kasus
+            Evidence & Case Context Documents
           </h2>
           <p className="text-xs text-slate-500">
-            Bukti pendukung yang dipertimbangkan oleh AI Sentinel dan verifikator manusia.
+            Supporting evidence considered by Sentinel AI and human verifiers.
           </p>
         </div>
 
@@ -149,38 +149,38 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
               onClick={() => setIsUploadOpen(true)}
             >
               <UploadCloud className="h-4 w-4 mr-1.5 text-blue-600" aria-hidden="true" />
-              Unggah Berkas (PDF/JPG/PNG)
+              Upload File (PDF/JPG/PNG)
             </Button>
             <Button variant="primary" onClick={() => setIsDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-1.5" aria-hidden="true" />
-              Tambah Catatan
+              Add Note
             </Button>
           </div>
         ) : (
           <div className="flex items-center gap-1.5 text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-md border border-slate-200">
             <Lock className="h-3.5 w-3.5" aria-hidden="true" />
-            Penambahan Bukti Dikunci ({caseData.status})
+            Evidence Ingestion Locked ({caseData.status})
           </div>
         )}
       </div>
 
       {isLoading ? (
-        <LoadingState label="Memuat bukti dokumen..." />
+        <LoadingState label="Loading evidence documents..." />
       ) : isError ? (
         <ErrorState onRetry={() => refetch()} />
       ) : !evidences || evidences.length === 0 ? (
         <EmptyState
           icon={<Paperclip className="h-8 w-8 text-slate-400" />}
-          title="Belum Ada Bukti Dokumen"
+          title="No Evidence Documents"
           description={
             canAddEvidence
-              ? "Tambahkan bukti transaksi, audit trail, atau catatan pendukung untuk memvalidasi kasus ini."
-              : "Belum ada dokumen bukti yang dilampirkan pada kasus ini."
+              ? "Add transaction evidence, audit trails, or supporting notes to validate this case."
+              : "No evidence documents have been attached to this case yet."
           }
           action={
             canAddEvidence && (
               <Button variant="primary" onClick={() => setIsDialogOpen(true)}>
-                Tambah Bukti Pertama
+                Add First Evidence
               </Button>
             )
           }
@@ -203,7 +203,7 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
                       {ev.title}
                     </CardTitle>
                     <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-400 font-mono">
-                      <span>Tipe: {ev.evidence_type}</span>
+                      <span>Type: {ev.evidence_type}</span>
                       {ev.mime_type && <span>• {ev.mime_type}</span>}
                     </div>
                   </div>
@@ -231,11 +231,11 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
                 <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-slate-400 text-[11px]">
                   <div className="flex items-center gap-1.5">
                     <User className="h-3 w-3" />
-                    <span>Oleh: {ev.source_user?.name || "System"}</span>
+                    <span>By: {ev.source_user?.name || "System"}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Calendar className="h-3 w-3" />
-                    <span>{new Date(ev.created_at).toLocaleString("id-ID")}</span>
+                    <span>{new Date(ev.created_at).toLocaleString("en-US")}</span>
                   </div>
                 </div>
               </CardContent>
@@ -248,8 +248,8 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
       <Dialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        title="Tambah Catatan Bukti Pendukung"
-        description="Sertakan konteks faktual tambahan untuk dipertimbangkan oleh verifikator."
+        title="Add Supporting Evidence Note"
+        description="Include additional factual context for consideration by verifiers."
         footer={
           <>
             <Button
@@ -257,21 +257,21 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
               onClick={() => setIsDialogOpen(false)}
               disabled={createMutation.isPending}
             >
-              Batal
+              Cancel
             </Button>
             <Button
               variant="primary"
               onClick={handleSubmit}
               isLoading={createMutation.isPending}
             >
-              Simpan Bukti
+              Save Evidence
             </Button>
           </>
         }
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           {formError && (
-            <Alert variant="destructive" title="Gagal Menyimpan">
+            <Alert variant="destructive" title="Save Failed">
               {formError}
             </Alert>
           )}
@@ -279,18 +279,17 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
           <div className="rounded-lg bg-blue-50/50 p-3 border border-blue-100 text-xs text-blue-800 space-y-1">
             <div className="flex items-center gap-1.5 font-semibold">
               <ShieldCheck className="h-4 w-4 text-blue-600" />
-              <span>Otorisasi Penambahan Bukti</span>
+              <span>Evidence Ingestion Authorization</span>
             </div>
             <p className="text-[11px] text-blue-700">
-              Peran pengunggah otomatis dipetakan dari penugasan aktif Anda dalam workflow
-              kasus ini.
+              Uploader role is automatically mapped from your active workflow assignment for this case.
             </p>
           </div>
 
-          <FormField label="Judul Bukti" id="ev-title" required>
+          <FormField label="Evidence Title" id="ev-title" required>
             <Input
               id="ev-title"
-              placeholder="Contoh: Log kegagalan clearing batch #402"
+              placeholder="Example: Clearing batch failure log #402"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={createMutation.isPending}
@@ -298,15 +297,15 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
           </FormField>
 
           <FormField
-            label="Isi Keterangan & Fakta Pendukung"
+            label="Notes & Factual Context"
             id="ev-content"
             required
-            hint="Sebutkan rincian nomor transaksi atau catatan komunikasi internal."
+            hint="Specify transaction reference numbers or internal communication records."
           >
             <Textarea
               id="ev-content"
               rows={5}
-              placeholder="Tuliskan data faktual..."
+              placeholder="Provide factual details..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               disabled={createMutation.isPending}

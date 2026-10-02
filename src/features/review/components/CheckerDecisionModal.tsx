@@ -75,7 +75,7 @@ export function CheckerDecisionModal({
       }
       const msg =
         err?.message ||
-        "Gagal mengirimkan keputusan Checker. Silakan coba kembali.";
+        "Failed to submit Checker decision. Please try again.";
       setErrorMessage(msg);
     },
   });
@@ -83,7 +83,7 @@ export function CheckerDecisionModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isReject && !reason.trim()) {
-      setErrorMessage("Alasan penolakan (reason) wajib diisi untuk mendokumentasikan temuan audit.");
+      setErrorMessage("A rejection reason is required to document audit findings.");
       return;
     }
     setErrorMessage(null);
@@ -96,13 +96,13 @@ export function CheckerDecisionModal({
       onClose={onClose}
       title={
         isReject
-          ? "Tolak Hasil Analisis AI (Checker Reject)"
-          : "Setujui Hasil Analisis AI (Checker Approve)"
+          ? "Reject AI Analysis (Checker Reject)"
+          : "Approve AI Analysis (Checker Approve)"
       }
       description={
         isReject
-          ? "Penolakan akan mengakhiri putaran verifikasi ini dan memicu re-analisis otomatis (atau eskalasi jika batas kuota tercapai)."
-          : "Konfirmasi bahwa hasil analisis inferensi AI dan rujukan bukti dapat diterima untuk dilanjutkan ke otorisasi Signer."
+          ? "Rejection will conclude this verification round and trigger automated re-analysis (or escalation if attempt limit is reached)."
+          : "Confirm that the AI inference analysis and evidence citations are acceptable to advance to Signer authorization."
       }
       footer={
         <div className="flex justify-end gap-3 w-full">
@@ -113,7 +113,7 @@ export function CheckerDecisionModal({
             onClick={onClose}
             disabled={decisionMutation.isPending}
           >
-            Batal
+            Cancel
           </Button>
           <Button
             type="button"
@@ -122,21 +122,21 @@ export function CheckerDecisionModal({
             onClick={handleSubmit}
             isLoading={decisionMutation.isPending}
           >
-            {isReject ? "Konfirmasi Penolakan" : "Konfirmasi Persetujuan"}
+            {isReject ? "Confirm Rejection" : "Confirm Approval"}
           </Button>
         </div>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         {errorMessage && (
-          <Alert variant="destructive" title="Kendala Pengiriman Keputusan">
+          <Alert variant="destructive" title="Decision Submission Issue">
             {errorMessage}
           </Alert>
         )}
 
         <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
           <span className="text-[11px] text-slate-500 font-mono block">
-            Analisis Target Review:
+            Target Analysis for Review:
           </span>
           <span className="font-mono font-bold text-slate-900 text-xs">
             {analysisId}
@@ -148,24 +148,24 @@ export function CheckerDecisionModal({
             <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg flex items-start gap-2 text-rose-900">
               <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
               <p className="text-[11px] leading-relaxed">
-                <strong>Pemberitahuan Tata Kelola:</strong> Alasan penolakan Anda akan tercatat secara permanen di riwayat audit dan dipertimbangkan dalam evaluasi inferensi putaran berikutnya.
+                <strong>Governance Notice:</strong> Your rejection reason will be permanently recorded in the audit trail and factored into subsequent inference evaluations.
               </p>
             </div>
 
-            <FormField label="Alasan Penolakan (Wajib)" required>
+            <FormField label="Rejection Reason (Required)" required>
               <Textarea
                 rows={3}
-                placeholder="Contoh: Rujukan klausul SOP-OPS-001 bagian 4.2 belum mempertimbangkan pengecualian batch sore..."
+                placeholder="Example: SOP-OPS-001 clause 4.2 does not account for evening batch clearing exceptions..."
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 required
               />
             </FormField>
 
-            <FormField label="Catatan Tambahan (Opsional)">
+            <FormField label="Additional Notes (Optional)">
               <Textarea
                 rows={2}
-                placeholder="Tambahkan rekomendasi instruksi atau perbaikan bukti..."
+                placeholder="Add recommendations, guidance, or evidence remediation notes..."
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
               />
@@ -176,14 +176,14 @@ export function CheckerDecisionModal({
             <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-start gap-2 text-emerald-900">
               <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
               <p className="text-[11px] leading-relaxed">
-                Persetujuan Anda akan dicatat pada putaran saat ini. Tahap otorisasi Signer akan otomatis terbuka setelah seluruh Checker wajib memberikan persetujuan.
+                Your approval will be recorded for the current round. The Signer authorization stage unlocks once all required Checkers have approved.
               </p>
             </div>
 
-            <FormField label="Catatan Persetujuan (Opsional)">
+            <FormField label="Approval Notes (Optional)">
               <Textarea
                 rows={2}
-                placeholder="Contoh: Fakta dan rujukan kebijakan telah diverifikasi sesuai SLA..."
+                placeholder="Example: Facts and policy references verified in accordance with SLA..."
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
               />

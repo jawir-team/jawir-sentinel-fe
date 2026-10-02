@@ -76,7 +76,7 @@ export function SubmitCaseSection({
       const msg =
         err instanceof Error
           ? err.message
-          : "Gagal mengajukan case. Periksa kembali aturan Segregation of Duties dan kelengkapan peran.";
+          : "Failed to submit case. Verify Segregation of Duties rules and role completeness.";
       setSubmitError(msg);
     },
   });
@@ -96,7 +96,7 @@ export function SubmitCaseSection({
         <CardContent className="p-4 text-xs text-slate-500 flex items-center gap-2">
           <Lock className="h-4 w-4 text-slate-400" />
           <span>
-            Hanya Maker (inisiator) yang berwenang mengajukan case ini ke proses persetujuan.
+            Only the Maker (initiator) is authorized to submit this case to the approval workflow.
           </span>
         </CardContent>
       </Card>
@@ -109,11 +109,11 @@ export function SubmitCaseSection({
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-blue-600" aria-hidden="true" />
           <CardTitle className="text-base font-semibold text-slate-900">
-            Kesiapan Pengajuan Kasus (Submit Case)
+            Case Submission Readiness
           </CardTitle>
         </div>
         <CardDescription>
-          Validasi prasyarat tata kelola Sentinel sebelum case dibekukan dan diproses oleh AI.
+          Validation of Sentinel governance prerequisites before case data is frozen and processed by AI.
         </CardDescription>
       </CardHeader>
 
@@ -127,7 +127,7 @@ export function SubmitCaseSection({
               <XCircle className="h-4 w-4 text-red-500 shrink-0" />
             )}
             <span className={hasMaker ? "text-slate-800" : "text-red-700"}>
-              Maker: {caseData.maker?.name || "Belum ada"} (Tepat 1)
+              Maker: {caseData.maker?.name || "None"} (Exactly 1)
             </span>
           </div>
 
@@ -138,7 +138,7 @@ export function SubmitCaseSection({
               <XCircle className="h-4 w-4 text-red-500 shrink-0" />
             )}
             <span className={hasChecker ? "text-slate-800" : "text-red-700"}>
-              Checker: {checkers.length} pengguna (Minimal 1)
+              Checker: {checkers.length} user(s) (At least 1)
             </span>
           </div>
 
@@ -149,7 +149,7 @@ export function SubmitCaseSection({
               <XCircle className="h-4 w-4 text-red-500 shrink-0" />
             )}
             <span className={hasSigner ? "text-slate-800" : "text-red-700"}>
-              Signer: {signers[0]?.name || "Belum ditugaskan"} (Tepat 1)
+              Signer: {signers[0]?.name || "Unassigned"} (Exactly 1)
             </span>
           </div>
 
@@ -160,22 +160,22 @@ export function SubmitCaseSection({
               <XCircle className="h-4 w-4 text-red-500 shrink-0" />
             )}
             <span className={hasExecuter ? "text-slate-800" : "text-red-700"}>
-              Executer: {executers[0]?.name || "Belum ditugaskan"} (Tepat 1)
+              Executer: {executers[0]?.name || "Unassigned"} (Exactly 1)
             </span>
           </div>
         </div>
 
         {!sodValid && (
-          <Alert variant="destructive" title="Pelanggaran Segregation of Duties">
-            Satu pengguna tidak boleh merangkap lebih dari satu peran aktif dalam case ini.
+          <Alert variant="destructive" title="Segregation of Duties Violation">
+            A single user cannot hold more than one active role in this case.
           </Alert>
         )}
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-blue-100">
           <p className="text-xs text-slate-500">
             {isEligible
-              ? "Semua prasyarat terpenuhi. Anda dapat mengajukan kasus ini."
-              : "Lengkapi seluruh peran partisipan di atas untuk mengaktifkan tombol pengajuan."}
+              ? "All prerequisites met. You may submit this case."
+              : "Fulfill all participant roles above to enable case submission."}
           </p>
 
           <Button
@@ -189,7 +189,7 @@ export function SubmitCaseSection({
             className="shrink-0"
           >
             <Send className="h-4 w-4 mr-1.5" />
-            Ajukan Kasus (Submit Case)
+            Submit Case
           </Button>
         </div>
       </CardContent>
@@ -198,8 +198,8 @@ export function SubmitCaseSection({
       <Dialog
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
-        title="Konfirmasi Pengajuan Kasus (Submit)"
-        description="Harap tinjau kembali data sebelum konfirmasi akhir."
+        title="Confirm Case Submission"
+        description="Please review all data carefully before final confirmation."
         footer={
           <>
             <Button
@@ -207,21 +207,21 @@ export function SubmitCaseSection({
               onClick={() => setIsConfirmOpen(false)}
               disabled={submitMutation.isPending}
             >
-              Batal
+              Cancel
             </Button>
             <Button
               variant="primary"
               onClick={handleConfirmSubmit}
               isLoading={submitMutation.isPending}
             >
-              Ya, Ajukan & Bekukan Kasus
+              Yes, Submit & Freeze Case
             </Button>
           </>
         }
       >
         <div className="space-y-4 text-sm">
           {submitError && (
-            <Alert variant="destructive" title="Pengajuan Ditolak Backend">
+            <Alert variant="destructive" title="Submission Rejected by Backend">
               {submitError}
             </Alert>
           )}
@@ -229,20 +229,20 @@ export function SubmitCaseSection({
           <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-900 space-y-2">
             <div className="flex items-center gap-2 font-bold text-amber-950">
               <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
-              <span>PERINGATAN PEMBEKUAN DATA (SUBMISSION FREEZE)</span>
+              <span>DATA SUBMISSION FREEZE WARNING</span>
             </div>
             <p className="text-xs text-amber-800 leading-relaxed">
-              Setelah tombol konfirmasi ditekan:
+              Upon confirming submission:
             </p>
             <ul className="text-xs list-disc list-inside space-y-1 text-amber-800 pl-1">
-              <li>Rincian deskripsi kasus dan urgensi akan <strong>dibekukan permanen</strong>.</li>
-              <li>Penugasan partisipan (Maker, Checker, Signer, Executer) <strong>tidak dapat diubah</strong>.</li>
-              <li>Status kasus langsung beralih ke <strong>AI_ANALYSIS</strong> untuk verifikasi kebijakan Sentinel.</li>
+              <li>Case description and urgency will be <strong>permanently frozen</strong>.</li>
+              <li>Participant assignments (Maker, Checker, Signer, Executer) <strong>cannot be modified</strong>.</li>
+              <li>Case status will transition directly to <strong>AI_ANALYSIS</strong> for Sentinel policy evaluation.</li>
             </ul>
           </div>
 
           <p className="text-xs text-slate-600">
-            Apakah Anda yakin ingin melanjutkan pengajuan untuk kasus <strong>{caseData.case_number}</strong>?
+            Are you sure you want to proceed with submission for case <strong>{caseData.case_number}</strong>?
           </p>
         </div>
       </Dialog>

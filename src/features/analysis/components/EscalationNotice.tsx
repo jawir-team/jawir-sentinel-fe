@@ -26,39 +26,39 @@ export function EscalationNotice({
     switch (cause) {
       case "VERIFIER_FAIL":
         return {
-          title: "Kegagalan Verifikasi Integritas Model (VERIFIER_FAIL)",
+          title: "Model Integrity Verification Failure (VERIFIER_FAIL)",
           badge: "VERIFIER FAIL",
           explanation:
-            "Hasil inferensi AI ditolak oleh verifier internal karena terdeteksi ketidaksesuaian kritis (seperti klausul kebijakan yang tidak valid/halusinasi atau referensi bukti yang tidak terdaftar).",
+            "The AI inference output was rejected by the internal verifier due to critical anomalies (such as invalid/hallucinated policy clauses or unregistered evidence citations).",
           actionAdvice:
-            "Evaluasi bukti kasus dan catatan verifikasi. Penambahan bukti baru yang valid atau peninjauan manual kebijakan diperlukan.",
+            "Review case evidence and verification notes. Additional valid evidence or manual policy reassessment is required.",
         };
       case "TECHNICAL_RETRY_EXHAUSTED":
         return {
-          title: "Batas Percobaan Ulang Teknis Habis (TECHNICAL_RETRY_EXHAUSTED)",
+          title: "Technical Retry Limit Exhausted (TECHNICAL_RETRY_EXHAUSTED)",
           badge: "TECHNICAL RETRY EXHAUSTED",
           explanation:
-            "Koneksi teknis atau inferensi ke penyedia model AI mengalami batas waktu (timeout) atau galat internal berulang, dan seluruh kuota retry teknis telah habis.",
+            "Technical connectivity or model provider inference experienced repeated timeouts or internal errors, exhausting all system retry attempts.",
           actionAdvice:
-            "Periksa status konektivitas infrastruktur AI atau hubungi administrator sistem. Kasus tidak dapat diproses otomatis lebih lanjut.",
+            "Check AI infrastructure status or contact system administration. The case cannot proceed via automated inference.",
         };
       case "REANALYSIS_LIMIT_REACHED":
         return {
-          title: "Batas Maksimal Re-analisis Tercapai (REANALYSIS_LIMIT_REACHED)",
+          title: "Re-analysis Attempt Limit Reached (REANALYSIS_LIMIT_REACHED)",
           badge: "LIMIT REACHED (MAX 3 RE-ANALYSIS)",
-          explanation: `Siklus re-analisis otomatis telah mencapai batas maksimum sistem (hingga percobaan versi ke-${versionCount}) akibat penolakan berulang pada tahap review atau kendala eksekusi.`,
+          explanation: `Automated re-analysis cycles reached the maximum threshold (attempt #${versionCount}) following repeated review rejections or execution blockers.`,
           actionAdvice:
-            "Sesuai tata kelola risiko Sentinel, kasus harus dialihkan untuk penanganan manual atau ditutup (Close Case) untuk dibuat ulang secara terpisah.",
+            "In accordance with Sentinel risk governance, this case must be transitioned to manual handling or closed (Close Case) for separate re-creation.",
         };
       default:
         return {
-          title: "Eskalasi Diperlukan (Escalation Required)",
+          title: "Escalation Required",
           badge: "ESCALATION REQUIRED",
           explanation:
             failureReason ||
-            "Kasus membutuhkan intervensi operasional manual karena proses analisis otomatis tidak dapat dilanjutkan.",
+            "The case requires manual operational intervention because automated analysis could not proceed.",
           actionAdvice:
-            "Tinjau detail riwayat kasus dan bukti dokumen yang tersedia untuk tindakan operasional berikutnya.",
+            "Review case audit history and available evidence documents to determine subsequent operational actions.",
         };
     }
   };
@@ -80,18 +80,18 @@ export function EscalationNotice({
       </CardHeader>
       <CardContent className="pt-4 space-y-3 text-xs">
         <div className="p-3 bg-white border border-rose-200 rounded-lg text-slate-800 leading-relaxed">
-          <p className="font-medium text-rose-900 mb-1">Penyebab Eskalasi:</p>
+          <p className="font-medium text-rose-900 mb-1">Escalation Cause:</p>
           <p>{details.explanation}</p>
         </div>
 
         <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 leading-relaxed">
           <div className="flex items-center gap-1.5 font-semibold text-amber-950 mb-1">
             <Info className="h-4 w-4 text-amber-700 shrink-0" />
-            <span>Panduan Tindakan Operasional:</span>
+            <span>Operational Guidance:</span>
           </div>
           <p className="text-[11px]">{details.actionAdvice}</p>
           <p className="text-[11px] mt-2 font-mono text-amber-800">
-            Catatan Tata Kelola: Pada MVP, tindakan Resume atau pemicuan re-analysis instan dinonaktifkan untuk menjaga integritas Segregation of Duties.
+            Governance Note: In this release, manual resume or instant re-analysis triggers are restricted to preserve Segregation of Duties integrity.
           </p>
         </div>
       </CardContent>

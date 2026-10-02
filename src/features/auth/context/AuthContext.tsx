@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await signOutUser();
         setUser(null);
         setCurrentUser(null);
-        setError("Sesi pengguna tidak valid atau akun dinonaktifkan.");
+        setError("User session is invalid or account has been deactivated.");
       }
     },
     []
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await fetchSentinelUser(loggedUser);
       } catch (err: unknown) {
         const message =
-          err instanceof Error ? err.message : "Gagal masuk ke akun.";
+          err instanceof Error ? err.message : "Failed to sign in.";
         setError(message);
         throw err;
       }

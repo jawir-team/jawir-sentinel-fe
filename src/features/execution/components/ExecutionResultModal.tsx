@@ -73,7 +73,7 @@ export function ExecutionResultModal({
       }
       const msg =
         err?.message ||
-        "Gagal menyimpan hasil eksekusi. Silakan periksa status kasus terkini.";
+        "Failed to save execution result. Please check the current case status.";
       setErrorMessage(msg);
     },
   });
@@ -81,18 +81,18 @@ export function ExecutionResultModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!actionTaken.trim()) {
-      setErrorMessage("Tindakan yang telah dilakukan (action_taken) wajib diisi.");
+      setErrorMessage("Operational actions taken (action_taken) is required.");
       return;
     }
 
     if (targetStatus === "SUCCESS" && !resultText.trim()) {
-      setErrorMessage("Hasil konfirmasi penyelesaian (result) wajib diisi untuk status SUCCESS.");
+      setErrorMessage("Resolution outcome confirmation (result) is required for SUCCESS status.");
       return;
     }
 
     if ((targetStatus === "BLOCKED" || targetStatus === "FAILED") && !blockerText.trim()) {
       setErrorMessage(
-        "Kendala/faktor penghambat (blocker) wajib diisi untuk mendokumentasikan alasan kegagalan/hambatan."
+        "Blocker description (blocker) is required to document reasons for failure or blockage."
       );
       return;
     }
@@ -105,23 +105,23 @@ export function ExecutionResultModal({
     switch (targetStatus) {
       case "SUCCESS":
         return {
-          title: "Laporkan Eksekusi Berhasil Selesai (SUCCESS)",
-          desc: "Konfirmasi bahwa seluruh rekomendasi tindakan operasional telah tuntas dieksekusi. Kasus akan beralih ke status DONE.",
-          btnLabel: "Konfirmasi Eksekusi Berhasil (DONE)",
+          title: "Report Execution Success (SUCCESS)",
+          desc: "Confirm that all recommended operational actions have been fully executed. The case will transition to DONE status.",
+          btnLabel: "Confirm Execution Success (DONE)",
           variant: "primary" as const,
         };
       case "BLOCKED":
         return {
-          title: "Laporkan Eksekusi Terhambat (BLOCKED)",
-          desc: "Tindakan eksekusi tertahan oleh faktor eksternal atau dependensi sistem. Kasus akan dialihkan ke re-analisis AI atau eskalasi.",
-          btnLabel: "Konfirmasi Eksekusi Terhambat",
+          title: "Report Execution Blocked (BLOCKED)",
+          desc: "Execution actions are obstructed by external factors or system dependencies. The case will be directed to AI re-analysis or escalation.",
+          btnLabel: "Confirm Execution Blocked",
           variant: "outline" as const,
         };
       case "FAILED":
         return {
-          title: "Laporkan Eksekusi Gagal (FAILED)",
-          desc: "Tindakan eksekusi mengalami kegagalan operasional. Kasus akan dialihkan ke re-analisis AI atau eskalasi jika batas kuota tercapai.",
-          btnLabel: "Konfirmasi Eksekusi Gagal",
+          title: "Report Execution Failed (FAILED)",
+          desc: "Execution actions encountered operational failure. The case will be directed to AI re-analysis or escalation if the quota limit is reached.",
+          btnLabel: "Confirm Execution Failed",
           variant: "destructive" as const,
         };
     }
@@ -144,7 +144,7 @@ export function ExecutionResultModal({
             onClick={onClose}
             disabled={resultMutation.isPending}
           >
-            Batal
+            Cancel
           </Button>
           <Button
             type="button"
@@ -160,14 +160,14 @@ export function ExecutionResultModal({
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         {errorMessage && (
-          <Alert variant="destructive" title="Validasi Hasil Eksekusi">
+          <Alert variant="destructive" title="Execution Result Validation">
             {errorMessage}
           </Alert>
         )}
 
         <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
           <span className="text-[11px] text-slate-500 font-mono block">
-            ID Eksekusi Aktif:
+            Active Execution ID:
           </span>
           <span className="font-mono font-bold text-slate-900 text-xs">
             {executionId}
@@ -175,12 +175,12 @@ export function ExecutionResultModal({
         </div>
 
         <FormField
-          label="Tindakan Operasional yang Dijalankan (Action Taken - Wajib)"
+          label="Operational Actions Taken (Action Taken - Required)"
           required
         >
           <Textarea
             rows={3}
-            placeholder="Contoh: Mengisolasi 37 transaksi mismatch dari pool kliring dan memicu retry rekonsiliasi manual..."
+            placeholder="Example: Isolated 37 mismatched transactions from clearing pool and triggered manual reconciliation retry..."
             value={actionTaken}
             onChange={(e) => setActionTaken(e.target.value)}
             required
@@ -188,10 +188,10 @@ export function ExecutionResultModal({
         </FormField>
 
         {targetStatus === "SUCCESS" && (
-          <FormField label="Hasil Konfirmasi Penyelesaian (Result - Wajib)" required>
+          <FormField label="Resolution Outcome Confirmation (Result - Required)" required>
             <Textarea
               rows={2}
-              placeholder="Contoh: Seluruh rekonsiliasi batch selesai seimbang dan ledger sinkron tanpa selisih."
+              placeholder="Example: Full batch reconciliation completed balanced and ledger synchronized with zero discrepancy."
               value={resultText}
               onChange={(e) => setResultText(e.target.value)}
               required
@@ -201,12 +201,12 @@ export function ExecutionResultModal({
 
         {(targetStatus === "BLOCKED" || targetStatus === "FAILED") && (
           <FormField
-            label="Deskripsi Kendala / Faktor Penghambat (Blocker - Wajib)"
+            label="Blocker / Impediment Description (Blocker - Required)"
             required
           >
             <Textarea
               rows={3}
-              placeholder="Contoh: File kliring upstream dari bank koresponden tidak dapat diakses atau timeout..."
+              placeholder="Example: Upstream clearing file from correspondent bank unreachable or timed out..."
               value={blockerText}
               onChange={(e) => setBlockerText(e.target.value)}
               required

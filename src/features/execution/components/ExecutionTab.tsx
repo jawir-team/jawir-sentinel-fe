@@ -105,7 +105,7 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
 
       const msg =
         err?.message ||
-        "Gagal memulai eksekusi. Kasus mungkin sudah memiliki eksekusi aktif atau status telah berubah.";
+        "Failed to start execution. Case may already have an active execution or status has changed.";
       setStartError(msg);
     },
   });
@@ -114,14 +114,14 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
     return (
       <EmptyState
         icon={<PlayCircle className="h-8 w-8 text-slate-400" />}
-        title="Tahap Eksekusi Belum Dibuka"
-        description="Eksekusi operasional hanya dapat dimulai setelah analisis disetujui penuh oleh Signer (Status: EXECUTION)."
+        title="Execution Stage Not Open"
+        description="Operational execution can only begin after the analysis is fully authorized by the Signer (Status: EXECUTION)."
       />
     );
   }
 
   if (isLoadingExecutions) {
-    return <LoadingState label="Memuat riwayat eksekusi..." />;
+    return <LoadingState label="Loading execution history..." />;
   }
 
   return (
@@ -133,9 +133,9 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
             <CheckCircle2 className="h-6 w-6 text-emerald-600" />
           </div>
           <div>
-            <h4 className="font-bold text-sm">Kasus Telah Tuntas Selesai (DONE)</h4>
+            <h4 className="font-bold text-sm">Case Completed Successfully (DONE)</h4>
             <p className="text-xs text-emerald-800 mt-0.5 leading-relaxed">
-              Seluruh tindakan operasional telah diverifikasi dan diselesaikan dengan sukses. Kasus sekarang bersifat permanen (read-only) untuk tujuan audit kepatuhan.
+              All operational actions have been verified and successfully completed. The case is now permanent (read-only) for compliance audit purposes.
             </p>
           </div>
         </div>
@@ -148,16 +148,16 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2 text-emerald-950">
                 <PlayCircle className="h-4 w-4 text-emerald-700" />
-                <span>Panel Tindakan Eksekusi Operasional</span>
+                <span>Operational Execution Action Panel</span>
               </CardTitle>
               <Badge variant="outline" className="font-mono text-xs border-emerald-300 text-emerald-900 bg-emerald-50">
-                EXECUTER: {executerParticipant?.name || "Belum Ditugaskan"}
+                EXECUTER: {executerParticipant?.name || "Unassigned"}
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="pt-4 space-y-4 text-xs">
             {startError && (
-              <Alert variant="destructive" title="Kendala Memulai Eksekusi">
+              <Alert variant="destructive" title="Execution Initiation Error">
                 {startError}
               </Alert>
             )}
@@ -169,11 +169,11 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
                     <div className="flex items-center gap-2 text-blue-900">
                       <Clock className="h-4 w-4 animate-spin text-blue-600" />
                       <span>
-                        Eksekusi sedang berjalan (ID:{" "}
-                        <strong className="font-mono">{inProgressExecution.id}</strong>) sejak{" "}
+                        Execution in progress (ID:{" "}
+                        <strong className="font-mono">{inProgressExecution.id}</strong>) since{" "}
                         {inProgressExecution.started_at
-                          ? new Date(inProgressExecution.started_at).toLocaleTimeString("id-ID")
-                          : "baru saja"}
+                          ? new Date(inProgressExecution.started_at).toLocaleTimeString("en-US")
+                          : "just now"}
                       </span>
                     </div>
                     <Badge variant="warning" className="font-mono text-[10px] animate-pulse">
@@ -182,7 +182,7 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
                   </div>
 
                   <p className="text-slate-600 leading-relaxed">
-                    Setelah langkah mitigasi operasional dijalankan di sistem target (mis. core banking/ledger), laporkan hasil akhir di bawah:
+                    After operational mitigation steps are executed in the target system (e.g. core banking/ledger), report the final outcome below:
                   </p>
 
                   <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -200,7 +200,7 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
                       className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
                     >
                       <CheckCircle2 className="h-4 w-4" />
-                      <span>Laporkan Selesai (SUCCESS)</span>
+                      <span>Report Success (SUCCESS)</span>
                     </Button>
 
                     <Button
@@ -217,7 +217,7 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
                       className="gap-1.5 text-amber-800 border-amber-300 hover:bg-amber-50"
                     >
                       <AlertOctagon className="h-4 w-4 text-amber-600" />
-                      <span>Laporkan Terhambat (BLOCKED)</span>
+                      <span>Report Blocked (BLOCKED)</span>
                     </Button>
 
                     <Button
@@ -234,14 +234,14 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
                       className="gap-1.5"
                     >
                       <XCircle className="h-4 w-4" />
-                      <span>Laporkan Gagal (FAILED)</span>
+                      <span>Report Failed (FAILED)</span>
                     </Button>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-3">
                   <p className="text-slate-700 leading-relaxed">
-                    Kasus telah diotorisasi penuh oleh Signer. Sebagai Executer berwenang, klik tombol di bawah untuk memulai sesi pelaksanaan tindakan operasional.
+                    The case has been fully authorized by the Signer. As the assigned Executer, click the button below to start the operational execution session.
                   </p>
                   <Button
                     type="button"
@@ -252,7 +252,7 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
                     className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
                   >
                     <PlayCircle className="h-4 w-4" />
-                    <span>Mulai Eksekusi (Start Execution)</span>
+                    <span>Start Execution</span>
                   </Button>
                 </div>
               )
@@ -260,8 +260,8 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-3 text-slate-700">
                 <Info className="h-4 w-4 text-emerald-600 shrink-0" />
                 <p>
-                  Kasus siap dieksekusi. Hanya <strong>Executer</strong> yang berwenang (
-                  <strong className="text-slate-900">{executerParticipant?.name}</strong>) yang dapat memulai dan melaporkan hasil eksekusi.
+                  Case is ready for execution. Only the authorized <strong>Executer</strong> (
+                  <strong className="text-slate-900">{executerParticipant?.name}</strong>) can start and report execution results.
                 </p>
               </div>
             )}
@@ -274,13 +274,13 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
         <CardHeader className="pb-3 border-b border-slate-100">
           <CardTitle className="text-sm font-semibold flex items-center gap-2 text-slate-900">
             <History className="h-4 w-4 text-slate-600" />
-            <span>Riwayat Percobaan Eksekusi ({executions.length} catatan)</span>
+            <span>Execution Attempt History ({executions.length} records)</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-4 text-xs">
           {executions.length === 0 ? (
             <p className="text-slate-500 italic py-4 text-center">
-              Belum ada sesi eksekusi yang dimulai untuk kasus ini.
+              No execution sessions have been initiated for this case yet.
             </p>
           ) : (
             <div className="space-y-3">
@@ -335,7 +335,7 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
                     {exec.action_taken && (
                       <div>
                         <span className="font-semibold text-slate-700 block text-[11px]">
-                          Tindakan:
+                          Action Taken:
                         </span>
                         <p className="text-slate-800 mt-0.5 leading-snug">{exec.action_taken}</p>
                       </div>
@@ -343,24 +343,24 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
 
                     {exec.result && (
                       <div className="p-2 rounded bg-emerald-50/70 border border-emerald-100 text-emerald-950">
-                        <span className="font-semibold text-[11px] block">Hasil:</span>
+                        <span className="font-semibold text-[11px] block">Result:</span>
                         <p className="mt-0.5 leading-snug">{exec.result}</p>
                       </div>
                     )}
 
                     {exec.blocker && (
                       <div className="p-2 rounded bg-rose-50/70 border border-rose-100 text-rose-950">
-                        <span className="font-semibold text-[11px] block">Kendala / Blocker:</span>
+                        <span className="font-semibold text-[11px] block">Blocker:</span>
                         <p className="mt-0.5 leading-snug">{exec.blocker}</p>
                       </div>
                     )}
 
                     <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-[10px] text-slate-400 font-mono">
-                      <span>Eksekutor: {exec.executed_by?.name || "Sistem Operasional"}</span>
+                      <span>Executor: {exec.executed_by?.name || "Operational System"}</span>
                       {exec.completed_at ? (
-                        <span>Selesai: {new Date(exec.completed_at).toLocaleString("id-ID")}</span>
+                        <span>Completed: {new Date(exec.completed_at).toLocaleString("en-US")}</span>
                       ) : exec.started_at ? (
-                        <span>Dimulai: {new Date(exec.started_at).toLocaleString("id-ID")}</span>
+                        <span>Started: {new Date(exec.started_at).toLocaleString("en-US")}</span>
                       ) : null}
                     </div>
                   </div>

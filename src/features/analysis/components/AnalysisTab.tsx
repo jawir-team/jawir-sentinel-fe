@@ -111,8 +111,8 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
     return (
       <EmptyState
         icon={<Sparkles className="h-8 w-8 text-slate-400" />}
-        title="Analisis AI Belum Dijalankan"
-        description="Analisis AI Sentinel akan dieksekusi secara otomatis saat Maker menyelesaikan pengisian draf dan mengajukan case."
+        title="AI Analysis Not Started"
+        description="Sentinel AI analysis will run automatically once the Maker finishes drafting and submits the case."
       />
     );
   }
@@ -126,27 +126,27 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
         </div>
         <div className="space-y-2">
           <h3 className="text-lg font-bold text-slate-900">
-            Sistem Sedang Menjalankan Analisis AI Sentinel
+            Sentinel AI Analysis in Progress
           </h3>
           <p className="text-sm text-slate-600 leading-relaxed">
-            AI Sentinel sedang mengekstrak fakta dari bukti kasus, melakukan pencarian semantik terhadap klausul kebijakan, dan memverifikasi rekomendasi tindakan.
+            Sentinel AI is extracting facts from case evidence, performing semantic search against policy clauses, and verifying action recommendations.
           </p>
         </div>
 
         <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-left space-y-2.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
             <RefreshCw className="h-3.5 w-3.5 animate-spin text-blue-600" />
-            <span>Status Siklus Inferensi & Verifikasi:</span>
+            <span>Inference & Verification Cycle Status:</span>
           </div>
           <ul className="text-xs text-slate-600 space-y-1.5 pl-5 list-disc">
-            <li>Memvalidasi bukti dokumen yang diunggah Maker...</li>
-            <li>Mencocokkan klausul SOP / Policy yang relevan...</li>
-            <li>Menjalankan verifikasi anti-halusinasi dan konsistensi fakta...</li>
+            <li>Validating documentary evidence uploaded by Maker...</li>
+            <li>Matching relevant SOP / Policy clauses...</li>
+            <li>Running anti-hallucination verification and factual consistency checks...</li>
           </ul>
         </div>
 
         <p className="text-xs text-slate-400 font-mono">
-          Halaman akan diperbarui secara otomatis begitu hasil verifikasi diterbitkan.
+          This page will update automatically once verification results are published.
         </p>
       </div>
     );
@@ -157,7 +157,7 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
   if (isLoading) {
     return (
       <div className="py-12 flex flex-col items-center justify-center space-y-3">
-        <LoadingState label="Memuat data analisis AI..." />
+        <LoadingState label="Loading AI analysis data..." />
       </div>
     );
   }
@@ -201,8 +201,8 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
 
     return (
       <ErrorState
-        title="Analisis Tidak Ditemukan"
-        message="Tidak dapat memuat hasil analisis untuk case ini. Mungkin belum ada analisis yang berstatus PASS atau terjadi kendala jaringan."
+        title="Analysis Not Found"
+        message="Unable to load analysis results for this case. An analysis with PASS status may not be available yet, or a network issue occurred."
         onRetry={() => {
           refetchList();
           refetchDetail();
@@ -239,11 +239,11 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
         <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3 text-xs text-amber-900">
           <Info className="h-4 w-4 text-amber-600 shrink-0" />
           <p>
-            <span className="font-semibold">Mode Peninjauan Riwayat:</span> Anda
-            sedang melihat Analisis <strong>Versi #{activeAnalysis.version}</strong> (
-            {activeAnalysis.status}). Versi historis/percobaan bersifat read-only.
-            Persetujuan Checker dan Signer hanya berlaku untuk versi{" "}
-            <strong>CURRENT</strong>.
+            <span className="font-semibold">Historical Review Mode:</span> You
+            are viewing Analysis <strong>Version #{activeAnalysis.version}</strong> (
+            {activeAnalysis.status}). Historical and trial attempts are read-only.
+            Checker and Signer approvals apply exclusively to the{" "}
+            <strong>CURRENT</strong> version.
           </p>
         </div>
       )}

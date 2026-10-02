@@ -34,8 +34,8 @@ export function ReferenceViewerDialog({
       <Dialog
         isOpen={isOpen}
         onClose={onClose}
-        title={`Rujukan Kebijakan: ${policyRef.policy_code}`}
-        description="Detail klausul kebijakan spesifik yang dievaluasi dalam analisis ini."
+        title={`Policy Reference: ${policyRef.policy_code}`}
+        description="Specific policy clause details evaluated in this analysis."
         footer={
           <div className="flex justify-between w-full">
             <Link
@@ -45,10 +45,10 @@ export function ReferenceViewerDialog({
               rel="noopener noreferrer"
             >
               <ExternalLink className="h-3.5 w-3.5" />
-              <span>Buka Dokumen Kebijakan Lengkap</span>
+              <span>Open Full Policy Document</span>
             </Link>
             <Button variant="outline" size="sm" onClick={onClose}>
-              Tutup
+              Close
             </Button>
           </div>
         }
@@ -58,9 +58,9 @@ export function ReferenceViewerDialog({
           <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-2.5 text-blue-900">
             <ShieldCheck className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold">Integritas Riwayat Kebijakan (Audit Provenance)</p>
+              <p className="font-semibold">Policy Provenance Integrity (Audit Trail)</p>
               <p className="text-[11px] text-blue-800 mt-0.5 leading-relaxed">
-                Klausul ini menunjuk ke versi kebijakan <strong>v{policyRef.version}</strong> yang aktif pada saat analisis dijalankan. Perubahan versi kebijakan di kemudian hari tidak mengubah kutipan audit ini.
+                This clause references policy version <strong>v{policyRef.version}</strong> active when the analysis was performed. Subsequent policy versions do not alter this historical audit record.
               </p>
             </div>
           </div>
@@ -68,16 +68,16 @@ export function ReferenceViewerDialog({
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
               <div>
-                <span className="text-slate-400 block mb-0.5 text-[11px]">Judul Kebijakan</span>
+                <span className="text-slate-400 block mb-0.5 text-[11px]">Policy Title</span>
                 <span className="font-semibold text-slate-800">{policyRef.policy_title}</span>
               </div>
               <div>
-                <span className="text-slate-400 block mb-0.5 text-[11px]">Versi Terkait</span>
+                <span className="text-slate-400 block mb-0.5 text-[11px]">Associated Version</span>
                 <span className="font-mono font-medium text-slate-700">v{policyRef.version}</span>
               </div>
               {policyRef.section && (
                 <div className="col-span-2 pt-2 border-t border-slate-200">
-                  <span className="text-slate-400 block mb-0.5 text-[11px]">Bagian / Klausul</span>
+                  <span className="text-slate-400 block mb-0.5 text-[11px]">Section / Clause</span>
                   <span className="font-semibold text-slate-800">{policyRef.section}</span>
                 </div>
               )}
@@ -85,7 +85,7 @@ export function ReferenceViewerDialog({
 
             <div className="space-y-1.5 pt-2">
               <span className="font-bold uppercase tracking-wider text-slate-600 text-[11px] block">
-                Teks Kutipan Klausul (Excerpt):
+                Clause Excerpt Text:
               </span>
               <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-slate-800 text-xs leading-relaxed whitespace-pre-wrap">
                 &ldquo;{policyRef.excerpt}&rdquo;
@@ -110,11 +110,11 @@ export function ReferenceViewerDialog({
       <Dialog
         isOpen={isOpen}
         onClose={onClose}
-        title={`Bukti Dokumen Terkait: ${evidenceRefId}`}
-        description="Detail bukti pendukung yang digunakan sebagai fakta analisis AI."
+        title={`Referenced Evidence: ${evidenceRefId}`}
+        description="Supporting evidence details utilized as factual ground for AI analysis."
         footer={
           <Button variant="outline" size="sm" onClick={onClose}>
-            Tutup
+            Close
           </Button>
         }
       >
@@ -144,13 +144,13 @@ export function ReferenceViewerDialog({
 
               <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100 text-[11px]">
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Tipe Bukti</span>
+                  <span className="text-slate-400 block mb-0.5">Evidence Type</span>
                   <Badge variant="outline" className="font-mono">
                     {matchedEvidence.evidence_type}
                   </Badge>
                 </div>
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Sumber</span>
+                  <span className="text-slate-400 block mb-0.5">Source</span>
                   <div className="flex items-center gap-1 text-slate-700">
                     <User className="h-3 w-3 text-slate-400" />
                     <span>{matchedEvidence.source_user?.name || matchedEvidence.source_type}</span>
@@ -158,16 +158,16 @@ export function ReferenceViewerDialog({
                 </div>
                 {matchedEvidence.file_path && (
                   <div className="col-span-2 pt-2 border-t border-slate-200">
-                    <span className="text-slate-400 block mb-0.5">File Terlampir</span>
+                    <span className="text-slate-400 block mb-0.5">Attached File</span>
                     <span className="font-mono text-slate-700 break-all">
                       {matchedEvidence.file_path} ({matchedEvidence.mime_type})
                     </span>
                   </div>
                 )}
                 <div className="col-span-2 pt-2 border-t border-slate-200">
-                  <span className="text-slate-400 block mb-0.5">Waktu Pencatatan</span>
+                  <span className="text-slate-400 block mb-0.5">Recorded At</span>
                   <span className="font-mono text-slate-600">
-                    {new Date(matchedEvidence.created_at).toLocaleString("id-ID")}
+                    {new Date(matchedEvidence.created_at).toLocaleString("en-US")}
                   </span>
                 </div>
               </div>
@@ -175,10 +175,10 @@ export function ReferenceViewerDialog({
           ) : (
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-slate-600 space-y-1">
               <p className="font-medium text-slate-800">
-                Bukti tercatat sebagai referensi analisis ({evidenceRefId}).
+                Evidence recorded as analysis reference ({evidenceRefId}).
               </p>
               <p className="text-[11px] text-slate-500">
-                Data detail lengkap bukti ini dapat diakses pada tab Bukti Dokumen dalam case ini.
+                Full evidence details can be viewed in the Evidence tab for this case.
               </p>
             </div>
           )}

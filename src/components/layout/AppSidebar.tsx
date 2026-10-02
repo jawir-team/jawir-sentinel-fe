@@ -74,7 +74,7 @@ export function AppSidebar({ isAdmin = true, className }: AppSidebarProps) {
       <nav className="flex-1 space-y-6">
         <div>
           <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-            Utama
+            Main
           </p>
           <ul className="space-y-1">
             {mainNav.map((item) => {
@@ -109,7 +109,7 @@ export function AppSidebar({ isAdmin = true, className }: AppSidebarProps) {
         {isAdmin && (
           <div>
             <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-              Administrasi
+              Administration
             </p>
             <ul className="space-y-1">
               {adminNav.map((item) => {

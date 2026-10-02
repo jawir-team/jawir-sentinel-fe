@@ -71,7 +71,7 @@ export default function PolicyDetailPage({
       resetVerForm();
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : "Gagal membuat versi policy.";
+      const msg = err instanceof Error ? err.message : "Failed to create policy version.";
       setAddVerError(msg);
     },
   });
@@ -86,7 +86,7 @@ export default function PolicyDetailPage({
     },
     onError: (err: unknown) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.policy(params.policyId) });
-      const msg = err instanceof Error ? err.message : "Gagal mengaktifkan versi policy.";
+      const msg = err instanceof Error ? err.message : "Failed to activate policy version.";
       setActionError(msg);
     },
   });
@@ -100,7 +100,7 @@ export default function PolicyDetailPage({
     },
     onError: (err: unknown) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.policy(params.policyId) });
-      const msg = err instanceof Error ? err.message : "Gagal merecover proses indexing.";
+      const msg = err instanceof Error ? err.message : "Failed to recover indexing process.";
       setActionError(msg);
     },
   });
@@ -121,7 +121,7 @@ export default function PolicyDetailPage({
   const handleAddVerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!verNumber.trim() || !verContent.trim()) {
-      setAddVerError("Nomor versi dan isi teks kebijakan wajib diisi.");
+      setAddVerError("Version number and policy text content are required.");
       return;
     }
     createVerMutation.mutate({
@@ -135,7 +135,7 @@ export default function PolicyDetailPage({
   if (isLoading) {
     return (
       <ContentContainer>
-        <LoadingState label="Memuat kebijakan..." />
+        <LoadingState label="Loading policy..." />
       </ContentContainer>
     );
   }
@@ -144,8 +144,8 @@ export default function PolicyDetailPage({
     return (
       <ContentContainer>
         <ErrorState
-          title="Kebijakan Tidak Ditemukan"
-          message="Gagal memuat rincian kebijakan."
+          title="Policy Not Found"
+          message="Failed to load policy details."
           onRetry={() => refetch()}
         />
       </ContentContainer>
@@ -168,14 +168,14 @@ export default function PolicyDetailPage({
           isAdmin && (
             <Button variant="primary" onClick={handleOpenAddVer}>
               <Plus className="h-4 w-4 mr-1.5" aria-hidden="true" />
-              Buat Versi Baru
+              Create New Version
             </Button>
           )
         }
       />
 
       {actionError && (
-        <Alert variant="destructive" title="Aksi Gagal" className="mb-6">
+        <Alert variant="destructive" title="Action Failed" className="mb-6">
           {actionError}
         </Alert>
       )}
@@ -184,7 +184,7 @@ export default function PolicyDetailPage({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card className="border-slate-200">
           <CardContent className="p-4 text-xs space-y-1">
-            <span className="text-slate-400 block font-medium">Domain Regulasi</span>
+            <span className="text-slate-400 block font-medium">Regulatory Domain</span>
             <span className="font-mono text-sm font-semibold text-slate-900">
               {policy.domain}
             </span>
@@ -193,7 +193,7 @@ export default function PolicyDetailPage({
 
         <Card className="border-slate-200">
           <CardContent className="p-4 text-xs space-y-1">
-            <span className="text-slate-400 block font-medium">Tipe Case Terkait</span>
+            <span className="text-slate-400 block font-medium">Associated Case Type</span>
             <span className="text-sm font-semibold text-slate-900">
               {policy.case_type?.name} ({policy.case_type?.code})
             </span>
@@ -202,10 +202,10 @@ export default function PolicyDetailPage({
 
         <Card className="border-slate-200">
           <CardContent className="p-4 text-xs space-y-1">
-            <span className="text-slate-400 block font-medium">Versi Aktif Terpilih</span>
+            <span className="text-slate-400 block font-medium">Active Version</span>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="font-mono font-bold text-sm text-slate-800">
-                {policy.active_version ? `v${policy.active_version.version}` : "Tidak Ada"}
+                {policy.active_version ? `v${policy.active_version.version}` : "None"}
               </span>
               {policy.active_version && (
                 <PolicyIndexBadge status={policy.active_version.index_status} />
@@ -219,16 +219,16 @@ export default function PolicyDetailPage({
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold tracking-tight text-slate-900">
-            Riwayat Versi Kebijakan ({policy.versions.length})
+            Policy Version History ({policy.versions.length})
           </h2>
           <span className="text-xs text-slate-500">
-            Hanya versi ACTIVE yang digunakan oleh Sentinel untuk penilaian AI.
+            Only ACTIVE versions are utilized by Sentinel for AI evaluations.
           </span>
         </div>
 
         {policy.versions.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 bg-slate-50">
-            Belum ada versi teks kebijakan yang dibuat. Klik tombol di atas untuk membuat versi awal.
+            No policy versions have been created yet. Click the button above to create the initial version.
           </div>
         ) : (
           <div className="space-y-4">
@@ -250,7 +250,7 @@ export default function PolicyDetailPage({
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <span className="font-mono font-bold text-base text-slate-900">
-                          Versi {ver.version}
+                          Version {ver.version}
                         </span>
                         <PolicyAuthorityBadge status={ver.status} />
                         <PolicyIndexBadge status={ver.index_status} />
@@ -276,7 +276,7 @@ export default function PolicyDetailPage({
                           {ver.index_status === "PROCESSING" && !ver.index_recoverable && (
                             <Button variant="outline" size="sm" disabled>
                               <Clock className="h-3.5 w-3.5 mr-1 animate-spin" />
-                              Sedang Indexing...
+                              Indexing...
                             </Button>
                           )}
 
@@ -290,16 +290,16 @@ export default function PolicyDetailPage({
                               disabled={!canActivateTime}
                               title={
                                 isFuture
-                                  ? "Versi belum berlaku (future-effective)"
+                                  ? "Version not yet effective (future-effective)"
                                   : isExpired
-                                  ? "Versi sudah kadaluarsa (expired)"
-                                  : "Jadikan versi aktif resmi"
+                                  ? "Version has expired"
+                                  : "Set as official active version"
                               }
                             >
                               <Check className="h-3.5 w-3.5 mr-1" />
                               {ver.index_status === "READY"
-                                ? "Aktifkan Versi"
-                                : "Aktifkan & Index"}
+                                ? "Activate Version"
+                                : "Activate & Index"}
                             </Button>
                           )}
                         </div>
@@ -310,7 +310,7 @@ export default function PolicyDetailPage({
                   <CardContent className="py-4 space-y-4 text-xs">
                     {/* Diagnostic error if failed */}
                     {ver.index_status === "FAILED" && ver.index_error && (
-                      <Alert variant="destructive" title="Kegagalan Indexing Vector">
+                      <Alert variant="destructive" title="Vector Indexing Failure">
                         <div className="flex items-center gap-2">
                           <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
                           <span>{ver.index_error}</span>
@@ -320,12 +320,12 @@ export default function PolicyDetailPage({
 
                     {/* Window Effective warning */}
                     {!canActivateTime && ver.status === "DRAFT" && (
-                      <Alert variant="warning" title="Batas Masa Berlaku">
+                      <Alert variant="warning" title="Validity Period Alert">
                         {isFuture &&
-                          `Versi ini belum dapat diaktifkan karena baru berlaku mulai ${new Date(
+                          `This version cannot be activated yet as it only becomes effective starting ${new Date(
                             ver.effective_from!
-                          ).toLocaleString("id-ID")}.`}
-                        {isExpired && "Versi ini telah melewati tanggal berakhir (expired)."}
+                          ).toLocaleString("en-US")}.`}
+                        {isExpired && "This version has passed its expiration date."}
                       </Alert>
                     )}
 
@@ -339,14 +339,14 @@ export default function PolicyDetailPage({
                       <div className="flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
                         <span>
-                          Efektif:{" "}
+                          Effective:{" "}
                           {ver.effective_from
-                            ? new Date(ver.effective_from).toLocaleDateString("id-ID")
-                            : "Sekarang"}{" "}
-                          s/d{" "}
+                            ? new Date(ver.effective_from).toLocaleDateString("en-US")
+                            : "Now"}{" "}
+                          to{" "}
                           {ver.effective_until
-                            ? new Date(ver.effective_until).toLocaleDateString("id-ID")
-                            : "Tidak Terbatas"}
+                            ? new Date(ver.effective_until).toLocaleDateString("en-US")
+                            : "Indefinite"}
                         </span>
                       </div>
 
@@ -354,7 +354,7 @@ export default function PolicyDetailPage({
                         <div className="flex items-center gap-1.5">
                           <Check className="h-3.5 w-3.5 text-emerald-600" />
                           <span>
-                            Di-index pada: {new Date(ver.indexed_at).toLocaleTimeString("id-ID")}
+                            Indexed at: {new Date(ver.indexed_at).toLocaleTimeString("en-US")}
                           </span>
                         </div>
                       )}
@@ -362,7 +362,7 @@ export default function PolicyDetailPage({
                       <div className="flex items-center gap-1.5">
                         <Clock className="h-3.5 w-3.5" />
                         <span>
-                          Dibuat: {new Date(ver.created_at).toLocaleString("id-ID")}
+                          Created: {new Date(ver.created_at).toLocaleString("en-US")}
                         </span>
                       </div>
                     </div>
@@ -378,8 +378,8 @@ export default function PolicyDetailPage({
       <Dialog
         isOpen={isAddVerOpen}
         onClose={() => setIsAddVerOpen(false)}
-        title={`Buat Versi Baru: ${policy.code}`}
-        description="Versi baru dibuat dalam status DRAFT. Versi ACTIVE lama tetap menjadi acuan sampai versi ini diaktifkan."
+        title={`Create New Version: ${policy.code}`}
+        description="New versions are created in DRAFT status. The existing ACTIVE version remains in effect until this version is activated."
         footer={
           <>
             <Button
@@ -387,30 +387,30 @@ export default function PolicyDetailPage({
               onClick={() => setIsAddVerOpen(false)}
               disabled={createVerMutation.isPending}
             >
-              Batal
+              Cancel
             </Button>
             <Button
               variant="primary"
               onClick={handleAddVerSubmit}
               isLoading={createVerMutation.isPending}
             >
-              Simpan Versi DRAFT
+              Save DRAFT Version
             </Button>
           </>
         }
       >
         <form onSubmit={handleAddVerSubmit} className="space-y-4">
           {addVerError && (
-            <Alert variant="destructive" title="Gagal Menyimpan Versi">
+            <Alert variant="destructive" title="Failed to Save Version">
               {addVerError}
             </Alert>
           )}
 
           <FormField
-            label="Nomor Versi"
+            label="Version Number"
             id="ver-num"
             required
-            hint="Contoh: 1.1, 2.0-REVISED"
+            hint="Example: 1.1, 2.0-REVISED"
           >
             <Input
               id="ver-num"
@@ -422,15 +422,15 @@ export default function PolicyDetailPage({
           </FormField>
 
           <FormField
-            label="Teks / Klausul Kebijakan Lengkap"
+            label="Policy Text / Full Clauses"
             id="ver-content"
             required
-            hint="Isi klausul aturan yang akan dipelajari dan di-index oleh AI Sentinel."
+            hint="Rule clauses to be ingested and indexed by Sentinel AI."
           >
             <Textarea
               id="ver-content"
               rows={8}
-              placeholder="Tuliskan aturan, batas cutoff, dan instruksi penanganan..."
+              placeholder="Specify policy rules, cutoff thresholds, and operational instructions..."
               value={verContent}
               onChange={(e) => setVerContent(e.target.value)}
               disabled={createVerMutation.isPending}
@@ -438,7 +438,7 @@ export default function PolicyDetailPage({
           </FormField>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField label="Berlaku Mulai (Effective From)" id="ver-from">
+            <FormField label="Effective From" id="ver-from">
               <Input
                 id="ver-from"
                 type="datetime-local"
@@ -448,7 +448,7 @@ export default function PolicyDetailPage({
               />
             </FormField>
 
-            <FormField label="Berlaku Sampai (Opsional)" id="ver-until">
+            <FormField label="Effective Until (Optional)" id="ver-until">
               <Input
                 id="ver-until"
                 type="datetime-local"

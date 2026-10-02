@@ -8,7 +8,7 @@ export interface LoadingStateProps {
 }
 
 export function LoadingState({
-  label = "Memuat data...",
+  label = "Loading data...",
   className,
 }: LoadingStateProps) {
   return (

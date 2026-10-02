@@ -134,7 +134,7 @@ export function AnalysisDetailView({
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-slate-900 text-sm">
-                Analisis Version #{analysis.version}
+                Analysis Version #{analysis.version}
               </h3>
               {isCurrent && (
                 <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-200">
@@ -143,8 +143,8 @@ export function AnalysisDetailView({
               )}
             </div>
             <p className="text-xs text-slate-500 font-mono">
-              ID: {analysis.id} &bull; Dihasilkan:{" "}
-              {new Date(analysis.created_at).toLocaleString("id-ID")}
+              ID: {analysis.id} &bull; Generated:{" "}
+              {new Date(analysis.created_at).toLocaleString("en-US")}
             </p>
           </div>
         </div>
@@ -157,9 +157,9 @@ export function AnalysisDetailView({
 
       {/* Verification Issues & Failure Reasons */}
       {analysis.status === "FAILED" && (
-        <Alert variant="destructive" title="Analisis Gagal / Ditolak Verifier">
+        <Alert variant="destructive" title="Analysis Failed / Verifier Rejected">
           {analysis.failure_reason ||
-            "Proses verifikasi atau inferensi AI gagal menghasilkan output yang valid sesuai kebijakan."}
+            "The verification or AI inference process failed to produce a valid output conforming to policy."}
         </Alert>
       )}
 
@@ -167,7 +167,7 @@ export function AnalysisDetailView({
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 space-y-2">
           <div className="flex items-center gap-2 text-amber-900 font-semibold text-sm">
             <AlertTriangle className="h-4 w-4 text-amber-600" />
-            <span>Catatan Verifikasi Model ({analysis.verification.issues.length} temuan)</span>
+            <span>Model Verification Issues ({analysis.verification.issues.length} findings)</span>
           </div>
           <ul className="space-y-1.5 pl-6 text-xs text-amber-900 list-disc">
             {analysis.verification.issues.map((issue, idx) => (
@@ -188,7 +188,7 @@ export function AnalysisDetailView({
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold flex items-center gap-2 text-slate-900">
               <FileText className="h-4 w-4 text-blue-600" />
-              <span>Ringkasan Eksekutif Analisis</span>
+              <span>Executive Analysis Summary</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -210,7 +210,7 @@ export function AnalysisDetailView({
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                  <span>Fakta Teridentifikasi</span>
+                  <span>Identified Facts</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-xs">
@@ -237,7 +237,7 @@ export function AnalysisDetailView({
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
                   <TrendingUp className="h-3.5 w-3.5 text-blue-600" />
-                  <span>Asumsi Model</span>
+                  <span>Model Assumptions</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-xs">
@@ -256,7 +256,7 @@ export function AnalysisDetailView({
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1.5">
                   <HelpCircle className="h-3.5 w-3.5 text-amber-600" />
-                  <span>Informasi Belum Diketahui</span>
+                  <span>Information Gaps / Unknowns</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-xs">
@@ -264,7 +264,7 @@ export function AnalysisDetailView({
                   <div key={idx} className="p-2.5 rounded bg-amber-50/50 border border-amber-100">
                     <p className="font-medium text-slate-900 leading-snug">{unk.item}</p>
                     <p className="text-slate-600 text-[11px] mt-1">
-                      <span className="font-semibold text-slate-700">Dampak:</span> {unk.impact}
+                      <span className="font-semibold text-slate-700">Impact:</span> {unk.impact}
                     </p>
                   </div>
                 ))}
@@ -283,7 +283,7 @@ export function AnalysisDetailView({
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold flex items-center gap-2 text-slate-900">
                 <AlertOctagon className="h-4 w-4 text-amber-600" />
-                <span>Analisis Risiko & Kepatuhan Kebijakan</span>
+                <span>Risk & Policy Compliance Analysis</span>
               </CardTitle>
               {analysis.policy_status && (
                 <Badge variant="outline" className="font-mono text-xs">
@@ -298,7 +298,7 @@ export function AnalysisDetailView({
               <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-semibold text-slate-700">
-                    Status Kepatuhan Terhadap Kebijakan Terkait
+                    Policy Compliance Status
                   </span>
                   {getComplianceBadge(analysis.compliance_analysis.status)}
                 </div>
@@ -312,7 +312,7 @@ export function AnalysisDetailView({
             {analysis.risk_analysis && analysis.risk_analysis.length > 0 && (
               <div className="space-y-2">
                 <span className="text-xs font-semibold text-slate-700 block">
-                  Daftar Risiko Operasional & Finansial
+                  Operational & Financial Risk Registry
                 </span>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {analysis.risk_analysis.map((risk, idx) => (
@@ -343,7 +343,7 @@ export function AnalysisDetailView({
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold flex items-center gap-2 text-blue-900">
                 <CheckCircle2 className="h-4 w-4 text-blue-600" />
-                <span>Rekomendasi Tindakan Sentinel</span>
+                <span>Sentinel Recommended Actions</span>
               </CardTitle>
               <Badge variant="secondary" className="font-mono text-[11px]">
                 {analysis.recommendation.type}
@@ -360,7 +360,7 @@ export function AnalysisDetailView({
               analysis.recommendation.actions.length > 0 && (
                 <div className="space-y-2 pt-2">
                   <span className="font-bold uppercase tracking-wider text-slate-600 text-[11px] block">
-                    Urutan Langkah Penanganan (Action Items):
+                    Action Items & Implementation Steps:
                   </span>
                   <div className="space-y-2">
                     {analysis.recommendation.actions.map((act) => (
@@ -388,7 +388,7 @@ export function AnalysisDetailView({
                   <div className="p-3 rounded-lg bg-emerald-50/70 border border-emerald-100 space-y-1.5">
                     <span className="font-semibold text-emerald-900 flex items-center gap-1.5">
                       <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                      <span>Manfaat Potensial</span>
+                      <span>Potential Benefits</span>
                     </span>
                     <ul className="list-disc pl-4 space-y-1 text-emerald-950">
                       {analysis.recommendation.potential_benefits.map((b, idx) => (
@@ -403,7 +403,7 @@ export function AnalysisDetailView({
                   <div className="p-3 rounded-lg bg-rose-50/70 border border-rose-100 space-y-1.5">
                     <span className="font-semibold text-rose-900 flex items-center gap-1.5">
                       <AlertTriangle className="h-3.5 w-3.5 text-rose-600" />
-                      <span>Risiko Residu Potensial</span>
+                      <span>Potential Residual Risks</span>
                     </span>
                     <ul className="list-disc pl-4 space-y-1 text-rose-950">
                       {analysis.recommendation.potential_risks.map((r, idx) => (
@@ -418,7 +418,7 @@ export function AnalysisDetailView({
             {analysis.alternatives && analysis.alternatives.length > 0 && (
               <div className="pt-2">
                 <span className="font-semibold text-slate-700 block mb-1">
-                  Opsi Alternatif yang Dipertimbangkan:
+                  Alternative Options Considered:
                 </span>
                 <ul className="list-disc pl-5 text-slate-600 space-y-0.5">
                   {analysis.alternatives.map((alt, idx) => (
@@ -436,7 +436,7 @@ export function AnalysisDetailView({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {analysis.evidence_quality && (
             <div className="p-3 rounded-lg border border-slate-200 bg-white flex items-center justify-between text-xs">
-              <span className="text-slate-600 font-medium">Kualitas Bukti Pendukung:</span>
+              <span className="text-slate-600 font-medium">Supporting Evidence Quality:</span>
               <Badge variant="secondary" className="font-semibold">
                 {analysis.evidence_quality}
               </Badge>
@@ -444,7 +444,7 @@ export function AnalysisDetailView({
           )}
           {analysis.uncertainty && (
             <div className="p-3 rounded-lg border border-slate-200 bg-white flex items-center justify-between text-xs">
-              <span className="text-slate-600 font-medium">Tingkat Ketidakpastian (Uncertainty):</span>
+              <span className="text-slate-600 font-medium">Uncertainty Level:</span>
               <Badge variant="outline" className="font-semibold">
                 {analysis.uncertainty}
               </Badge>
@@ -460,7 +460,7 @@ export function AnalysisDetailView({
           <CardHeader className="pb-3 border-b border-slate-100">
             <CardTitle className="text-sm font-semibold flex items-center gap-2 text-slate-900">
               <BookOpen className="h-4 w-4 text-indigo-600" />
-              <span>Sumber Kebijakan & Bukti Dokumen Terkait (Provenance)</span>
+              <span>Policy & Evidence Provenance</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4 space-y-4">
@@ -468,7 +468,7 @@ export function AnalysisDetailView({
             {analysis.policy_references && analysis.policy_references.length > 0 && (
               <div className="space-y-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-600 block">
-                  Klausa Kebijakan yang Dikutip:
+                  Cited Policy Clauses:
                 </span>
                 <div className="space-y-2">
                   {analysis.policy_references.map((pref, idx) => (
@@ -510,7 +510,7 @@ export function AnalysisDetailView({
             {analysis.evidence_references && analysis.evidence_references.length > 0 && (
               <div className="space-y-2 pt-2 border-t border-slate-100">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-600 block">
-                  Bukti yang Digunakan (Evidence References):
+                  Evidence References Utilized:
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {analysis.evidence_references.map((eref, idx) => (

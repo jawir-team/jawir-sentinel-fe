@@ -17,8 +17,8 @@ export default function ErrorBoundary({
   return (
     <div className="flex h-96 items-center justify-center p-6">
       <ErrorState
-        title="Terjadi kesalahan pada halaman ini"
-        message={error.message || "Gagal memproses data halaman."}
+        title="An error occurred on this page"
+        message={error.message || "Failed to process page data."}
         onRetry={reset}
       />
     </div>

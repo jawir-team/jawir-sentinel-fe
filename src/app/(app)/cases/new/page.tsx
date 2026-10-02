@@ -23,7 +23,7 @@ export default function NewCasePage() {
       router.push(`/cases/${newCase.id}`);
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : "Gagal membuat case baru.";
+      const msg = err instanceof Error ? err.message : "Failed to create new case.";
       setServerError(msg);
     },
   });
@@ -41,8 +41,8 @@ export default function NewCasePage() {
   return (
     <ContentContainer>
       <PageHeader
-        title="Buat Case Baru"
-        description="Daftarkan anomali finansial operasional untuk diproses oleh alur persetujuan JAWIR Sentinel."
+        title="Create New Case"
+        description="Register an operational financial anomaly to be processed by the JAWIR Sentinel governance workflow."
       />
       <div className="flex justify-center">
         <CaseForm

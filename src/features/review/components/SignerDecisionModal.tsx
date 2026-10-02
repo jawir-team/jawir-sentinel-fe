@@ -73,7 +73,7 @@ export function SignerDecisionModal({
       }
       const msg =
         err?.message ||
-        "Gagal mengirimkan keputusan Signer. Silakan coba kembali.";
+        "Failed to submit Signer decision. Please try again.";
       setErrorMessage(msg);
     },
   });
@@ -81,7 +81,7 @@ export function SignerDecisionModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isReject && !reason.trim()) {
-      setErrorMessage("Alasan penolakan (reason) wajib diisi untuk dokumentasi tata kelola otorisasi.");
+      setErrorMessage("A rejection reason is required for authorization governance documentation.");
       return;
     }
     setErrorMessage(null);
@@ -94,13 +94,13 @@ export function SignerDecisionModal({
       onClose={onClose}
       title={
         isReject
-          ? "Penolakan Otorisasi Eksekutif (Signer Reject)"
-          : "Otorisasi Eksekutif Kasus (Signer Approve)"
+          ? "Executive Authorization Rejection (Signer Reject)"
+          : "Executive Case Authorization (Signer Approve)"
       }
       description={
         isReject
-          ? "Penolakan Signer akan memicu re-analisis otomatis (atau eskalasi jika batas kuota tercapai)."
-          : "Persetujuan Signer mengotorisasi kasus ini untuk dieksekusi oleh Executer berwenang (Status: EXECUTION)."
+          ? "Signer rejection will trigger automated re-analysis (or governance escalation if the quota limit is reached)."
+          : "Signer approval authorizes this case to be executed by the authorized Executer (Status: EXECUTION)."
       }
       footer={
         <div className="flex justify-end gap-3 w-full">
@@ -111,7 +111,7 @@ export function SignerDecisionModal({
             onClick={onClose}
             disabled={decisionMutation.isPending}
           >
-            Batal
+            Cancel
           </Button>
           <Button
             type="button"
@@ -120,21 +120,21 @@ export function SignerDecisionModal({
             onClick={handleSubmit}
             isLoading={decisionMutation.isPending}
           >
-            {isReject ? "Konfirmasi Penolakan Signer" : "Konfirmasi Otorisasi (Approve)"}
+            {isReject ? "Confirm Signer Rejection" : "Confirm Authorization (Approve)"}
           </Button>
         </div>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         {errorMessage && (
-          <Alert variant="destructive" title="Kendala Pengiriman Otorisasi">
+          <Alert variant="destructive" title="Authorization Submission Error">
             {errorMessage}
           </Alert>
         )}
 
         <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
           <span className="text-[11px] text-slate-500 font-mono block">
-            Analisis Target Otorisasi:
+            Target Analysis for Authorization:
           </span>
           <span className="font-mono font-bold text-slate-900 text-xs">
             {analysisId}
@@ -146,24 +146,24 @@ export function SignerDecisionModal({
             <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg flex items-start gap-2 text-rose-900">
               <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
               <p className="text-[11px] leading-relaxed">
-                <strong>Catatan Tata Kelola:</strong> Penolakan Signer menandakan ketidaksetujuan eksekutif terhadap rencana tindakan yang diusulkan. Alasan penolakan wajib dicatat.
+                <strong>Governance Notice:</strong> Signer rejection indicates executive disapproval of the proposed action plan. A rejection reason must be recorded.
               </p>
             </div>
 
-            <FormField label="Alasan Penolakan Eksekutif (Wajib)" required>
+            <FormField label="Executive Rejection Reason (Required)" required>
               <Textarea
                 rows={3}
-                placeholder="Contoh: Dampak risiko operasional terlalu tinggi untuk window kliring saat ini..."
+                placeholder="Example: Operational risk impact is too high for the current clearing window..."
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 required
               />
             </FormField>
 
-            <FormField label="Catatan Tambahan (Opsional)">
+            <FormField label="Additional Notes (Optional)">
               <Textarea
                 rows={2}
-                placeholder="Tambahkan alternatif arahan penanganan..."
+                placeholder="Add alternative remediation guidance..."
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
               />
@@ -174,14 +174,14 @@ export function SignerDecisionModal({
             <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-start gap-2 text-emerald-900">
               <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
               <p className="text-[11px] leading-relaxed">
-                Dengan mengotorisasi kasus ini, Anda memberikan mandat penuh kepada Executer untuk menjalankan tindakan operasional sesuai rekomendasi analisis.
+                By authorizing this case, you grant full mandate to the Executer to carry out operational actions in accordance with the analysis recommendations.
               </p>
             </div>
 
-            <FormField label="Catatan Otorisasi Eksekutif (Opsional)">
+            <FormField label="Executive Authorization Notes (Optional)">
               <Textarea
                 rows={2}
-                placeholder="Contoh: Disetujui untuk penanganan exception kliring batch..."
+                placeholder="Example: Approved for clearing batch exception remediation..."
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
               />

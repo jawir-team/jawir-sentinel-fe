@@ -11,8 +11,8 @@ export interface ErrorStateProps {
 }
 
 export function ErrorState({
-  title = "Terjadi Kesalahan",
-  message = "Gagal memuat data. Silakan coba kembali.",
+  title = "An Error Occurred",
+  message = "Failed to load data. Please try again.",
   onRetry,
   className,
 }: ErrorStateProps) {
@@ -32,7 +32,7 @@ export function ErrorState({
       {onRetry && (
         <div className="mt-5">
           <Button variant="outline" size="sm" onClick={onRetry}>
-            Coba Lagi
+            Retry
           </Button>
         </div>
       )}

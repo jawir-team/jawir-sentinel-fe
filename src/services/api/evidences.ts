@@ -121,7 +121,7 @@ export async function uploadFileToSignedUrl(
   if (!res.ok) {
     throw new ApiError(
       "UPLOAD_FAILED",
-      `Gagal mengunggah file ke Google Cloud Storage (${res.statusText})`,
+      `Failed to upload file to Google Cloud Storage (${res.statusText})`,
       res.status
     );
   }
@@ -156,7 +156,7 @@ export async function registerFileEvidence(
       source_type: "MAKER",
       source_user: { id: "usr-ops", name: "Operations User" },
       title: payload.title,
-      content: `Berkas bukti terunggah: ${payload.file_key.split("/").pop()}`,
+      content: `Uploaded evidence file: ${payload.file_key.split("/").pop()}`,
       file_path: payload.file_key,
       mime_type: mime,
       created_at: new Date().toISOString(),

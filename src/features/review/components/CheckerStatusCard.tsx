@@ -28,21 +28,21 @@ export function CheckerStatusCard({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="text-sm font-semibold flex items-center gap-2 text-slate-900">
             <Users className="h-4 w-4 text-blue-600" />
-            <span>Status Verifikasi Checker (Round Saat Ini)</span>
+            <span>Checker Verification Status (Current Round)</span>
           </CardTitle>
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-500 font-mono">
-              Analisis: {statusData.analysis_id}
+              Analysis: {statusData.analysis_id}
             </span>
             {isQuorumMet ? (
               <Badge variant="success" className="gap-1 text-[11px]">
                 <CheckCircle2 className="h-3 w-3" />
-                <span>KORUM TERCAPAI</span>
+                <span>QUORUM MET</span>
               </Badge>
             ) : (
               <Badge variant="warning" className="gap-1 text-[11px]">
                 <Clock className="h-3 w-3" />
-                <span>MENUNGGU PERSETUJUAN</span>
+                <span>PENDING APPROVAL</span>
               </Badge>
             )}
           </div>
@@ -53,10 +53,10 @@ export function CheckerStatusCard({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-slate-700">
-              Progres Checker Wajib (Required):
+              Required Checker Progress:
             </span>
             <span className="font-mono font-bold text-slate-900">
-              {approved} dari {required} disetujui ({percentComplete}%)
+              {approved} of {required} approved ({percentComplete}%)
             </span>
           </div>
 
@@ -72,15 +72,15 @@ export function CheckerStatusCard({
           <div className="flex items-center gap-4 text-[11px] text-slate-500 pt-1">
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span>Disetujui: {approved}</span>
+              <span>Approved: {approved}</span>
             </span>
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-rose-500" />
-              <span>Ditolak: {rejected}</span>
+              <span>Rejected: {rejected}</span>
             </span>
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-amber-400" />
-              <span>Menunggu: {pending}</span>
+              <span>Pending: {pending}</span>
             </span>
           </div>
         </div>
@@ -88,7 +88,7 @@ export function CheckerStatusCard({
         {/* Checkers List */}
         <div className="space-y-2 pt-2 border-t border-slate-100">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
-            Daftar Checker Terdaftar:
+            Assigned Checkers:
           </span>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {checkers.map((chk) => {
@@ -155,7 +155,7 @@ export function CheckerStatusCard({
         <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-start gap-2 text-slate-600 text-[11px] leading-relaxed">
           <Info className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
           <p>
-            Hanya persetujuan dari <strong>Checker Wajib (Required)</strong> yang menjadi prasyarat pembukaan tahap Otorisasi Signer (SIGNING). Checker opsional yang berstatus pending tidak menghambat transisi jika seluruh Checker wajib telah menyetujui.
+            Only approvals from <strong>Required Checkers</strong> count toward quorum for unlocking the Signer authorization stage (SIGNING). Pending optional Checkers do not impede workflow progression once all required Checkers have approved.
           </p>
         </div>
       </CardContent>

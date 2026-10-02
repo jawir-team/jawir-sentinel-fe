@@ -64,7 +64,7 @@ export default function CaseDetailPage({
   if (isLoading) {
     return (
       <ContentContainer>
-        <LoadingState label="Memuat rincian case..." />
+        <LoadingState label="Loading case details..." />
       </ContentContainer>
     );
   }
@@ -73,8 +73,8 @@ export default function CaseDetailPage({
     return (
       <ContentContainer>
         <ErrorState
-          title="Case Tidak Ditemukan"
-          message="Gagal memuat rincian case. Pastikan ID case benar atau coba muat ulang."
+          title="Case Not Found"
+          message="Failed to load case details. Verify the case ID or try reloading."
           onRetry={() => refetch()}
         />
       </ContentContainer>
@@ -89,12 +89,12 @@ export default function CaseDetailPage({
     );
 
   const tabs: { key: CaseTabKey; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { key: "overview", label: "Ringkasan", icon: FileText },
-    { key: "analysis", label: "Analisis AI", icon: Sparkles },
-    { key: "evidence", label: "Bukti Dokumen", icon: Paperclip },
-    { key: "review", label: "Persetujuan", icon: CheckSquare },
-    { key: "execution", label: "Eksekusi", icon: PlayCircle },
-    { key: "history", label: "Riwayat / Audit", icon: History },
+    { key: "overview", label: "Overview", icon: FileText },
+    { key: "analysis", label: "AI Analysis", icon: Sparkles },
+    { key: "evidence", label: "Evidence", icon: Paperclip },
+    { key: "review", label: "Reviews & Approvals", icon: CheckSquare },
+    { key: "execution", label: "Execution", icon: PlayCircle },
+    { key: "history", label: "Audit History", icon: History },
   ];
 
   return (
@@ -134,7 +134,7 @@ export default function CaseDetailPage({
           <div className="lg:col-span-2 space-y-6">
             <Card className="border-slate-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Deskripsi Permasalahan</CardTitle>
+                <CardTitle className="text-base">Problem Description</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
@@ -143,19 +143,19 @@ export default function CaseDetailPage({
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-100 text-xs">
                   <div>
-                    <span className="text-slate-400 block mb-0.5">Tipe Kasus</span>
+                    <span className="text-slate-400 block mb-0.5">Case Type</span>
                     <span className="font-semibold text-slate-800">
                       {caseData.case_type?.name}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block mb-0.5">Kode Kasus</span>
+                    <span className="text-slate-400 block mb-0.5">Case Code</span>
                     <span className="font-mono font-medium text-slate-700">
                       {caseData.case_type?.code}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block mb-0.5">Tingkat Urgensi</span>
+                    <span className="text-slate-400 block mb-0.5">Urgency Level</span>
                     <span className="font-semibold text-slate-800">
                       {caseData.urgency}
                     </span>
@@ -180,11 +180,11 @@ export default function CaseDetailPage({
           <div className="space-y-6">
             <Card className="border-slate-200">
               <CardHeader className="py-4">
-                <CardTitle className="text-base">Tata Kelola & Pemilik</CardTitle>
+                <CardTitle className="text-base">Governance & Ownership</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-xs">
                 <div>
-                  <span className="text-slate-400 block mb-1">Maker / Inisiator</span>
+                  <span className="text-slate-400 block mb-1">Maker / Initiator</span>
                   <div className="flex items-center gap-2 font-medium text-slate-800">
                     <div className="h-6 w-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
                       {caseData.maker?.name?.charAt(0) || "M"}
@@ -194,14 +194,14 @@ export default function CaseDetailPage({
                 </div>
 
                 <div className="pt-3 border-t border-slate-100">
-                  <span className="text-slate-400 block mb-1">Owner (Permanen)</span>
+                  <span className="text-slate-400 block mb-1">Owner (Permanent)</span>
                   <p className="text-slate-700 font-medium">{caseData.owner?.name}</p>
                 </div>
 
                 <div className="pt-3 border-t border-slate-100">
-                  <span className="text-slate-400 block mb-1">Pembaruan Terakhir</span>
+                  <span className="text-slate-400 block mb-1">Last Updated</span>
                   <p className="text-slate-600 font-mono">
-                    {new Date(caseData.updated_at).toLocaleString("id-ID")}
+                    {new Date(caseData.updated_at).toLocaleString("en-US")}
                   </p>
                 </div>
               </CardContent>

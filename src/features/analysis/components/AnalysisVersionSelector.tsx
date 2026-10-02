@@ -29,10 +29,10 @@ export function AnalysisVersionSelector({
       <div className="flex items-center justify-between text-xs text-slate-500 font-medium pb-2 border-b border-slate-100">
         <div className="flex items-center gap-1.5 text-slate-700">
           <History className="h-4 w-4 text-blue-600" />
-          <span>Versi Percobaan Analisis ({analyses.length} attempt tercatat)</span>
+          <span>Analysis Attempt History ({analyses.length} attempts recorded)</span>
         </div>
         <span className="text-[11px] text-slate-400">
-          Pilih attempt untuk melihat detail rekam jejak
+          Select an attempt to inspect historical trace details
         </span>
       </div>
 

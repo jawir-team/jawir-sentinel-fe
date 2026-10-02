@@ -39,9 +39,9 @@ export default function DashboardPage() {
 
   const personaCards = [
     {
-      title: "Kasus Saya",
+      title: "My Cases",
       count: summary?.my_cases ?? 0,
-      description: "Kasus yang Anda inisiasi atau terdaftar sebagai peserta",
+      description: "Cases you initiated or where you are an assigned participant",
       href: "/cases",
       icon: FileText,
       color: "blue",
@@ -49,9 +49,9 @@ export default function DashboardPage() {
       bgClass: "bg-blue-50 text-blue-700",
     },
     {
-      title: "Perlu Review Checker",
+      title: "Needs Checker Review",
       count: summary?.need_my_review ?? 0,
-      description: "Kasus CHECKING yang menunggu verifikasi Anda",
+      description: "CHECKING cases awaiting your verification",
       href: "/cases?status=CHECKING",
       icon: CheckSquare,
       color: "amber",
@@ -59,9 +59,9 @@ export default function DashboardPage() {
       bgClass: "bg-amber-50 text-amber-700",
     },
     {
-      title: "Perlu Otorisasi Signer",
+      title: "Needs Signer Authorization",
       count: summary?.need_my_signature ?? 0,
-      description: "Kasus SIGNING yang menunggu persetujuan otorisasi Anda",
+      description: "SIGNING cases awaiting your authorization",
       href: "/cases?status=SIGNING",
       icon: ShieldCheck,
       color: "purple",
@@ -69,9 +69,9 @@ export default function DashboardPage() {
       bgClass: "bg-purple-50 text-purple-700",
     },
     {
-      title: "Perlu Eksekusi",
+      title: "Needs Execution",
       count: summary?.need_my_execution ?? 0,
-      description: "Kasus EXECUTION yang siap dijalankan dan diselesaikan",
+      description: "EXECUTION cases ready to be executed and resolved",
       href: "/cases?status=EXECUTION",
       icon: PlayCircle,
       color: "emerald",
@@ -87,26 +87,26 @@ export default function DashboardPage() {
     variant: "default" | "secondary" | "success" | "warning" | "destructive" | "outline";
   }[] = [
     { status: "DRAFT", label: "Draft", icon: FileText, variant: "secondary" },
-    { status: "AI_ANALYSIS", label: "Analisis AI", icon: Sparkles, variant: "secondary" },
-    { status: "CHECKING", label: "Review Checker", icon: Clock, variant: "warning" },
-    { status: "SIGNING", label: "Otorisasi Signer", icon: ShieldCheck, variant: "warning" },
-    { status: "EXECUTION", label: "Dalam Eksekusi", icon: PlayCircle, variant: "default" },
-    { status: "DONE", label: "Selesai (DONE)", icon: CheckCircle2, variant: "success" },
-    { status: "CLOSED", label: "Ditutup (CLOSED)", icon: Lock, variant: "outline" },
-    { status: "ESCALATION_REQUIRED", label: "Eskalasi Diperlukan", icon: AlertOctagon, variant: "destructive" },
+    { status: "AI_ANALYSIS", label: "AI Analysis", icon: Sparkles, variant: "secondary" },
+    { status: "CHECKING", label: "Checker Review", icon: Clock, variant: "warning" },
+    { status: "SIGNING", label: "Signer Authorization", icon: ShieldCheck, variant: "warning" },
+    { status: "EXECUTION", label: "In Execution", icon: PlayCircle, variant: "default" },
+    { status: "DONE", label: "Completed (DONE)", icon: CheckCircle2, variant: "success" },
+    { status: "CLOSED", label: "Closed (CLOSED)", icon: Lock, variant: "outline" },
+    { status: "ESCALATION_REQUIRED", label: "Escalation Required", icon: AlertOctagon, variant: "destructive" },
   ];
 
   return (
     <ContentContainer>
       <PageHeader
-        title="Dashboard Ringkasan Operasional"
-        description="Pantau antrean tindakan persetujuan dan distribusi status kasus di platform JAWIR Sentinel."
+        title="Operational Summary Dashboard"
+        description="Monitor approval action queues and case status distribution across the JAWIR Sentinel platform."
       />
 
       {isError ? (
         <ErrorState
-          title="Gagal Memuat Ringkasan Dashboard"
-          message="Terjadi kendala saat mengambil ringkasan data dari server. Silakan coba kembali."
+          title="Failed to Load Dashboard Summary"
+          message="There was an issue retrieving summary data from the server. Please try again."
           onRetry={() => refetch()}
         />
       ) : isLoading ? (
@@ -127,7 +127,7 @@ export default function DashboardPage() {
           {/* Persona Action Queue Cards */}
           <div>
             <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-3">
-              Antrean Tindakan Anda
+              Your Action Queue
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {personaCards.map((card) => {
@@ -157,7 +157,7 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="mt-3 flex items-center text-xs font-medium text-blue-600 group-hover:translate-x-1 transition-transform">
-                      <span>Lihat Daftar Kasus</span>
+                      <span>View Cases</span>
                       <ArrowRight className="h-3.5 w-3.5 ml-1" />
                     </div>
                   </Link>
@@ -169,7 +169,7 @@ export default function DashboardPage() {
           {/* Status Breakdown Grid */}
           <div>
             <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-3">
-              Distribusi Status Kasus
+              Case Status Distribution
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {statusConfigs.map((cfg) => {
@@ -206,10 +206,10 @@ export default function DashboardPage() {
             <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-slate-800">
-                Integritas Tata Kelola Sentinel
+                Sentinel Governance Integrity
               </p>
               <p className="text-slate-600 mt-0.5">
-                Jumlah antrean di atas dihitung secara berwibawa (authoritative count) langsung oleh server Sentinel berdasarkan penugasan Segregation of Duties akun Anda. Status ADMIN menyediakan pengawasan visibilitas tanpa menganulir kewenangan tindakan kasus secara tidak sah.
+                The queue counts above are computed authoritatively by the Sentinel server based on your account&apos;s Segregation of Duties assignments. The ADMIN role provides oversight visibility without improperly bypassing case action authority.
               </p>
             </div>
           </div>

@@ -69,15 +69,15 @@ export function CaseForm({
     if (isReadOnly) return;
 
     if (!title.trim()) {
-      setClientError("Judul case wajib diisi.");
+      setClientError("Case title is required.");
       return;
     }
     if (!description.trim()) {
-      setClientError("Deskripsi permasalahan case wajib diisi.");
+      setClientError("Case problem description is required.");
       return;
     }
     if (!caseTypeId) {
-      setClientError("Pilih tipe case yang sesuai.");
+      setClientError("Please select a valid case type.");
       return;
     }
 
@@ -95,12 +95,12 @@ export function CaseForm({
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div>
           <CardTitle className="text-xl">
-            {isEdit ? `Ubah Case ${initialData.case_number}` : "Formulir Pembuatan Case"}
+            {isEdit ? `Edit Case ${initialData.case_number}` : "Create Case Form"}
           </CardTitle>
           <CardDescription>
             {isEdit
-              ? "Perbarui rincian kasus sebelum diajukan ke tahap analisis AI."
-              : "Isi data anomali atau pengecualian operasional yang memerlukan persetujuan berjenjang."}
+              ? "Update case details before submitting for AI analysis."
+              : "Provide operational anomaly or exception details requiring tiered governance approval."}
           </CardDescription>
         </div>
         {isEdit && (
@@ -112,29 +112,29 @@ export function CaseForm({
 
       <CardContent className="space-y-6 pt-4">
         {isReadOnly && (
-          <Alert variant="warning" title="Mode Baca Saja (Submission Freeze)">
+          <Alert variant="warning" title="Read-Only Mode (Submission Freeze)">
             <div className="flex items-center gap-1.5 mt-1">
               <Lock className="h-4 w-4 shrink-0 text-amber-600" aria-hidden="true" />
               <span>
-                Case ini berada dalam status <strong>{initialData?.status}</strong>. Rincian
-                inti tidak dapat diubah setelah diajukan (freeze).
+                This case is in <strong>{initialData?.status}</strong> status. Core details
+                cannot be modified after submission (freeze).
               </span>
             </div>
           </Alert>
         )}
 
         {(serverError || clientError) && (
-          <Alert variant="destructive" title="Kesalahan Formulir">
+          <Alert variant="destructive" title="Form Error">
             {serverError || clientError}
           </Alert>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <FormField
-            label="Tipe Kasus (Case Type)"
+            label="Case Type"
             id="case-type"
             required
-            hint="Tipe kasus menentukan kebijakan (SOP) dan SLA yang akan diaplikasikan."
+            hint="Case type determines applicable policies (SOP) and SLAs."
           >
             <Select
               id="case-type"
@@ -143,7 +143,7 @@ export function CaseForm({
               disabled={isReadOnly || isEdit || isLoading || loadingCaseTypes}
             >
               {loadingCaseTypes ? (
-                <option value="">Memuat tipe kasus...</option>
+                <option value="">Loading case types...</option>
               ) : (
                 caseTypes?.map((ct) => (
                   <option key={ct.id} value={ct.id}>
@@ -155,14 +155,14 @@ export function CaseForm({
           </FormField>
 
           <FormField
-            label="Judul Kasus"
+            label="Case Title"
             id="case-title"
             required
-            hint="Ringkasan singkat mengenai isu/eksepsi yang terjadi."
+            hint="Brief summary of the issue or operational exception."
           >
             <Input
               id="case-title"
-              placeholder="Contoh: Settlement reconciliation mismatch"
+              placeholder="Example: Settlement reconciliation mismatch"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={isReadOnly || isLoading}
@@ -171,15 +171,15 @@ export function CaseForm({
           </FormField>
 
           <FormField
-            label="Deskripsi Lengkap Masalah & Fakta"
+            label="Problem Description & Facts"
             id="case-desc"
             required
-            hint="Sertakan detail kuantitatif (jumlah transaksi, selisih nilai, batas waktu cutoff)."
+            hint="Include quantitative details (transaction volume, discrepancy amount, cutoff times)."
           >
             <Textarea
               id="case-desc"
               rows={5}
-              placeholder="Jelaskan anomali, transaksi yang terdampak, serta alasan perlunya penanganan darurat/eksepsi..."
+              placeholder="Describe the anomaly, affected transactions, and reasons requiring emergency or exception handling..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isReadOnly || isLoading}
@@ -187,10 +187,10 @@ export function CaseForm({
           </FormField>
 
           <FormField
-            label="Tingkat Urgensi"
+            label="Urgency Level"
             id="case-urgency"
             required
-            hint="Menentukan prioritas peninjauan oleh Checker dan Signer."
+            hint="Determines review priority for Checkers and Signers."
           >
             <Select
               id="case-urgency"
@@ -198,21 +198,21 @@ export function CaseForm({
               onChange={(e) => setUrgency(e.target.value as Urgency)}
               disabled={isReadOnly || isLoading}
             >
-              <option value="LOW">LOW - Standar / Tidak Mendesak</option>
-              <option value="MEDIUM">MEDIUM - Butuh Perhatian Segera</option>
-              <option value="HIGH">HIGH - Menjelang Cutoff Operasional</option>
-              <option value="CRITICAL">CRITICAL - Dampak Finansial Langsung / Urgent</option>
+              <option value="LOW">LOW - Standard / Not Urgent</option>
+              <option value="MEDIUM">MEDIUM - Requires Prompt Attention</option>
+              <option value="HIGH">HIGH - Approaching Operational Cutoff</option>
+              <option value="CRITICAL">CRITICAL - Direct Financial Impact / Urgent</option>
             </Select>
           </FormField>
 
           {isEdit && (
             <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 text-xs space-y-1.5 text-slate-600">
               <p>
-                <strong>Pemilik / Maker:</strong> {initialData.maker?.name || "Current User"} (Permanen)
+                <strong>Owner / Maker:</strong> {initialData.maker?.name || "Current User"} (Permanent)
               </p>
               <p>
-                <strong>Dibuat Pada:</strong>{" "}
-                {new Date(initialData.created_at).toLocaleString("id-ID")}
+                <strong>Created At:</strong>{" "}
+                {new Date(initialData.created_at).toLocaleString("en-US")}
               </p>
             </div>
           )}
@@ -225,13 +225,13 @@ export function CaseForm({
               disabled={isLoading}
             >
               <ArrowLeft className="h-4 w-4 mr-1.5" aria-hidden="true" />
-              Kembali
+              Back
             </Button>
 
             {!isReadOnly && (
               <Button type="submit" variant="primary" isLoading={isLoading}>
                 <Save className="h-4 w-4 mr-1.5" aria-hidden="true" />
-                {isEdit ? "Simpan Perubahan" : "Buat Draft Case"}
+                {isEdit ? "Save Changes" : "Create Draft Case"}
               </Button>
             )}
           </div>

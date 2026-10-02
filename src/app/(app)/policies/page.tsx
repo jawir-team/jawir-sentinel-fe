@@ -85,7 +85,7 @@ export default function PoliciesPage() {
       router.push(`/policies/${newPolicy.id}`);
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : "Gagal membuat policy.";
+      const msg = err instanceof Error ? err.message : "Failed to create policy.";
       setDialogError(msg);
     },
   });
@@ -108,7 +108,7 @@ export default function PoliciesPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!code.trim() || !title.trim() || !caseTypeId) {
-      setDialogError("Kode, judul, dan tipe case wajib diisi.");
+      setDialogError("Code, title, and case type are required.");
       return;
     }
     createMutation.mutate({
@@ -123,13 +123,13 @@ export default function PoliciesPage() {
   return (
     <ContentContainer>
       <PageHeader
-        title="Daftar Regulasi & Kebijakan (Policies)"
-        description="Kelola SOP dan pedoman operasional yang menjadi acuan penilaian verifikasi Sentinel."
+        title="Regulations & Policies"
+        description="Manage SOPs and operational guidelines that govern Sentinel verification decisions."
         action={
           isAdmin && (
             <Button variant="primary" onClick={handleOpenDialog}>
               <Plus className="h-4 w-4 mr-1.5" aria-hidden="true" />
-              Tambah Policy
+              Add Policy
             </Button>
           )
         }
@@ -139,14 +139,14 @@ export default function PoliciesPage() {
       <div className="mb-6 flex flex-wrap items-center gap-4 bg-white p-4 rounded-xl border border-slate-200">
         <div className="w-44">
           <label htmlFor="filter-domain" className="block text-xs font-semibold text-slate-500 mb-1">
-            Domain Regulasi
+            Regulatory Domain
           </label>
           <Select
             id="filter-domain"
             value={domainFilter}
             onChange={(e) => setDomainFilter(e.target.value)}
           >
-            <option value="">Semua Domain</option>
+            <option value="">All Domains</option>
             <option value="SETTLEMENT">SETTLEMENT</option>
             <option value="CREDIT">CREDIT</option>
             <option value="COMPLIANCE">COMPLIANCE</option>
@@ -155,14 +155,14 @@ export default function PoliciesPage() {
 
         <div className="w-52">
           <label htmlFor="filter-casetype" className="block text-xs font-semibold text-slate-500 mb-1">
-            Tipe Case
+            Case Type
           </label>
           <Select
             id="filter-casetype"
             value={caseTypeIdFilter}
             onChange={(e) => setCaseTypeIdFilter(e.target.value)}
           >
-            <option value="">Semua Tipe Case</option>
+            <option value="">All Case Types</option>
             {caseTypes?.map((ct) => (
               <option key={ct.id} value={ct.id}>
                 {ct.name}
@@ -182,25 +182,25 @@ export default function PoliciesPage() {
               }}
               className="text-xs text-slate-500 hover:text-slate-800"
             >
-              Reset Filter
+              Reset Filters
             </Button>
           </div>
         )}
       </div>
 
       {isLoading ? (
-        <LoadingState label="Memuat kebijakan..." />
+        <LoadingState label="Loading policies..." />
       ) : isError ? (
         <ErrorState onRetry={() => refetch()} />
       ) : policies.length === 0 ? (
         <EmptyState
           icon={<BookOpen className="h-8 w-8 text-slate-400" />}
-          title="Tidak Ada Kebijakan"
-          description="Belum ada SOP atau regulasi yang terdaftar di sistem."
+          title="No Policies Found"
+          description="No SOPs or regulations have been registered in the system yet."
           action={
             isAdmin && (
               <Button variant="primary" onClick={handleOpenDialog}>
-                Tambah Kebijakan Pertama
+                Add First Policy
               </Button>
             )
           }
@@ -209,12 +209,12 @@ export default function PoliciesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-36">Kode SOP</TableHead>
-              <TableHead>Judul Kebijakan</TableHead>
+              <TableHead className="w-36">SOP Code</TableHead>
+              <TableHead>Policy Title</TableHead>
               <TableHead className="w-32">Domain</TableHead>
-              <TableHead className="w-44">Tipe Kasus</TableHead>
-              <TableHead className="w-48">Versi Aktif</TableHead>
-              <TableHead className="w-44">Kesiapan Index</TableHead>
+              <TableHead className="w-44">Case Type</TableHead>
+              <TableHead className="w-48">Active Version</TableHead>
+              <TableHead className="w-44">Index Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -225,7 +225,7 @@ export default function PoliciesPage() {
                 className="cursor-pointer hover:bg-blue-50/40 transition-colors"
                 tabIndex={0}
                 role="button"
-                aria-label={`Buka detail kebijakan ${p.code}: ${p.title}`}
+                aria-label={`Open policy details ${p.code}: ${p.title}`}
               >
                 <TableCell className="font-mono font-semibold text-blue-600">
                   {p.code}
@@ -248,7 +248,7 @@ export default function PoliciesPage() {
                       <PolicyAuthorityBadge status={p.active_version.status} />
                     </div>
                   ) : (
-                    <span className="text-xs text-slate-400">Belum Ada Versi</span>
+                    <span className="text-xs text-slate-400">No Active Version</span>
                   )}
                 </TableCell>
                 <TableCell>
@@ -268,8 +268,8 @@ export default function PoliciesPage() {
       <Dialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        title="Daftarkan Kebijakan Baru"
-        description="Tambahkan regulasi dasar sebelum membuat versi teks kebijakan."
+        title="Register New Policy"
+        description="Add baseline policy metadata before drafting policy versions."
         footer={
           <>
             <Button
@@ -277,26 +277,26 @@ export default function PoliciesPage() {
               onClick={() => setIsDialogOpen(false)}
               disabled={createMutation.isPending}
             >
-              Batal
+              Cancel
             </Button>
             <Button
               variant="primary"
               onClick={handleSubmit}
               isLoading={createMutation.isPending}
             >
-              Simpan Kebijakan
+              Save Policy
             </Button>
           </>
         }
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           {dialogError && (
-            <Alert variant="destructive" title="Gagal Menyimpan">
+            <Alert variant="destructive" title="Save Failed">
               {dialogError}
             </Alert>
           )}
 
-          <FormField label="Kode Kebijakan" id="pol-code" required hint="Contoh: SOP-OPS-001">
+          <FormField label="Policy Code" id="pol-code" required hint="Example: SOP-OPS-001">
             <Input
               id="pol-code"
               placeholder="SOP-OPS-001"
@@ -306,7 +306,7 @@ export default function PoliciesPage() {
             />
           </FormField>
 
-          <FormField label="Judul Kebijakan" id="pol-title" required>
+          <FormField label="Policy Title" id="pol-title" required>
             <Input
               id="pol-title"
               placeholder="Settlement Exception Handling"
@@ -316,7 +316,7 @@ export default function PoliciesPage() {
             />
           </FormField>
 
-          <FormField label="Domain Regulasi" id="pol-domain" required>
+          <FormField label="Regulatory Domain" id="pol-domain" required>
             <Select
               id="pol-domain"
               value={domain}
@@ -330,7 +330,7 @@ export default function PoliciesPage() {
             </Select>
           </FormField>
 
-          <FormField label="Tipe Case Terkait" id="pol-casetype" required>
+          <FormField label="Associated Case Type" id="pol-casetype" required>
             <Select
               id="pol-casetype"
               value={caseTypeId}
@@ -345,11 +345,11 @@ export default function PoliciesPage() {
             </Select>
           </FormField>
 
-          <FormField label="Deskripsi Ringkas" id="pol-desc">
+          <FormField label="Brief Description" id="pol-desc">
             <Textarea
               id="pol-desc"
               rows={3}
-              placeholder="Tujuan dan ruang lingkup kebijakan operasional ini..."
+              placeholder="Purpose and scope of this operational policy..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={createMutation.isPending}

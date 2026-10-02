@@ -45,7 +45,7 @@ export function CaseDetailHeader({
       const msg =
         err instanceof Error
           ? err.message
-          : "Gagal menutup case. Pastikan tidak ada analisis atau eksekusi yang sedang aktif.";
+          : "Failed to close case. Ensure no analysis or execution is currently active.";
       setErrorMsg(msg);
     },
   });
@@ -53,7 +53,7 @@ export function CaseDetailHeader({
   const handleCloseSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!closeReason.trim()) {
-      setErrorMsg("Alasan penutupan case wajib diisi.");
+      setErrorMsg("Case closure reason is required.");
       return;
     }
     setErrorMsg(null);
@@ -80,8 +80,8 @@ export function CaseDetailHeader({
           </h1>
 
           <p className="mt-1 text-xs text-slate-500 font-mono">
-            Dibuat oleh: <span className="font-medium text-slate-700">{caseData.maker?.name}</span> •{" "}
-            {new Date(caseData.created_at).toLocaleString("id-ID", {
+            Created by: <span className="font-medium text-slate-700">{caseData.maker?.name}</span> •{" "}
+            {new Date(caseData.created_at).toLocaleString("en-US", {
               dateStyle: "medium",
               timeStyle: "short",
             })}
@@ -103,14 +103,14 @@ export function CaseDetailHeader({
               className="text-red-700 border-red-200 hover:bg-red-50 hover:border-red-300"
             >
               <XCircle className="h-4 w-4 mr-1.5 text-red-600" aria-hidden="true" />
-              Tutup Kasus (Close)
+              Close Case
             </Button>
           )}
 
           {isTerminal && (
             <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-md border border-slate-200">
               <Lock className="h-3.5 w-3.5" aria-hidden="true" />
-              Case Selesai / Ditutup (Read-Only)
+              Case Completed / Closed (Read-Only)
             </div>
           )}
         </div>
@@ -120,8 +120,8 @@ export function CaseDetailHeader({
       <Dialog
         isOpen={isCloseOpen}
         onClose={() => setIsCloseOpen(false)}
-        title={`Tutup Kasus: ${caseData.case_number}`}
-        description="Penutupan case memerlukan alasan yang jelas dan dapat diaudit. Tindakan ini akan mengakhiri alur kerja kasus."
+        title={`Close Case: ${caseData.case_number}`}
+        description="Closing a case requires a clear and auditable justification. This action will conclude the case workflow."
         footer={
           <>
             <Button
@@ -129,34 +129,34 @@ export function CaseDetailHeader({
               onClick={() => setIsCloseOpen(false)}
               disabled={closeMutation.isPending}
             >
-              Batal
+              Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleCloseSubmit}
               isLoading={closeMutation.isPending}
             >
-              Konfirmasi Tutup Case
+              Confirm Close Case
             </Button>
           </>
         }
       >
         <form onSubmit={handleCloseSubmit} className="space-y-4">
           {errorMsg && (
-            <Alert variant="destructive" title="Gagal Menutup Case">
+            <Alert variant="destructive" title="Failed to Close Case">
               {errorMsg}
             </Alert>
           )}
 
           <FormField
-            label="Alasan Penutupan (Wajib Diisi)"
+            label="Closure Justification (Required)"
             id="close-reason"
             required
-            hint="Contoh: Telah diselesaikan di sistem legacy, insiden duplikat, atau dibatalkan oleh Maker."
+            hint="Example: Resolved in legacy core banking, duplicate incident, or cancelled by Maker."
           >
             <Textarea
               id="close-reason"
-              placeholder="Tuliskan justifikasi operasional..."
+              placeholder="Provide operational justification..."
               value={closeReason}
               onChange={(e) => setCloseReason(e.target.value)}
               disabled={closeMutation.isPending}

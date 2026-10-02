@@ -49,15 +49,15 @@ export function HistoryTimeline({
   });
 
   if (isLoading) {
-    return <LoadingState label="Memuat jejak audit riwayat kasus..." />;
+    return <LoadingState label="Loading case audit history trail..." />;
   }
 
   if (historyEvents.length === 0) {
     return (
       <EmptyState
         icon={<History className="h-8 w-8 text-slate-400" />}
-        title="Belum Ada Riwayat Peristiwa"
-        description="Jejak audit kasus akan tercatat secara otomatis seiring perkembangan alur kerja."
+        title="No History Events Recorded"
+        description="Case audit trail will be automatically recorded as the workflow progresses."
       />
     );
   }
@@ -73,97 +73,97 @@ export function HistoryTimeline({
       case "CASE_CREATED":
         return {
           icon: <FileText className="h-4 w-4 text-blue-600" />,
-          label: "Kasus Dibuat (DRAFT)",
+          label: "Case Created (DRAFT)",
           badgeVariant: "secondary" as const,
         };
       case "EVIDENCE_ADDED":
         return {
           icon: <Paperclip className="h-4 w-4 text-slate-600" />,
-          label: "Bukti Ditambahkan",
+          label: "Evidence Added",
           badgeVariant: "outline" as const,
         };
       case "CASE_SUBMITTED":
         return {
           icon: <Send className="h-4 w-4 text-blue-600" />,
-          label: "Kasus Diajukan Maker",
+          label: "Case Submitted by Maker",
           badgeVariant: "default" as const,
         };
       case "AI_ANALYSIS_STARTED":
         return {
           icon: <Sparkles className="h-4 w-4 text-purple-600" />,
-          label: "Analisis AI Dimulai",
+          label: "AI Analysis Started",
           badgeVariant: "secondary" as const,
         };
       case "AI_ANALYSIS_COMPLETED":
         return {
           icon: <Sparkles className="h-4 w-4 text-emerald-600" />,
-          label: "Analisis AI Selesai",
+          label: "AI Analysis Completed",
           badgeVariant: "success" as const,
         };
       case "AI_ANALYSIS_FAILED":
         return {
           icon: <AlertOctagon className="h-4 w-4 text-rose-600" />,
-          label: "Analisis AI Gagal",
+          label: "AI Analysis Failed",
           badgeVariant: "destructive" as const,
         };
       case "CHECKER_APPROVED":
         return {
           icon: <CheckCircle2 className="h-4 w-4 text-emerald-600" />,
-          label: "Disetujui Checker",
+          label: "Approved by Checker",
           badgeVariant: "success" as const,
         };
       case "CHECKER_REJECTED":
         return {
           icon: <XCircle className="h-4 w-4 text-rose-600" />,
-          label: "Ditolak Checker",
+          label: "Rejected by Checker",
           badgeVariant: "destructive" as const,
         };
       case "SIGNER_APPROVED":
         return {
           icon: <ShieldCheck className="h-4 w-4 text-purple-600" />,
-          label: "Diotorisasi Signer",
+          label: "Authorized by Signer",
           badgeVariant: "success" as const,
         };
       case "SIGNER_REJECTED":
         return {
           icon: <XCircle className="h-4 w-4 text-rose-600" />,
-          label: "Ditolak Signer",
+          label: "Rejected by Signer",
           badgeVariant: "destructive" as const,
         };
       case "EXECUTION_STARTED":
         return {
           icon: <PlayCircle className="h-4 w-4 text-blue-600" />,
-          label: "Eksekusi Dimulai",
+          label: "Execution Started",
           badgeVariant: "warning" as const,
         };
       case "EXECUTION_SUCCESS":
         return {
           icon: <CheckCircle2 className="h-4 w-4 text-emerald-600" />,
-          label: "Eksekusi Berhasil Selesai (DONE)",
+          label: "Execution Completed Successfully (DONE)",
           badgeVariant: "success" as const,
         };
       case "EXECUTION_BLOCKED":
         return {
           icon: <AlertOctagon className="h-4 w-4 text-amber-600" />,
-          label: "Eksekusi Terhambat (BLOCKED)",
+          label: "Execution Blocked (BLOCKED)",
           badgeVariant: "warning" as const,
         };
       case "EXECUTION_FAILED":
         return {
           icon: <XCircle className="h-4 w-4 text-rose-600" />,
-          label: "Eksekusi Gagal (FAILED)",
+          label: "Execution Failed (FAILED)",
           badgeVariant: "destructive" as const,
         };
       case "REANALYSIS_LIMIT_REACHED":
         return {
           icon: <AlertOctagon className="h-4 w-4 text-rose-600" />,
-          label: "Batas Kuota Re-analisis Habis",
+          label: "Re-analysis Quota Limit Reached",
           badgeVariant: "destructive" as const,
         };
       case "CASE_CLOSED":
         return {
           icon: <Lock className="h-4 w-4 text-slate-600" />,
-          label: "Kasus Ditutup (CLOSED)",
+          label: "Case Closed (CLOSED)",
           badgeVariant: "secondary" as const,
         };
       default:
@@ -181,7 +181,7 @@ export function HistoryTimeline({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2 text-slate-900">
             <History className="h-4 w-4 text-blue-600" />
-            <span>Jejak Audit & Riwayat Kronologis Kasus ({historyEvents.length} peristiwa)</span>
+            <span>Case Audit Trail & Chronological History ({historyEvents.length} events)</span>
           </CardTitle>
 
           <Button
@@ -192,7 +192,7 @@ export function HistoryTimeline({
             className="text-xs gap-1.5 h-8"
           >
             <ArrowDownUp className="h-3.5 w-3.5" />
-            <span>{isDescending ? "Terbaru Dahulu" : "Urutan Kronologis"}</span>
+            <span>{isDescending ? "Newest First" : "Oldest First"}</span>
           </Button>
         </div>
       </CardHeader>
@@ -224,13 +224,13 @@ export function HistoryTimeline({
 
                     <div className="flex items-center gap-2 text-slate-400 font-mono text-[11px]">
                       <Clock className="h-3.5 w-3.5" />
-                      <span>{new Date(evt.created_at).toLocaleString("id-ID")}</span>
+                      <span>{new Date(evt.created_at).toLocaleString("en-US")}</span>
                     </div>
                   </div>
 
                   {/* Actor details (or SYSTEM) */}
                   <div className="flex flex-wrap items-center gap-2 pt-1 text-slate-600">
-                    <span className="text-slate-400">Aktor:</span>
+                    <span className="text-slate-400">Actor:</span>
                     {isSystem ? (
                       <span className="flex items-center gap-1 font-mono text-[11px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
                         <Cpu className="h-3 w-3 text-slate-500" />
@@ -256,7 +256,7 @@ export function HistoryTimeline({
                         className="ml-auto flex items-center gap-1 text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100 transition-colors"
                       >
                         <Sparkles className="h-3 w-3 text-blue-600" />
-                        <span>Versi Analisis v{evt.analysis_version}</span>
+                        <span>Analysis Version v{evt.analysis_version}</span>
                       </button>
                     )}
                   </div>
@@ -266,43 +266,43 @@ export function HistoryTimeline({
                     <div className="mt-2 p-2.5 rounded bg-slate-50 border border-slate-100 space-y-1 text-[11px] leading-relaxed">
                       {typeof evt.metadata.reason === "string" && (
                         <p className="text-rose-950">
-                          <strong className="text-rose-900">Alasan:</strong> &ldquo;
+                          <strong className="text-rose-900">Reason:</strong> &ldquo;
                           {evt.metadata.reason}&rdquo;
                         </p>
                       )}
                       {typeof evt.metadata.comment === "string" && (
                         <p className="text-slate-700">
-                          <strong className="text-slate-800">Catatan:</strong> &ldquo;
+                          <strong className="text-slate-800">Note:</strong> &ldquo;
                           {evt.metadata.comment}&rdquo;
                         </p>
                       )}
                       {typeof evt.metadata.action_taken === "string" && (
                         <p className="text-slate-700">
-                          <strong className="text-slate-800">Tindakan:</strong>{" "}
+                          <strong className="text-slate-800">Action Taken:</strong>{" "}
                           {evt.metadata.action_taken}
                         </p>
                       )}
                       {typeof evt.metadata.result === "string" && (
                         <p className="text-emerald-950 font-medium">
-                          <strong className="text-emerald-900">Hasil:</strong>{" "}
+                          <strong className="text-emerald-900">Result:</strong>{" "}
                           {evt.metadata.result}
                         </p>
                       )}
                       {typeof evt.metadata.blocker === "string" && (
                         <p className="text-rose-950">
-                          <strong className="text-rose-900">Penghambat (Blocker):</strong>{" "}
+                          <strong className="text-rose-900">Blocker:</strong>{" "}
                           {evt.metadata.blocker}
                         </p>
                       )}
                       {typeof evt.metadata.failure_type === "string" && (
                         <div className="flex items-center gap-1.5 text-rose-900 font-semibold">
                           <AlertOctagon className="h-3.5 w-3.5 text-rose-600" />
-                          <span>Penyebab Kegagalan: {evt.metadata.failure_type}</span>
+                          <span>Failure Cause: {evt.metadata.failure_type}</span>
                         </div>
                       )}
                       {typeof evt.metadata.max_reanalysis === "number" && (
                         <p className="text-rose-900 font-medium">
-                          Batas maksimal re-analisis tercapai (maksimum: {evt.metadata.max_reanalysis} siklus).
+                          Maximum re-analysis limit reached (limit: {evt.metadata.max_reanalysis} cycles).
                         </p>
                       )}
                     </div>

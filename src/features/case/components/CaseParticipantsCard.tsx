@@ -22,7 +22,7 @@ export function CaseParticipantsCard({
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 text-blue-600" aria-hidden="true" />
           <CardTitle className="text-base font-semibold">
-            Partisipan Workflow ({participants.length})
+            Workflow Participants ({participants.length})
           </CardTitle>
         </div>
       </CardHeader>
@@ -42,7 +42,7 @@ export function CaseParticipantsCard({
                   </Badge>
                   {p.required && (
                     <span className="text-[11px] text-slate-500 font-medium">
-                      (Wajib)
+                      (Required)
                     </span>
                   )}
                 </div>

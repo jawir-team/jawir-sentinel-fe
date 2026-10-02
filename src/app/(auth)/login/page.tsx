@@ -33,7 +33,7 @@ export default function LoginPage() {
       router.push("/dashboard");
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Gagal masuk. Periksa email dan password.";
+        err instanceof Error ? err.message : "Failed to sign in. Please check your email and password.";
       setErrorMessage(msg);
     } finally {
       setIsSubmitting(false);
@@ -43,7 +43,7 @@ export default function LoginPage() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
-      setErrorMessage("Silakan masukkan email Anda.");
+      setErrorMessage("Please enter your email.");
       return;
     }
     handleLogin(email, password || "sentinel123");
@@ -72,17 +72,17 @@ export default function LoginPage() {
 
         <CardContent className="pt-4 space-y-5">
           {errorMessage && (
-            <Alert variant="destructive" title="Autentikasi Gagal">
+            <Alert variant="destructive" title="Authentication Failed">
               {errorMessage}
             </Alert>
           )}
 
           <form onSubmit={onSubmit} className="space-y-4">
-            <FormField label="Email Pengguna" id="email" required>
+            <FormField label="User Email" id="email" required>
               <Input
                 id="email"
                 type="email"
-                placeholder="nama@jawir.local"
+                placeholder="name@jawir.local"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isSubmitting}
@@ -90,7 +90,7 @@ export default function LoginPage() {
               />
             </FormField>
 
-            <FormField label="Kata Sandi" id="password" required>
+            <FormField label="Password" id="password" required>
               <Input
                 id="password"
                 type="password"
@@ -110,7 +110,7 @@ export default function LoginPage() {
               isLoading={isSubmitting}
             >
               <LogIn className="h-4 w-4 mr-1.5" aria-hidden="true" />
-              Masuk ke Sentinel
+              Sign In to Sentinel
             </Button>
           </form>
 
@@ -120,7 +120,7 @@ export default function LoginPage() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-white px-2 text-slate-400 font-medium">
-                Pilih Persona Demo
+                Select Demo Persona
               </span>
             </div>
           </div>
@@ -168,7 +168,7 @@ export default function LoginPage() {
               disabled={isSubmitting}
             >
               <UserCheck className="h-3.5 w-3.5 mr-1.5 text-purple-600" aria-hidden="true" />
-              Admin Sentinel
+              Sentinel Admin
             </Button>
           </div>
         </CardContent>
