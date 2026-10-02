@@ -18,6 +18,7 @@ interface ExecutionResultModalProps {
   executionId: string;
   targetStatus: "SUCCESS" | "BLOCKED" | "FAILED";
   onSuccessResult?: (nextStatus: string) => void;
+  onStaleConflict?: () => void;
 }
 
 export function ExecutionResultModal({
@@ -27,6 +28,7 @@ export function ExecutionResultModal({
   executionId,
   targetStatus,
   onSuccessResult,
+  onStaleConflict,
 }: ExecutionResultModalProps) {
   const queryClient = useQueryClient();
   const [actionTaken, setActionTaken] = React.useState("");
@@ -64,6 +66,11 @@ export function ExecutionResultModal({
     onError: (err: any) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.case(caseId) });
       queryClient.invalidateQueries({ queryKey: ["executions", caseId] });
+      if (err?.status === 409 || err?.code === "STALE_ANALYSIS") {
+        onStaleConflict?.();
+        onClose();
+        return;
+      }
       const msg =
         err?.message ||
         "Gagal menyimpan hasil eksekusi. Silakan periksa status kasus terkini.";

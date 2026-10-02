@@ -9,6 +9,7 @@ import { useAuth } from "@/features/auth/context/AuthContext";
 import { CheckerStatusCard } from "./CheckerStatusCard";
 import { CheckerDecisionModal } from "./CheckerDecisionModal";
 import { SignerDecisionModal } from "./SignerDecisionModal";
+import { StaleAnalysisModal } from "@/components/feedback/StaleAnalysisModal";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -50,6 +51,8 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
     isOpen: false,
     decision: "APPROVE",
   });
+
+  const [isStaleConflict, setIsStaleConflict] = React.useState(false);
 
   const isChecking = caseData.status === "CHECKING";
   const isSigning = caseData.status === "SIGNING";
@@ -294,6 +297,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
           onSuccessDecision={() => {
             refetchStatus();
           }}
+          onStaleConflict={() => setIsStaleConflict(true)}
         />
       )}
 
@@ -310,8 +314,16 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
           onSuccessDecision={() => {
             refetchStatus();
           }}
+          onStaleConflict={() => setIsStaleConflict(true)}
         />
       )}
+
+      {/* Stale Analysis Conflict Modal */}
+      <StaleAnalysisModal
+        isOpen={isStaleConflict}
+        onClose={() => setIsStaleConflict(false)}
+        caseId={caseData.id}
+      />
     </div>
   );
 }

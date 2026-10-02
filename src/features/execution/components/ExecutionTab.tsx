@@ -7,6 +7,7 @@ import { useAuth } from "@/features/auth/context/AuthContext";
 import { getExecutions, startExecution } from "@/services/api/executions";
 import { queryKeys } from "@/constants/queryKeys";
 import { ExecutionResultModal } from "./ExecutionResultModal";
+import { StaleAnalysisModal } from "@/components/feedback/StaleAnalysisModal";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -44,6 +45,7 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
   });
 
   const [startError, setStartError] = React.useState<string | null>(null);
+  const [isStaleConflict, setIsStaleConflict] = React.useState(false);
 
   const isExecutionPhase = caseData.status === "EXECUTION";
   const isDone = caseData.status === "DONE";
@@ -93,6 +95,14 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
       // Duplicate start or invalid state: refetch authoritative state
       queryClient.invalidateQueries({ queryKey: queryKeys.case(caseData.id) });
       queryClient.invalidateQueries({ queryKey: ["executions", caseData.id] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.analyses(caseData.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.analysisCurrent(caseData.id) });
+
+      if (err?.status === 409 || err?.code === "STALE_ANALYSIS") {
+        setIsStaleConflict(true);
+        return;
+      }
+
       const msg =
         err?.message ||
         "Gagal memulai eksekusi. Kasus mungkin sudah memiliki eksekusi aktif atau status telah berubah.";
@@ -372,8 +382,16 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
           onSuccessResult={() => {
             refetchExecutions();
           }}
+          onStaleConflict={() => setIsStaleConflict(true)}
         />
       )}
+
+      {/* Stale Analysis Conflict Modal */}
+      <StaleAnalysisModal
+        isOpen={isStaleConflict}
+        onClose={() => setIsStaleConflict(false)}
+        caseId={caseData.id}
+      />
     </div>
   );
 }
