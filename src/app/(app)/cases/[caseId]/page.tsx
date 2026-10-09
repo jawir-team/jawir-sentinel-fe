@@ -81,11 +81,11 @@ export default function CaseDetailPage({
     );
   }
 
-  const isMaker = caseData.maker?.id === currentUser?.id || caseData.maker?.name === currentUser?.name;
+  const isMaker = caseData.maker?.id === currentUser?.id;
   const isParticipant =
     isMaker ||
     caseData.participants.some(
-      (p) => p.user_id === currentUser?.id || p.name === currentUser?.name
+      (p) => p.user_id === currentUser?.id && p.status === "ACTIVE"
     );
 
   const tabs: { key: CaseTabKey; label: string; icon: React.ComponentType<{ className?: string }> }[] = [

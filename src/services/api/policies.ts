@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "./client";
+import { apiGet, apiPost, shouldUseApiFallback } from "./client";
 import {
   PolicyDetail,
   PolicyListItem,
@@ -101,6 +101,7 @@ export async function getPolicies(
     }
     return { data: [], pagination: { page: 1, limit: 20, total: 0 } };
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -147,6 +148,7 @@ export async function getPolicyById(policyId: string): Promise<PolicyDetail> {
   try {
     return await apiGet<PolicyDetail>(`/policies/${policyId}`);
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -165,6 +167,7 @@ export async function createPolicy(
   try {
     return await apiPost<PolicyDetail, CreatePolicyPayload>("/policies", payload);
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -196,6 +199,7 @@ export async function createPolicyVersion(
       payload
     );
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -238,9 +242,11 @@ export async function activatePolicyVersion(
 ): Promise<PolicyVersion> {
   try {
     return await apiPost<PolicyVersion>(
-      `/policies/${policyId}/versions/${versionId}/activate`
+      `/policies/${policyId}/versions/${versionId}/activate`,
+      {}
     );
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -292,9 +298,11 @@ export async function recoverPolicyIndexing(
 ): Promise<PolicyVersion> {
   try {
     return await apiPost<PolicyVersion>(
-      `/policies/${policyId}/versions/${versionId}/recover`
+      `/policies/${policyId}/versions/${versionId}/activate`,
+      {}
     );
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }

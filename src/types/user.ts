@@ -25,7 +25,7 @@ export interface UserItem {
 }
 
 export interface CreateUserPayload {
-  firebase_uid?: string;
+  firebase_uid: string;
   name: string;
   email: string;
   unit_id: string;

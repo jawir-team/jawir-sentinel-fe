@@ -68,8 +68,7 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
   );
   const isAssignedExecuter = Boolean(
     executerParticipant &&
-      (executerParticipant.user_id === currentUser?.id ||
-        executerParticipant.name === currentUser?.name)
+      executerParticipant.user_id === currentUser?.id
   );
 
   // Active in-progress execution

@@ -1,4 +1,10 @@
-export type EvidenceType = "COMMENT" | "FILE" | "SYSTEM";
+export type EvidenceType =
+  | "COMMENT"
+  | "DOCUMENT"
+  | "LOG"
+  | "SCREENSHOT"
+  | "REFERENCE"
+  | "EXECUTION_RESULT";
 export type EvidenceSourceType =
   | "MAKER"
   | "CHECKER"
@@ -22,9 +28,7 @@ export interface EvidenceItem {
 }
 
 export interface CreateEvidencePayload {
-  evidence_type: "COMMENT" | "FILE";
+  evidence_type: "COMMENT" | "DOCUMENT" | "LOG" | "SCREENSHOT" | "REFERENCE";
   title: string;
   content: string;
-  file_path?: string;
-  mime_type?: string;
 }

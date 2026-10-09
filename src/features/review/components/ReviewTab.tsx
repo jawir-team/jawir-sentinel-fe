@@ -74,7 +74,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
     (p) =>
       p.role === "CHECKER" &&
       p.status === "ACTIVE" &&
-      (p.user_id === currentUser?.id || p.name === currentUser?.name)
+      p.user_id === currentUser?.id
   );
 
   // Check if current user is the assigned Signer
@@ -83,13 +83,12 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
   );
   const isAssignedSigner = Boolean(
     signerParticipant &&
-      (signerParticipant.user_id === currentUser?.id ||
-        signerParticipant.name === currentUser?.name)
+      signerParticipant.user_id === currentUser?.id
   );
 
   // Find current user's decision status in the active checker round
   const myCheckerRecord = checkerStatus?.checkers.find(
-    (c) => c.user_id === currentUser?.id || c.name === currentUser?.name
+    (c) => c.user_id === currentUser?.id
   );
   const myStatus = myCheckerRecord?.status || "PENDING";
 

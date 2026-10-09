@@ -2,8 +2,9 @@ export type AnalysisStatus = "GENERATING" | "COMPLETED" | "FAILED";
 export type VerificationStatus = "PASS" | "PASS_WITH_WARNING" | "FAIL";
 export type PolicyStatus =
   | "POLICY_FOUND"
-  | "POLICY_NOT_FOUND"
   | "POLICY_PARTIAL"
+  | "NO_POLICY_FOUND"
+  | "INSUFFICIENT_EVIDENCE"
   | "POLICY_CONFLICT";
 export type EvidenceQuality = "HIGH" | "MEDIUM" | "LOW";
 export type UncertaintyLevel = "LOW" | "MEDIUM" | "HIGH";
@@ -102,6 +103,5 @@ export interface AnalysisDetail {
   verification?: VerificationResult | null;
   policy_references?: PolicyReference[] | null;
   evidence_references?: EvidenceReference[] | null;
-  failure_reason?: string | null;
   created_at: string;
 }

@@ -6,6 +6,7 @@ import { CaseDetail, CaseRole, CaseParticipant } from "@/types/case";
 import { getUsers } from "@/services/api/users";
 import { assignParticipant, removeParticipant } from "@/services/api/cases";
 import { queryKeys } from "@/constants/queryKeys";
+import { useAuth } from "@/features/auth/context/AuthContext";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
@@ -21,7 +22,9 @@ export function ParticipantAssignmentSection({
   caseData,
 }: ParticipantAssignmentSectionProps) {
   const queryClient = useQueryClient();
-  const isDraft = caseData.status === "DRAFT";
+  const { currentUser } = useAuth();
+  const canManageParticipants =
+    caseData.status === "DRAFT" && caseData.maker.id === currentUser?.id;
 
   const [selectedCheckerId, setSelectedCheckerId] = React.useState("");
   const [selectedSignerId, setSelectedSignerId] = React.useState("");
@@ -53,7 +56,7 @@ export function ParticipantAssignmentSection({
   const currentExecuter = activeParticipants.find((p) => p.role === "EXECUTER");
 
   const assignMutation = useMutation({
-    mutationFn: (payload: { user_id: string; role: CaseRole }) =>
+    mutationFn: (payload: { user_id: string; role: CaseRole; required: boolean }) =>
       assignParticipant(caseData.id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.case(caseData.id) });
@@ -90,19 +93,19 @@ export function ParticipantAssignmentSection({
   const handleAddChecker = () => {
     if (!selectedCheckerId) return;
     setErrorMessage(null);
-    assignMutation.mutate({ user_id: selectedCheckerId, role: "CHECKER" });
+    assignMutation.mutate({ user_id: selectedCheckerId, role: "CHECKER", required: true });
   };
 
   const handleAssignSigner = () => {
     if (!selectedSignerId) return;
     setErrorMessage(null);
-    assignMutation.mutate({ user_id: selectedSignerId, role: "SIGNER" });
+    assignMutation.mutate({ user_id: selectedSignerId, role: "SIGNER", required: true });
   };
 
   const handleAssignExecuter = () => {
     if (!selectedExecuterId) return;
     setErrorMessage(null);
-    assignMutation.mutate({ user_id: selectedExecuterId, role: "EXECUTER" });
+    assignMutation.mutate({ user_id: selectedExecuterId, role: "EXECUTER", required: true });
   };
 
   return (
@@ -115,7 +118,7 @@ export function ParticipantAssignmentSection({
               Workflow Participant Assignments (Workflow Roles)
             </CardTitle>
           </div>
-          {!isDraft && (
+          {!canManageParticipants && (
             <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium bg-slate-100 px-2.5 py-1 rounded">
               <Lock className="h-3.5 w-3.5" aria-hidden="true" />
               Locked (Read-Only)
@@ -184,7 +187,7 @@ export function ParticipantAssignmentSection({
                     <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                     <span className="font-medium text-slate-800">{c.name}</span>
                   </div>
-                  {isDraft && (
+                  {canManageParticipants && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -201,7 +204,7 @@ export function ParticipantAssignmentSection({
             </div>
           )}
 
-          {isDraft && (
+          {canManageParticipants && (
             <div className="flex items-center gap-2 pt-2">
               <Select
                 value={selectedCheckerId}
@@ -250,7 +253,7 @@ export function ParticipantAssignmentSection({
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 <span className="font-medium text-slate-800">{currentSigner.name}</span>
               </div>
-              {isDraft && (
+              {canManageParticipants && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -269,7 +272,7 @@ export function ParticipantAssignmentSection({
             </p>
           )}
 
-          {isDraft && !currentSigner && (
+          {canManageParticipants && !currentSigner && (
             <div className="flex items-center gap-2 pt-2">
               <Select
                 value={selectedSignerId}
@@ -318,7 +321,7 @@ export function ParticipantAssignmentSection({
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 <span className="font-medium text-slate-800">{currentExecuter.name}</span>
               </div>
-              {isDraft && (
+              {canManageParticipants && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -337,7 +340,7 @@ export function ParticipantAssignmentSection({
             </p>
           )}
 
-          {isDraft && !currentExecuter && (
+          {canManageParticipants && !currentExecuter && (
             <div className="flex items-center gap-2 pt-2">
               <Select
                 value={selectedExecuterId}

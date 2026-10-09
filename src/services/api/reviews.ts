@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "./client";
+import { apiGet, apiPost, shouldUseApiFallback } from "./client";
 import {
   CheckerDecisionPayload,
   CheckerDecisionResponse,
@@ -43,6 +43,7 @@ export async function getCheckerStatus(
     }
     return res as CheckerStatusData;
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (
       err &&
       typeof err === "object" &&
@@ -80,6 +81,7 @@ export async function submitCheckerDecision(
     }
     return res as CheckerDecisionResponse;
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (
       err &&
       typeof err === "object" &&
@@ -91,7 +93,7 @@ export async function submitCheckerDecision(
 
     // In-memory mock response
     const statusData = mockCheckerStatusStore[caseId];
-    let nextCaseStatus = "CHECKING";
+    let nextCaseStatus: CheckerDecisionResponse["case_status"] = "CHECKING";
 
     if (payload.decision === "REJECT") {
       nextCaseStatus = "AI_ANALYSIS";
@@ -131,6 +133,7 @@ export async function submitSignerDecision(
     }
     return res as SignerDecisionResponse;
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (
       err &&
       typeof err === "object" &&
@@ -140,7 +143,7 @@ export async function submitSignerDecision(
       throw err;
     }
 
-    let nextCaseStatus = "EXECUTION";
+    let nextCaseStatus: SignerDecisionResponse["case_status"] = "EXECUTION";
     if (payload.decision === "REJECT") {
       nextCaseStatus = "AI_ANALYSIS";
     }
@@ -152,4 +155,3 @@ export async function submitSignerDecision(
     };
   }
 }
-

@@ -10,6 +10,12 @@ export function CaseStatusBadge({ status }: { status: CaseStatus }) {
           DRAFT
         </Badge>
       );
+    case "SUBMITTED":
+      return (
+        <Badge variant="default" dot>
+          SUBMITTED
+        </Badge>
+      );
     case "AI_ANALYSIS":
       return (
         <Badge variant="default" dot>

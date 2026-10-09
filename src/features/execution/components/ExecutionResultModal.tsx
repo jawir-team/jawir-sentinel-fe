@@ -85,8 +85,8 @@ export function ExecutionResultModal({
       return;
     }
 
-    if (targetStatus === "SUCCESS" && !resultText.trim()) {
-      setErrorMessage("Resolution outcome confirmation (result) is required for SUCCESS status.");
+    if ((targetStatus === "SUCCESS" || targetStatus === "FAILED") && !resultText.trim()) {
+      setErrorMessage(`Execution result (result) is required for ${targetStatus} status.`);
       return;
     }
 
@@ -187,8 +187,8 @@ export function ExecutionResultModal({
           />
         </FormField>
 
-        {targetStatus === "SUCCESS" && (
-          <FormField label="Resolution Outcome Confirmation (Result - Required)" required>
+        {(targetStatus === "SUCCESS" || targetStatus === "FAILED") && (
+          <FormField label="Execution Result (Result - Required)" required>
             <Textarea
               rows={2}
               placeholder="Example: Full batch reconciliation completed balanced and ledger synchronized with zero discrepancy."

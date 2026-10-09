@@ -1,10 +1,11 @@
-import { apiGet } from "./client";
+import { apiGet, shouldUseApiFallback } from "./client";
 import { CurrentUser } from "@/types/user";
 
 export async function getCurrentUser(fallbackEmail?: string | null): Promise<CurrentUser> {
   try {
     return await apiGet<CurrentUser>("/me");
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     // Check if error is 401 or 403 - rethrow so session terminates
     if (err && typeof err === "object" && "status" in err) {
       const status = (err as { status?: number }).status;

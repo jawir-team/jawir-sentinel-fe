@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "./client";
+import { apiGet, apiPost, shouldUseApiFallback } from "./client";
 import { Unit, CreateUnitPayload } from "@/types/unit";
 import { initialUnits } from "@/mocks/mockData";
 
@@ -8,6 +8,7 @@ export async function getUnits(): Promise<Unit[]> {
   try {
     return await apiGet<Unit[]>("/units");
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -19,6 +20,7 @@ export async function createUnit(payload: CreateUnitPayload): Promise<Unit> {
   try {
     return await apiPost<Unit, CreateUnitPayload>("/units", payload);
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }

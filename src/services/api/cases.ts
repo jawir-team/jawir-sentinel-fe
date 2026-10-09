@@ -1,9 +1,12 @@
-import { apiGet, apiPost, apiPatch, apiDelete } from "./client";
+import { apiGet, apiPost, apiPatch, apiDelete, shouldUseApiFallback } from "./client";
 import {
   CaseDetail,
   CaseListItem,
   CasesFilterParams,
   CreateCasePayload,
+  CreateCaseResponse,
+  SubmitCaseResponse,
+  CloseCaseResponse,
   UpdateCasePayload,
   AssignParticipantPayload,
   CaseParticipant,
@@ -36,6 +39,7 @@ export async function getCases(
       pagination: { page: 1, limit: 20, total: 0 },
     };
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -78,6 +82,7 @@ export async function getCaseById(caseId: string): Promise<CaseDetail> {
   try {
     return await apiGet<CaseDetail>(`/cases/${caseId}`);
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -89,10 +94,11 @@ export async function getCaseById(caseId: string): Promise<CaseDetail> {
   }
 }
 
-export async function createCase(payload: CreateCasePayload): Promise<CaseDetail> {
+export async function createCase(payload: CreateCasePayload): Promise<CreateCaseResponse> {
   try {
-    return await apiPost<CaseDetail, CreateCasePayload>("/cases", payload);
+    return await apiPost<CreateCaseResponse, CreateCasePayload>("/cases", payload);
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -134,7 +140,7 @@ export async function createCase(payload: CreateCasePayload): Promise<CaseDetail
     };
 
     mockCases.unshift(newCase);
-    return newCase;
+    return { id: newCase.id, case_number: newCase.case_number, status: "DRAFT" };
   }
 }
 
@@ -145,6 +151,7 @@ export async function updateCase(
   try {
     return await apiPatch<CaseDetail, UpdateCasePayload>(`/cases/${caseId}`, payload);
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -171,6 +178,7 @@ export async function assignParticipant(
       payload
     );
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -240,6 +248,7 @@ export async function removeParticipant(
       `/cases/${caseId}/participants/${participantId}`
     );
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -258,10 +267,11 @@ export async function removeParticipant(
   }
 }
 
-export async function submitCase(caseId: string): Promise<CaseDetail> {
+export async function submitCase(caseId: string): Promise<SubmitCaseResponse> {
   try {
-    return await apiPost<CaseDetail>(`/cases/${caseId}/submit`);
+    return await apiPost<SubmitCaseResponse>(`/cases/${caseId}/submit`, {});
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -271,17 +281,21 @@ export async function submitCase(caseId: string): Promise<CaseDetail> {
     }
     mockCases[index].status = "AI_ANALYSIS";
     mockCases[index].updated_at = new Date().toISOString();
-    return mockCases[index] as CaseDetail;
+    return { id: mockCases[index].id, status: "AI_ANALYSIS" };
   }
 }
 
 export async function closeCase(
   caseId: string,
   payload: { reason: string }
-): Promise<CaseDetail> {
+): Promise<CloseCaseResponse> {
   try {
-    return await apiPost<CaseDetail>(`/cases/${caseId}/close`, payload);
+    return await apiPost<CloseCaseResponse, { reason: string }>(
+      `/cases/${caseId}/close`,
+      payload
+    );
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -297,12 +311,17 @@ export async function closeCase(
         409
       );
     }
+    const closedAt = new Date().toISOString();
     mockCases[index] = {
       ...current,
       status: "CLOSED",
-      updated_at: new Date().toISOString(),
+      updated_at: closedAt,
     };
-    return mockCases[index] as CaseDetail;
+    return {
+      id: mockCases[index].id,
+      status: "CLOSED",
+      close_reason: payload.reason,
+      closed_at: closedAt,
+    };
   }
 }
-

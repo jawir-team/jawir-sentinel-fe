@@ -29,6 +29,14 @@ export function getBaseApiUrl(): string {
   return base.replace(/\/+$/, "");
 }
 
+export function shouldUseApiFallback(error: unknown): boolean {
+  return (
+    process.env.NEXT_PUBLIC_ENABLE_API_MOCKS === "true" &&
+    error instanceof ApiError &&
+    error.code === "NETWORK_ERROR"
+  );
+}
+
 function buildUrl(
   path: string,
   params?: Record<string, string | number | boolean | undefined | null>

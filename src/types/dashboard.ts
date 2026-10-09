@@ -2,6 +2,7 @@ import { CaseStatus } from "./case";
 
 export interface DashboardStatusCounts {
   DRAFT: number;
+  SUBMITTED?: number;
   AI_ANALYSIS: number;
   CHECKING: number;
   SIGNING: number;

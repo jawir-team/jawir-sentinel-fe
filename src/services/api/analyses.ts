@@ -1,4 +1,4 @@
-import { apiGet } from "./client";
+import { apiGet, shouldUseApiFallback } from "./client";
 import {
   AnalysisDetail,
   AnalysisSummaryItem,
@@ -141,8 +141,6 @@ const mockAnalysisDetails: Record<string, AnalysisDetail> = {
     },
     policy_references: null,
     evidence_references: null,
-    failure_reason:
-      "Model output verification failed: hallucinated policy clause reference detected.",
     created_at: "2026-10-01T10:04:00Z",
   },
   "analysis-v201": {
@@ -267,6 +265,7 @@ export async function getAnalyses(
     if (res && "data" in res && Array.isArray(res.data)) return res.data;
     return [];
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (
       err &&
       typeof err === "object" &&
@@ -291,6 +290,7 @@ export async function getCurrentAnalysis(
     }
     return res as AnalysisDetail;
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (
       err &&
       typeof err === "object" &&
@@ -324,6 +324,7 @@ export async function getAnalysisById(
     }
     return res as AnalysisDetail;
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (
       err &&
       typeof err === "object" &&

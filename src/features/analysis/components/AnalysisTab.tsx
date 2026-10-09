@@ -10,6 +10,7 @@ import {
   getAnalysisById,
 } from "@/services/api/analyses";
 import { getEvidences } from "@/services/api/evidences";
+import { getCaseHistory } from "@/services/api/history";
 import { queryKeys } from "@/constants/queryKeys";
 import { AnalysisDetailView } from "./AnalysisDetailView";
 import { AnalysisVersionSelector } from "./AnalysisVersionSelector";
@@ -50,6 +51,12 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
     queryKey: queryKeys.evidences(caseData.id),
     queryFn: () => getEvidences(caseData.id),
     enabled: !isDraft,
+  });
+
+  const { data: history = [] } = useQuery({
+    queryKey: queryKeys.history(caseData.id),
+    queryFn: () => getCaseHistory(caseData.id),
+    enabled: isEscalationRequired,
   });
 
   const currentAnalysisId = caseData.current_analysis?.id;
@@ -162,21 +169,23 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
     );
   }
 
-  // Determine escalation cause if case or analysis indicates failure/escalation
-  const latestAttempt = analyses && analyses.length > 0
-    ? [...analyses].sort((a, b) => b.version - a.version)[0]
-    : null;
-
+  // Escalation cause is authoritative audit metadata, not an inference from
+  // POLICY_CONFLICT, analysis count, or provider-facing failure text.
+  const escalationEvent = [...history]
+    .reverse()
+    .find(
+      (event) =>
+        event.event_type === "REANALYSIS_LIMIT_REACHED" ||
+        event.event_type === "AI_ANALYSIS_FAILED"
+    );
   let escalationCause: EscalationCause = "UNKNOWN";
-  if (latestAttempt?.verification_status === "FAIL") {
-    escalationCause = "VERIFIER_FAIL";
-  } else if (analyses.length >= 4) {
+  if (escalationEvent?.event_type === "REANALYSIS_LIMIT_REACHED") {
     escalationCause = "REANALYSIS_LIMIT_REACHED";
-  } else if (activeAnalysis?.failure_reason?.toLowerCase().includes("timeout") ||
-             activeAnalysis?.failure_reason?.toLowerCase().includes("retry")) {
-    escalationCause = "TECHNICAL_RETRY_EXHAUSTED";
-  } else if (activeAnalysis?.status === "FAILED") {
-    escalationCause = "VERIFIER_FAIL";
+  } else if (escalationEvent?.event_type === "AI_ANALYSIS_FAILED") {
+    const failureType = escalationEvent.metadata?.failure_type;
+    if (failureType === "VERIFIER_FAIL" || failureType === "TECHNICAL_RETRY_EXHAUSTED") {
+      escalationCause = failureType;
+    }
   }
 
   if (isErrorDetail && !activeAnalysis) {
@@ -219,7 +228,6 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
       {isEscalationRequired && (
         <EscalationNotice
           cause={escalationCause}
-          failureReason={activeAnalysis?.failure_reason}
           versionCount={analyses.length}
         />
       )}

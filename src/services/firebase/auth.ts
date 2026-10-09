@@ -13,6 +13,7 @@ export interface SentinelAuthUser {
 }
 
 const LOCAL_MOCK_USER_KEY = "sentinel_mock_auth_user";
+const isMockAuthEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_AUTH === "true";
 
 export async function signInWithEmail(
   email: string,
@@ -32,8 +33,10 @@ export async function signInWithEmail(
         displayName: cred.user.displayName,
       };
     } catch (err: unknown) {
-      console.warn("Firebase sign-in failed, attempting fallback session:", err);
-      // If error is invalid-api-key or unauthorized domain or network, allow fallback for development/demo
+      if (!isMockAuthEnabled) {
+        throw err;
+      }
+      console.warn("Firebase sign-in failed; mock auth is explicitly enabled:", err);
       const mockUser: SentinelAuthUser = {
         uid: `demo-${email.split("@")[0]}`,
         email: email,
@@ -46,7 +49,10 @@ export async function signInWithEmail(
       return mockUser;
     }
   } else {
-    // Development / demo mode without Firebase project
+    if (!isMockAuthEnabled) {
+      throw new Error("Firebase Authentication is not configured.");
+    }
+    // Explicit development/demo mode without a Firebase project.
     const mockUser: SentinelAuthUser = {
       uid: `demo-${email.split("@")[0]}`,
       email: email,
@@ -83,8 +89,8 @@ export async function getFirebaseIdToken(
     }
   }
 
-  // Check fallback mock user
-  if (typeof window !== "undefined") {
+  // Check fallback mock user only when explicitly enabled.
+  if (isMockAuthEnabled && typeof window !== "undefined") {
     const mockUser = localStorage.getItem(LOCAL_MOCK_USER_KEY);
     if (mockUser) {
       try {
@@ -111,8 +117,8 @@ export function onAuthStateChange(
         displayName: firebaseUser.displayName,
       });
     } else {
-      // Check if fallback mock user is active
-      if (typeof window !== "undefined") {
+      // Check if an explicitly enabled fallback mock user is active.
+      if (isMockAuthEnabled && typeof window !== "undefined") {
         const mockUserStr = localStorage.getItem(LOCAL_MOCK_USER_KEY);
         if (mockUserStr) {
           try {
@@ -146,13 +152,13 @@ export function onAuthStateChange(
     }
   };
 
-  if (typeof window !== "undefined") {
+  if (isMockAuthEnabled && typeof window !== "undefined") {
     window.addEventListener("sentinel-auth-changed", handleLocalChange);
   }
 
   return () => {
     unsubscribeFirebase();
-    if (typeof window !== "undefined") {
+    if (isMockAuthEnabled && typeof window !== "undefined") {
       window.removeEventListener("sentinel-auth-changed", handleLocalChange);
     }
   };

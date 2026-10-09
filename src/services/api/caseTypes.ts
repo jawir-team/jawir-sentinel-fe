@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "./client";
+import { apiGet, apiPost, shouldUseApiFallback } from "./client";
 import { CaseType, CreateCaseTypePayload } from "@/types/caseType";
 import { initialCaseTypes } from "@/mocks/mockData";
 
@@ -8,6 +8,7 @@ export async function getCaseTypes(): Promise<CaseType[]> {
   try {
     return await apiGet<CaseType[]>("/case-types");
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -21,6 +22,7 @@ export async function createCaseType(
   try {
     return await apiPost<CaseType, CreateCaseTypePayload>("/case-types", payload);
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }

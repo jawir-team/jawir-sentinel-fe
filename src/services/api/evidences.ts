@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "./client";
+import { apiGet, apiPost, shouldUseApiFallback } from "./client";
 import { EvidenceItem, CreateEvidencePayload } from "@/types/evidence";
 import { ApiError } from "@/types/api";
 
@@ -6,7 +6,7 @@ const mockEvidences: Record<string, EvidenceItem[]> = {
   "case-001": [
     {
       id: "ev-001",
-      evidence_type: "FILE",
+      evidence_type: "DOCUMENT",
       source_type: "MAKER",
       source_user: { id: "usr-ops", name: "Operations User" },
       title: "Reconciliation discrepancy log",
@@ -38,6 +38,7 @@ export async function getEvidences(caseId: string): Promise<EvidenceItem[]> {
     if (res && "data" in res && Array.isArray(res.data)) return res.data;
     return [];
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -55,6 +56,7 @@ export async function createEvidence(
       payload
     );
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -66,8 +68,8 @@ export async function createEvidence(
       source_user: { id: "usr-ops", name: "Operations User" },
       title: payload.title,
       content: payload.content,
-      file_path: payload.file_path || null,
-      mime_type: payload.mime_type || null,
+      file_path: null,
+      mime_type: null,
       created_at: new Date().toISOString(),
     };
 
@@ -89,6 +91,7 @@ export async function getEvidenceUploadUrl(
       payload
     );
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -129,15 +132,16 @@ export async function uploadFileToSignedUrl(
 
 export async function registerFileEvidence(
   caseId: string,
-  payload: { file_key: string; title: string; evidence_type?: string }
+  payload: { file_key: string; title: string; evidence_type: "DOCUMENT" | "LOG" | "SCREENSHOT" | "REFERENCE" }
 ): Promise<EvidenceItem> {
   try {
     return await apiPost<EvidenceItem>(`/cases/${caseId}/evidences/file`, {
-      evidence_type: payload.evidence_type || "DOCUMENT",
+      evidence_type: payload.evidence_type,
       title: payload.title,
       file_key: payload.file_key,
     });
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -152,7 +156,7 @@ export async function registerFileEvidence(
 
     const newEvidence: EvidenceItem = {
       id: `ev-${Date.now()}`,
-      evidence_type: "FILE",
+      evidence_type: payload.evidence_type,
       source_type: "MAKER",
       source_user: { id: "usr-ops", name: "Operations User" },
       title: payload.title,
@@ -169,4 +173,3 @@ export async function registerFileEvidence(
     return newEvidence;
   }
 }
-

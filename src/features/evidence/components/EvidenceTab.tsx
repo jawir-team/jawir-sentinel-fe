@@ -56,14 +56,13 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
   });
 
   const isMaker =
-    caseData.maker?.id === currentUser?.id ||
-    caseData.maker?.name === currentUser?.name;
+    caseData.maker?.id === currentUser?.id;
 
   const isActiveParticipant =
     isMaker ||
     caseData.participants.some(
       (p) =>
-        (p.user_id === currentUser?.id || p.name === currentUser?.name) &&
+        p.user_id === currentUser?.id &&
         p.status === "ACTIVE"
     );
 
@@ -192,7 +191,7 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
               <CardHeader className="py-3.5 border-b border-slate-100 flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                    {ev.evidence_type === "FILE" ? (
+                    {ev.file_path ? (
                       <Paperclip className="h-4 w-4" />
                     ) : (
                       <FileText className="h-4 w-4" />

@@ -1,4 +1,4 @@
-import { apiGet } from "./client";
+import { apiGet, shouldUseApiFallback } from "./client";
 import { CaseHistoryEvent } from "@/types/history";
 
 const mockHistories: Record<string, CaseHistoryEvent[]> = {
@@ -20,7 +20,7 @@ const mockHistories: Record<string, CaseHistoryEvent[]> = {
       actor_role: "MAKER",
       analysis_id: null,
       analysis_version: null,
-      metadata: { title: "Reconciliation discrepancy log", evidence_type: "FILE" },
+      metadata: { title: "Reconciliation discrepancy log", evidence_type: "DOCUMENT" },
       created_at: "2026-10-01T10:02:00Z",
     },
     {
@@ -77,6 +77,7 @@ export async function getCaseHistory(
     if (res && "data" in res && Array.isArray(res.data)) return res.data;
     return [];
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (
       err &&
       typeof err === "object" &&

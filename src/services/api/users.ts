@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPatch } from "./client";
+import { apiGet, apiPost, apiPatch, shouldUseApiFallback } from "./client";
 import { UserItem, CreateUserPayload, UpdateUserPayload } from "@/types/user";
 import { initialUsers, initialUnits } from "@/mocks/mockData";
 import { ApiError } from "@/types/api";
@@ -17,6 +17,7 @@ export async function getUsers(params?: {
     if (res && "data" in res && Array.isArray(res.data)) return res.data;
     return [];
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -35,6 +36,7 @@ export async function createUser(payload: CreateUserPayload): Promise<UserItem> 
   try {
     return await apiPost<UserItem, CreateUserPayload>("/users", payload);
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
@@ -71,6 +73,7 @@ export async function updateUser(
   try {
     return await apiPatch<UserItem, UpdateUserPayload>(`/users/${userId}`, payload);
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }

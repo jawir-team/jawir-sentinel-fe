@@ -1,3 +1,5 @@
+import { CaseStatus } from "./case";
+
 export type ReviewDecision = "APPROVE" | "REJECT";
 
 export interface CheckerDecisionPayload {
@@ -11,7 +13,7 @@ export interface CheckerDecisionPayload {
 export interface CheckerDecisionResponse {
   decision_id: string;
   decision: ReviewDecision;
-  case_status: string;
+  case_status: CaseStatus;
 }
 
 export interface CheckerItemStatus {
@@ -40,6 +42,5 @@ export interface SignerDecisionPayload {
 export interface SignerDecisionResponse {
   decision_id: string;
   decision: ReviewDecision;
-  case_status: string;
+  case_status: CaseStatus;
 }
-

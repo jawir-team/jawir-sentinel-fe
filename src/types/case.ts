@@ -1,5 +1,6 @@
 export type CaseStatus =
   | "DRAFT"
+  | "SUBMITTED"
   | "AI_ANALYSIS"
   | "CHECKING"
   | "SIGNING"
@@ -35,7 +36,7 @@ export interface CaseParticipant {
 export interface CurrentAnalysisSummary {
   id: string;
   version: number;
-  verification_status: "PASS" | "FAIL";
+  verification_status: "PASS" | "PASS_WITH_WARNING";
 }
 
 export interface CaseListItem {
@@ -73,7 +74,26 @@ export interface CreateCasePayload {
   urgency: Urgency;
 }
 
+export interface CreateCaseResponse {
+  id: string;
+  case_number: string;
+  status: "DRAFT";
+}
+
+export interface SubmitCaseResponse {
+  id: string;
+  status: "AI_ANALYSIS";
+}
+
+export interface CloseCaseResponse {
+  id: string;
+  status: "CLOSED";
+  close_reason: string;
+  closed_at: string;
+}
+
 export interface UpdateCasePayload {
+  case_type_id?: string;
   title?: string;
   description?: string;
   urgency?: Urgency;
@@ -82,6 +102,7 @@ export interface UpdateCasePayload {
 export interface AssignParticipantPayload {
   user_id: string;
   role: CaseRole;
+  required: boolean;
 }
 
 export interface CasesFilterParams {

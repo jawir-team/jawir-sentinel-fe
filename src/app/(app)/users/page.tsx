@@ -39,6 +39,7 @@ export default function UsersPage() {
 
   // Create User Dialog
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
+  const [createFirebaseUid, setCreateFirebaseUid] = React.useState("");
   const [createName, setCreateName] = React.useState("");
   const [createEmail, setCreateEmail] = React.useState("");
   const [createUnitId, setCreateUnitId] = React.useState("");
@@ -115,6 +116,7 @@ export default function UsersPage() {
   });
 
   const resetCreateForm = () => {
+    setCreateFirebaseUid("");
     setCreateName("");
     setCreateEmail("");
     setCreateUnitId(units?.[0]?.id || "");
@@ -139,11 +141,12 @@ export default function UsersPage() {
 
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!createName.trim() || !createEmail.trim()) {
-      setCreateError("User name and email are required.");
+    if (!createFirebaseUid.trim() || !createName.trim() || !createEmail.trim()) {
+      setCreateError("Firebase UID, user name, and email are required.");
       return;
     }
     createMutation.mutate({
+      firebase_uid: createFirebaseUid.trim(),
       name: createName.trim(),
       email: createEmail.trim(),
       unit_id: createUnitId || units?.[0]?.id || "unit-ops",
@@ -334,6 +337,21 @@ export default function UsersPage() {
               {createError}
             </Alert>
           )}
+
+          <FormField
+            label="Firebase UID"
+            id="create-firebase-uid"
+            required
+            hint="Firebase Authentication identity mapped to this Sentinel user."
+          >
+            <Input
+              id="create-firebase-uid"
+              placeholder="Firebase user UID"
+              value={createFirebaseUid}
+              onChange={(e) => setCreateFirebaseUid(e.target.value)}
+              disabled={createMutation.isPending}
+            />
+          </FormField>
 
           <FormField label="Full Name" id="create-name" required>
             <Input

@@ -1,4 +1,4 @@
-import { apiGet } from "./client";
+import { apiGet, shouldUseApiFallback } from "./client";
 import { DashboardSummaryData } from "@/types/dashboard";
 
 const mockSummary: DashboardSummaryData = {
@@ -8,6 +8,7 @@ const mockSummary: DashboardSummaryData = {
   need_my_execution: 1,
   status_counts: {
     DRAFT: 1,
+    SUBMITTED: 0,
     AI_ANALYSIS: 0,
     CHECKING: 1,
     SIGNING: 1,
@@ -28,6 +29,7 @@ export async function getDashboardSummary(): Promise<DashboardSummaryData> {
     }
     return res as DashboardSummaryData;
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (
       err &&
       typeof err === "object" &&

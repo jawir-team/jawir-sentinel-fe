@@ -13,13 +13,11 @@ export type EscalationCause =
 
 interface EscalationNoticeProps {
   cause?: EscalationCause;
-  failureReason?: string | null;
   versionCount?: number;
 }
 
 export function EscalationNotice({
   cause = "UNKNOWN",
-  failureReason,
   versionCount = 1,
 }: EscalationNoticeProps) {
   const getCauseDetails = () => {
@@ -55,7 +53,6 @@ export function EscalationNotice({
           title: "Escalation Required",
           badge: "ESCALATION REQUIRED",
           explanation:
-            failureReason ||
             "The case requires manual operational intervention because automated analysis could not proceed.",
           actionAdvice:
             "Review case audit history and available evidence documents to determine subsequent operational actions.",

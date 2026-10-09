@@ -1,5 +1,6 @@
+import { CaseStatus } from "./case";
+
 export type ExecutionStatus =
-  | "NOT_STARTED"
   | "IN_PROGRESS"
   | "SUCCESS"
   | "BLOCKED"
@@ -26,7 +27,7 @@ export interface ExecutionResultPayload {
 export interface ExecutionResultResponse {
   id: string;
   status: "SUCCESS" | "BLOCKED" | "FAILED";
-  case_status: string;
+  case_status: CaseStatus;
 }
 
 export interface ExecutionItem {

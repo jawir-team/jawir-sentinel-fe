@@ -155,11 +155,11 @@ export function AnalysisDetailView({
         </div>
       </div>
 
-      {/* Verification Issues & Failure Reasons */}
+      {/* Verification failure details exposed by the locked analysis shape */}
       {analysis.status === "FAILED" && (
         <Alert variant="destructive" title="Analysis Failed / Verifier Rejected">
-          {analysis.failure_reason ||
-            "The verification or AI inference process failed to produce a valid output conforming to policy."}
+          The analysis did not produce a reviewable result. See verification issues and case
+          history for the authoritative failure classification.
         </Alert>
       )}
 

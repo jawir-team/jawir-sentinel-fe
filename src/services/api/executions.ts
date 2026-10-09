@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "./client";
+import { apiGet, apiPost, shouldUseApiFallback } from "./client";
 import {
   StartExecutionPayload,
   StartExecutionResponse,
@@ -20,6 +20,7 @@ export async function getExecutions(caseId: string): Promise<ExecutionItem[]> {
     if (res && "data" in res && Array.isArray(res.data)) return res.data;
     return [];
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (
       err &&
       typeof err === "object" &&
@@ -46,6 +47,7 @@ export async function startExecution(
     }
     return res as StartExecutionResponse;
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (
       err &&
       typeof err === "object" &&
@@ -91,6 +93,7 @@ export async function submitExecutionResult(
     }
     return res as ExecutionResultResponse;
   } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
     if (
       err &&
       typeof err === "object" &&
@@ -100,7 +103,7 @@ export async function submitExecutionResult(
       throw err;
     }
 
-    let nextCaseStatus = "DONE";
+    let nextCaseStatus: ExecutionResultResponse["case_status"] = "DONE";
     if (payload.status === "BLOCKED" || payload.status === "FAILED") {
       nextCaseStatus = "AI_ANALYSIS";
     }
