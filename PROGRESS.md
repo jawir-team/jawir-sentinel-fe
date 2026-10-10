@@ -1,0 +1,31 @@
+# JAWIR Sentinel Frontend Implementation Progress
+
+- [x] FE-001 Initialize Next.js project (#30) — App Router scaffold with TypeScript, ESLint, and Next.js 14 verified.
+- [x] FE-002 Setup Tailwind + base UI primitives (#31) — Configured Tailwind and created accessible base UI primitives and feedback states.
+- [x] FE-003 Setup TanStack Query + API client (#32) — Configured QueryClient provider, API client with auth injection, error envelope normalization, and query keys.
+- [x] FE-004 App shell + routing (#33) — Implemented App shell (Header, Sidebar, Container), error/loading/not-found boundaries, and all core MVP routes.
+- [x] FE-005 Firebase login flow (#34) — Implemented Firebase authentication service, session observer, token injection into API client, login page, and protected route layout.
+- [x] FE-006 Current user/session handling (#35) — Integrated GET /me Sentinel identity, system_role (USER vs ADMIN) navigation visibility, and 401/403 session de-authorization.
+- [x] FE-007 Unit/User/Case Type management UI (#36) — Implemented management UI and APIs for Units, Users, and Case Types with role guard and safety invariant checks.
+- [x] FE-008 Case list (#37) — Implemented case list with status/urgency/casetype filters, pagination, accessible status badges, and detail navigation.
+- [x] FE-009 Create/Edit Case (#38) — Implemented CaseForm with immutable Maker/Owner assignment, DRAFT editing, non-DRAFT submission freeze, and create case flow.
+- [x] FE-010 Case Detail Overview (#39) — Implemented Case Detail Overview with workflow tabs, Maker/Owner presentation, participant cards, and guarded Close action.
+- [x] FE-011 Participant assignment UI (#40) — Implemented participant assignment in DRAFT with strict Segregation of Duties (SoD), role cardinality, and non-DRAFT lock.
+- [x] FE-012 Submit Case UI (#41) — Implemented Maker case submission readiness checklist, freeze confirmation modal, and transition to AI_ANALYSIS.
+- [x] FE-013 Policy list/detail/version UI (#42) — Implemented Policy management with authority and indexing status badges, effective-window activation guards, and indexing recovery.
+- [x] FE-014 Evidence tab (#43) — Implemented Evidence tab with historical evidence rendering, state-aware creation permissions, and derived source roles.
+- [x] FE-015 File evidence upload UI (#44) — Implemented direct-to-GCS file evidence upload with PDF/JPEG/PNG MIME allowlist validation and backend registration.
+- [x] FE-016 AI Analysis page/tab (#45) — Implemented AnalysisDetailView, safe null-rendering for FAILED attempts, verification badges, and AnalysisTab mounting.
+- [x] FE-017 Analysis version selector (#46) — Implemented AnalysisVersionSelector with distinct CURRENT vs LATEST ATTEMPT badges, historical attempt selection, and read-only mode.
+- [x] FE-018 Policy/evidence reference viewer (#47) — Implemented ReferenceViewerDialog with historical policy clause excerpts, audit provenance integrity notices, and evidence reference details.
+- [x] FE-019 AI analysis loading/failure state (#48) — Implemented broker-abstracted polling for AI_ANALYSIS, reassuring queued/generating presentation, and EscalationNotice for VERIFIER_FAIL, TECHNICAL_RETRY_EXHAUSTED, and REANALYSIS_LIMIT_REACHED.
+- [x] FE-020 Checker review UI (#49) — Implemented CheckerDecisionModal with mandatory reason for REJECT, exact analysis_id binding, and role-guarded review actions.
+- [x] FE-021 Checker status UI (#50) — Implemented CheckerStatusCard with required vs optional quorum progress bar and active round checker completion tracking.
+- [x] FE-022 Signer review UI (#51) — Implemented SignerDecisionModal with role gating, mandatory reason on REJECT, transition to EXECUTION or AI_ANALYSIS/ESCALATION_REQUIRED, and no-resume guard.
+- [x] FE-023 Execution UI (#52) — Implemented startExecution, ExecutionResultModal for SUCCESS/BLOCKED/FAILED with validation, historical execution records, and terminal DONE presentation.
+- [x] FE-024 Stale analysis handling (#53) — Implemented StaleAnalysisModal with non-replay governance safety, active dialog dismissal, and authoritative query invalidation on 409 STALE_ANALYSIS.
+- [x] FE-025 History timeline (#54) — Implemented HistoryTimeline with chronological audit events, actor/system role presentation, analysis version navigation, and escalation provenance.
+- [x] FE-026 Dashboard (#55) — Implemented authoritative GET /dashboard/summary integration, persona action queues, and status distribution grid with direct filter navigation.
+- [x] FE-027 Mock complete workflow (#56) — Implemented deterministic mock scenarios covering full settlement lifecycle, strict SoD, escalation triggers, and multi-version attempts.
+- [x] FE-028 Critical component/integration tests (#57) — Implemented comprehensive automated test suite in tests/workflow-contract.test.mjs covering all 13 critical contract invariants with 100% pass rate.
+- [x] FE-029 Frontend Docker + Cloud Run (#58) — Implemented multi-stage Dockerfile, next.config.mjs with standalone output, .dockerignore, browser-safe .env.example, and GitHub Actions CI/CD pipeline targeting Cloud Run service sentinel-web.

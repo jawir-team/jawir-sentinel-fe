@@ -1,0 +1,238 @@
+import { apiGet, apiPost, shouldUseApiFallback } from "./client";
+import { EvidenceItem, CreateEvidencePayload } from "@/types/evidence";
+import { ApiError } from "@/types/api";
+import { getActiveMockUser } from "@/mocks/mockSession";
+import { getMockCase } from "./cases";
+import { appendMockHistory } from "./history";
+
+const mockEvidences: Record<string, EvidenceItem[]> = {
+  "case-001": [
+    {
+      id: "ev-001",
+      evidence_type: "DOCUMENT",
+      source_type: "MAKER",
+      source_user: { id: "usr-ops", name: "Operations User" },
+      title: "Reconciliation discrepancy log",
+      content: "Detailed audit log of unmatched settlement records.",
+      file_path: "evidence/case-001/settlement-discrepancy-log.pdf",
+      mime_type: "application/pdf",
+      created_at: "2026-10-01T10:02:00Z",
+    },
+    {
+      id: "ev-002",
+      evidence_type: "COMMENT",
+      source_type: "MAKER",
+      source_user: { id: "usr-ops", name: "Operations User" },
+      title: "Upstream batch delay note",
+      content: "Upstream clearing batch arrived 20 minutes late with 37 unmatched records requiring emergency hold.",
+      file_path: null,
+      mime_type: null,
+      created_at: "2026-10-01T10:04:00Z",
+    },
+    {
+      id: "ev-003",
+      evidence_type: "SCREENSHOT",
+      source_type: "MAKER",
+      source_user: { id: "usr-ops", name: "Operations User" },
+      title: "Clearing dashboard mismatch",
+      content: "Dashboard capture showing the 37 unmatched settlement records.",
+      file_path: "evidence/case-001/clearing-dashboard.png",
+      mime_type: "image/png",
+      created_at: "2026-10-01T10:02:30Z",
+    },
+  ],
+};
+
+function getAuthorizedMockEvidenceActor(caseId: string) {
+  const actor = getActiveMockUser();
+  const caseData = getMockCase(caseId);
+  if (!caseData) {
+    throw new ApiError("CASE_NOT_FOUND", "Case not found", 404);
+  }
+  const participant = caseData.participants.find(
+    (item) => item.user_id === actor.id && item.status === "ACTIVE"
+  );
+  const isAllowed =
+    (caseData.status === "DRAFT" && caseData.maker.id === actor.id) ||
+    (["CHECKING", "SIGNING", "EXECUTION", "ESCALATION_REQUIRED"].includes(
+      caseData.status
+    ) && Boolean(participant));
+  if (!isAllowed) {
+    throw new ApiError(
+      "FORBIDDEN",
+      `Evidence cannot be added by this user while the case is ${caseData.status}.`,
+      403
+    );
+  }
+  return { actor, participant };
+}
+
+export async function getEvidences(caseId: string): Promise<EvidenceItem[]> {
+  try {
+    const res = await apiGet<EvidenceItem[] | { data: EvidenceItem[] }>(
+      `/cases/${caseId}/evidences`
+    );
+    if (Array.isArray(res)) return res;
+    if (res && "data" in res && Array.isArray(res.data)) return res.data;
+    return [];
+  } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
+    if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
+      throw err;
+    }
+    return mockEvidences[caseId] || [];
+  }
+}
+
+export async function createEvidence(
+  caseId: string,
+  payload: CreateEvidencePayload
+): Promise<EvidenceItem> {
+  try {
+    return await apiPost<EvidenceItem, CreateEvidencePayload>(
+      `/cases/${caseId}/evidences`,
+      payload
+    );
+  } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
+    if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
+      throw err;
+    }
+
+    const { actor, participant } = getAuthorizedMockEvidenceActor(caseId);
+    const newEvidence: EvidenceItem = {
+      id: `ev-${Date.now()}`,
+      evidence_type: payload.evidence_type,
+      source_type: participant?.role ?? "MAKER",
+      source_user: { id: actor.id, name: actor.name },
+      title: payload.title,
+      content: payload.content,
+      file_path: null,
+      mime_type: null,
+      created_at: new Date().toISOString(),
+    };
+
+    if (!mockEvidences[caseId]) {
+      mockEvidences[caseId] = [];
+    }
+    mockEvidences[caseId].push(newEvidence);
+    appendMockHistory(caseId, {
+      event_type: "EVIDENCE_ADDED",
+      actor: { id: actor.id, name: actor.name },
+      actor_role: participant?.role ?? null,
+      analysis_id: null,
+      analysis_version: null,
+      metadata: {
+        title: newEvidence.title,
+        evidence_type: newEvidence.evidence_type,
+      },
+    });
+    return newEvidence;
+  }
+}
+
+export async function getEvidenceUploadUrl(
+  caseId: string,
+  payload: { file_name: string; mime_type: string }
+): Promise<{ upload_url: string; file_key: string }> {
+  try {
+    return await apiPost<{ upload_url: string; file_key: string }>(
+      `/cases/${caseId}/evidences/upload-url`,
+      payload
+    );
+  } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
+    if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
+      throw err;
+    }
+    getAuthorizedMockEvidenceActor(caseId);
+    const safeKey = `cases/${caseId}/evidence/${Date.now()}-${payload.file_name}`;
+    return {
+      upload_url: `https://mock-gcs.local/upload/${encodeURIComponent(safeKey)}`,
+      file_key: safeKey,
+    };
+  }
+}
+
+export async function uploadFileToSignedUrl(
+  uploadUrl: string,
+  file: File
+): Promise<void> {
+  // If mock GCS url, simulate immediate upload
+  if (uploadUrl.includes("mock-gcs.local")) {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return;
+  }
+
+  const res = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": file.type,
+    },
+    body: file,
+  });
+
+  if (!res.ok) {
+    throw new ApiError(
+      "UPLOAD_FAILED",
+      `Failed to upload file to Google Cloud Storage (${res.statusText})`,
+      res.status
+    );
+  }
+}
+
+export async function registerFileEvidence(
+  caseId: string,
+  payload: { file_key: string; title: string; evidence_type: "DOCUMENT" | "LOG" | "SCREENSHOT" | "REFERENCE" }
+): Promise<EvidenceItem> {
+  try {
+    return await apiPost<EvidenceItem>(`/cases/${caseId}/evidences/file`, {
+      evidence_type: payload.evidence_type,
+      title: payload.title,
+      file_key: payload.file_key,
+    });
+  } catch (err: unknown) {
+    if (!shouldUseApiFallback(err)) throw err;
+    if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
+      throw err;
+    }
+
+    const ext = payload.file_key.split(".").pop()?.toLowerCase();
+    const mime =
+      ext === "pdf"
+        ? "application/pdf"
+        : ext === "png"
+        ? "image/png"
+        : "image/jpeg";
+
+    const { actor, participant } = getAuthorizedMockEvidenceActor(caseId);
+    const newEvidence: EvidenceItem = {
+      id: `ev-${Date.now()}`,
+      evidence_type: payload.evidence_type,
+      source_type: participant?.role ?? "MAKER",
+      source_user: { id: actor.id, name: actor.name },
+      title: payload.title,
+      content: `Uploaded evidence file: ${payload.file_key.split("/").pop()}`,
+      file_path: payload.file_key,
+      mime_type: mime,
+      created_at: new Date().toISOString(),
+    };
+
+    if (!mockEvidences[caseId]) {
+      mockEvidences[caseId] = [];
+    }
+    mockEvidences[caseId].push(newEvidence);
+    appendMockHistory(caseId, {
+      event_type: "EVIDENCE_ADDED",
+      actor: { id: actor.id, name: actor.name },
+      actor_role: participant?.role ?? null,
+      analysis_id: null,
+      analysis_version: null,
+      metadata: {
+        title: newEvidence.title,
+        evidence_type: newEvidence.evidence_type,
+      },
+    });
+    return newEvidence;
+  }
+}
