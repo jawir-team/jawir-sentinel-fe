@@ -7,19 +7,19 @@ export function PolicyAuthorityBadge({ status }: { status: PolicyVersionStatus }
     case "ACTIVE":
       return (
         <Badge variant="success" dot>
-          AUTHORITATIVE ACTIVE
+          AUTHORITY: ACTIVE
         </Badge>
       );
     case "DRAFT":
       return (
         <Badge variant="outline" dot>
-          DRAFT VERSION
+          AUTHORITY: DRAFT
         </Badge>
       );
     case "SUPERSEDED":
       return (
         <Badge variant="secondary" dot>
-          SUPERSEDED
+          AUTHORITY: SUPERSEDED
         </Badge>
       );
     default:
@@ -32,25 +32,25 @@ export function PolicyIndexBadge({ status }: { status: IndexStatus }) {
     case "READY":
       return (
         <Badge variant="success" dot>
-          INDEX: READY
+          RETRIEVAL: READY
         </Badge>
       );
     case "PROCESSING":
       return (
         <Badge variant="warning" dot>
-          INDEX: PROCESSING
+          RETRIEVAL: PROCESSING
         </Badge>
       );
     case "FAILED":
       return (
         <Badge variant="destructive" dot>
-          INDEX: FAILED
+          RETRIEVAL: FAILED
         </Badge>
       );
     case "NOT_STARTED":
       return (
         <Badge variant="outline" dot>
-          INDEX: NOT STARTED
+          RETRIEVAL: NOT STARTED
         </Badge>
       );
     default:

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CaseDetail, CaseRole, CaseParticipant } from "@/types/case";
+import { CaseDetail, CaseRole } from "@/types/case";
 import { getUsers } from "@/services/api/users";
 import { assignParticipant, removeParticipant } from "@/services/api/cases";
 import { queryKeys } from "@/constants/queryKeys";
@@ -32,9 +32,15 @@ export function ParticipantAssignmentSection({
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   // Fetch ACTIVE users
-  const { data: users } = useQuery({
+  const {
+    data: users,
+    isLoading: isLoadingUsers,
+    isError: isUsersError,
+    refetch: refetchUsers,
+  } = useQuery({
     queryKey: queryKeys.users({ status: "ACTIVE" }),
     queryFn: () => getUsers({ status: "ACTIVE" }),
+    enabled: canManageParticipants,
   });
 
   // Calculate active participant user IDs to enforce strict SoD
@@ -111,7 +117,7 @@ export function ParticipantAssignmentSection({
   return (
     <Card className="border-slate-200">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-blue-600" aria-hidden="true" />
             <CardTitle className="text-base font-semibold">
@@ -121,13 +127,16 @@ export function ParticipantAssignmentSection({
           {!canManageParticipants && (
             <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium bg-slate-100 px-2.5 py-1 rounded">
               <Lock className="h-3.5 w-3.5" aria-hidden="true" />
-              Locked (Read-Only)
+              {caseData.status === "DRAFT"
+                ? "Maker-Only (Read-Only for You)"
+                : "Frozen After Submission"}
             </div>
           )}
         </div>
         <CardDescription>
-          Segregation of Duties: Each role must be fulfilled by distinct individuals. Minimal 1
-          Checker, exactly 1 Signer, and exactly 1 Executer.
+          Four-role Segregation of Duties: the Maker, each Checker, the Signer, and the Executer
+          must be distinct ACTIVE users. At least 1 required Checker, exactly 1 Signer, and exactly
+          1 Executer are required before submission.
         </CardDescription>
       </CardHeader>
 
@@ -141,6 +150,30 @@ export function ParticipantAssignmentSection({
           </Alert>
         )}
 
+        {canManageParticipants && isUsersError && (
+          <Alert variant="destructive" title="ACTIVE User Directory Unavailable">
+            <div className="space-y-2">
+              <p>
+                Participant choices could not be loaded. No assignment can be made until the
+                ACTIVE-user directory is available.
+              </p>
+              <Button variant="outline" size="sm" onClick={() => refetchUsers()}>
+                Retry User Directory
+              </Button>
+            </div>
+          </Alert>
+        )}
+
+        {canManageParticipants && !isUsersError && (
+          <div className="rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2 text-xs text-blue-900">
+            {isLoadingUsers
+              ? "Loading eligible ACTIVE users…"
+              : availableUsers.length > 0
+              ? `${availableUsers.length} distinct ACTIVE user(s) remain eligible for assignment.`
+              : "No additional ACTIVE users are eligible. Assigned participants and the Maker are excluded from every role selector."}
+          </div>
+        )}
+
         {/* 1. MAKER (Fixed) */}
         <div className="rounded-lg border border-slate-200 p-4 bg-slate-50/50 space-y-2">
           <div className="flex items-center justify-between">
@@ -150,11 +183,11 @@ export function ParticipantAssignmentSection({
                 Case Initiator (Exactly 1)
               </span>
             </div>
-            <span className="text-xs text-slate-400 font-mono">Immutable</span>
+            <span className="text-xs text-slate-500 font-mono">Owner · Immutable</span>
           </div>
           <div className="flex items-center justify-between text-sm text-slate-700 bg-white p-2.5 rounded border border-slate-200">
             <span className="font-medium">{caseData.maker?.name}</span>
-            <span className="text-xs text-slate-500">(Case Creator & Owner)</span>
+            <span className="text-xs text-slate-500">Case Creator / Owner</span>
           </div>
         </div>
 
@@ -205,11 +238,16 @@ export function ParticipantAssignmentSection({
           )}
 
           {canManageParticipants && (
-            <div className="flex items-center gap-2 pt-2">
+            <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center">
               <Select
                 value={selectedCheckerId}
                 onChange={(e) => setSelectedCheckerId(e.target.value)}
-                disabled={assignMutation.isPending || availableUsers.length === 0}
+                disabled={
+                  assignMutation.isPending ||
+                  isLoadingUsers ||
+                  isUsersError ||
+                  availableUsers.length === 0
+                }
                 className="flex-1"
                 aria-label="Select additional Checker"
               >
@@ -273,11 +311,16 @@ export function ParticipantAssignmentSection({
           )}
 
           {canManageParticipants && !currentSigner && (
-            <div className="flex items-center gap-2 pt-2">
+            <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center">
               <Select
                 value={selectedSignerId}
                 onChange={(e) => setSelectedSignerId(e.target.value)}
-                disabled={assignMutation.isPending || availableUsers.length === 0}
+                disabled={
+                  assignMutation.isPending ||
+                  isLoadingUsers ||
+                  isUsersError ||
+                  availableUsers.length === 0
+                }
                 className="flex-1"
                 aria-label="Select Signer"
               >
@@ -341,11 +384,16 @@ export function ParticipantAssignmentSection({
           )}
 
           {canManageParticipants && !currentExecuter && (
-            <div className="flex items-center gap-2 pt-2">
+            <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center">
               <Select
                 value={selectedExecuterId}
                 onChange={(e) => setSelectedExecuterId(e.target.value)}
-                disabled={assignMutation.isPending || availableUsers.length === 0}
+                disabled={
+                  assignMutation.isPending ||
+                  isLoadingUsers ||
+                  isUsersError ||
+                  availableUsers.length === 0
+                }
                 className="flex-1"
                 aria-label="Select Executer"
               >

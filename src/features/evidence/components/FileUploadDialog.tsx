@@ -13,7 +13,7 @@ import {
   registerFileEvidence,
 } from "@/services/api/evidences";
 import { queryKeys } from "@/constants/queryKeys";
-import { Upload, FileUp, CheckCircle, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Upload, FileUp, LoaderCircle, AlertTriangle, ShieldCheck } from "lucide-react";
 
 export interface FileUploadDialogProps {
   caseId: string;
@@ -44,6 +44,12 @@ export function FileUploadDialog({
     setErrorMessage(null);
   };
 
+  const handleClose = () => {
+    if (uploadStep !== "idle" && uploadStep !== "done") return;
+    resetState();
+    onClose();
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrorMessage(null);
     const file = e.target.files?.[0];
@@ -51,7 +57,7 @@ export function FileUploadDialog({
 
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
       setErrorMessage(
-        "Unsupported file type. Formats allowed for Gemini AI analysis: PDF, JPEG, and PNG."
+        `“${file.name}” cannot be uploaded. Choose a PDF, JPEG/JPG, or PNG file.`
       );
       setSelectedFile(null);
       e.target.value = "";
@@ -116,27 +122,38 @@ export function FileUploadDialog({
   const getStepText = () => {
     switch (uploadStep) {
       case "requesting_url":
-        return "1/3 Requesting Signed URL from Sentinel API...";
+        return "Step 1 of 3 · Preparing a secure upload…";
       case "uploading_gcs":
-        return "2/3 Uploading file directly to Google Cloud Storage...";
+        return "Step 2 of 3 · Uploading the selected file…";
       case "registering":
-        return "3/3 Registering evidence with Sentinel API...";
+        return "Step 3 of 3 · Saving the evidence record…";
       default:
         return "Uploading...";
     }
   };
 
+  const progressPercent =
+    uploadStep === "requesting_url"
+      ? 20
+      : uploadStep === "uploading_gcs"
+      ? 65
+      : uploadStep === "registering"
+      ? 90
+      : uploadStep === "done"
+      ? 100
+      : 0;
+
   return (
     <Dialog
       isOpen={isOpen}
-      onClose={isUploading ? () => {} : onClose}
-      title="Upload Evidence File (Direct-to-GCS)"
-      description="Upload transaction documents or approval records for Sentinel AI verification."
+      onClose={isUploading ? () => {} : handleClose}
+      title="Upload Evidence File"
+      description="Attach a supported case document. Sentinel records the source role from your active case assignment."
       footer={
         <>
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={handleClose}
             disabled={isUploading}
           >
             Cancel
@@ -145,10 +162,10 @@ export function FileUploadDialog({
             variant="primary"
             onClick={handleUploadSubmit}
             isLoading={isUploading}
-            disabled={!selectedFile || !title.trim()}
+            disabled={isUploading || !selectedFile || !title.trim()}
           >
             <Upload className="h-4 w-4 mr-1.5" />
-            {isUploading ? "Processing..." : "Start Upload"}
+            {isUploading ? "Upload in Progress" : "Upload Evidence"}
           </Button>
         </>
       }
@@ -166,11 +183,11 @@ export function FileUploadDialog({
         <div className="rounded-lg bg-blue-50/50 p-3 border border-blue-100 text-xs text-blue-900 space-y-1">
           <div className="flex items-center gap-1.5 font-semibold">
             <ShieldCheck className="h-4 w-4 text-blue-600" />
-            <span>Supported Formats for Gemini AI</span>
+            <span>Accepted File Formats</span>
           </div>
           <p className="text-[11px] text-blue-800">
-            Only files in <strong>PDF, JPEG, or PNG</strong> format can be
-            ingested and analyzed directly by Vertex AI Gemini.
+            Choose a <strong>PDF, JPEG/JPG, or PNG</strong> file. Other formats
+            are rejected immediately and are not uploaded.
           </p>
         </div>
 
@@ -188,7 +205,7 @@ export function FileUploadDialog({
           label="Select File (PDF, JPG, PNG)"
           id="upload-file"
           required
-          hint="Maximum file size: 25MB"
+          hint="Accepted formats only: PDF, JPEG/JPG, or PNG."
         >
           <Input
             id="upload-file"
@@ -214,9 +231,25 @@ export function FileUploadDialog({
         )}
 
         {isUploading && (
-          <div className="rounded-lg bg-blue-50 p-3 border border-blue-200 text-xs text-blue-900 flex items-center gap-2">
-            <CheckCircle className="h-4 w-4 text-blue-600 animate-spin" />
-            <span className="font-medium">{getStepText()}</span>
+          <div className="rounded-lg bg-blue-50 p-3 border border-blue-200 text-xs text-blue-900 space-y-2" aria-live="polite">
+            <div className="flex items-center gap-2">
+              <LoaderCircle className="h-4 w-4 shrink-0 animate-spin text-blue-600" />
+              <span className="font-medium">{getStepText()}</span>
+              <span className="ml-auto font-mono font-semibold">{progressPercent}%</span>
+            </div>
+            <div
+              className="h-2 overflow-hidden rounded-full border border-blue-200 bg-white"
+              role="progressbar"
+              aria-label="Evidence upload progress"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={progressPercent}
+            >
+              <div
+                className="h-full bg-blue-600 transition-all duration-300"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
           </div>
         )}
       </form>

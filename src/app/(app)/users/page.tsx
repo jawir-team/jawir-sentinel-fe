@@ -27,6 +27,7 @@ import { getUnits } from "@/services/api/units";
 import { queryKeys } from "@/constants/queryKeys";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { UserItem, SystemRole, UserStatus } from "@/types/user";
+import { ApiError } from "@/types/api";
 import { Plus, Users, Edit3, ShieldAlert } from "lucide-react";
 
 export default function UsersPage() {
@@ -107,10 +108,15 @@ export default function UsersPage() {
     onError: (err: unknown) => {
       // Refresh user list authoritative state to ensure UI is in sync while preserving form
       queryClient.invalidateQueries({ queryKey: queryKeys.users() });
+      const reason = err instanceof ApiError ? err.details.reason : undefined;
       const msg =
-        err instanceof Error
-          ? err.message
-          : "Failed to update user due to status validation violation.";
+        reason === "LAST_ACTIVE_ADMIN"
+          ? "This account is the last ACTIVE ADMIN and cannot be demoted or deactivated. First promote or reactivate another ADMIN, then retry this change."
+          : reason === "IN_FLIGHT_CASE_PARTICIPANT"
+          ? "This user is an ACTIVE participant in a non-terminal case. Complete or safely close every assigned in-flight case, then retry deactivation; frozen case participants cannot be replaced."
+          : err instanceof Error
+          ? `${err.message} Refresh the directory, verify the user’s current assignments, and retry only after the blocking condition is resolved.`
+          : "The update was rejected. Refresh the directory and verify the account’s admin and in-flight case obligations before retrying.";
       setEditError(msg);
     },
   });
@@ -184,6 +190,11 @@ export default function UsersPage() {
           )
         }
       />
+
+      <Alert variant="info" title="System Role Is Not Case Authority" className="mb-6">
+        USER and ADMIN control platform access. ADMIN enables this management area, but does not
+        grant Maker, Checker, Signer, or Executer authority on any case.
+      </Alert>
 
       {/* Filter Toolbar */}
       <div className="mb-6 flex flex-wrap items-center gap-4 bg-white p-4 rounded-xl border border-slate-200">
@@ -437,7 +448,7 @@ export default function UsersPage() {
           {editError && (
             <Alert
               variant="warning"
-              title="Update Rejected by Security Guard"
+              title="Update Blocked by Governance Rule"
             >
               <div className="flex items-start gap-2 mt-1">
                 <ShieldAlert className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" aria-hidden="true" />
@@ -503,6 +514,12 @@ export default function UsersPage() {
               <option value="INACTIVE">INACTIVE</option>
             </Select>
           </FormField>
+
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-900">
+            To demote or deactivate the last ACTIVE ADMIN, first establish another ACTIVE ADMIN.
+            To deactivate an in-flight participant, first complete or safely close all non-terminal
+            assigned cases; submitted participant sets remain frozen.
+          </div>
         </form>
       </Dialog>
     </ContentContainer>

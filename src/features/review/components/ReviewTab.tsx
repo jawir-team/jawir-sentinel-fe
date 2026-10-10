@@ -21,18 +21,16 @@ import {
   ShieldCheck,
   CheckCircle2,
   XCircle,
-  Clock,
   Info,
-  AlertTriangle,
   FileCheck,
+  Lock,
 } from "lucide-react";
 
 interface ReviewTabProps {
   caseData: CaseDetail;
-  onNavigateToTab?: (tabKey: string) => void;
 }
 
-export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
+export function ReviewTab({ caseData }: ReviewTabProps) {
   const { currentUser } = useAuth();
 
   // Checker decision modal state
@@ -124,6 +122,19 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
 
   return (
     <div className="space-y-6" data-testid="review-tab">
+      {!isChecking && !isSigning && !isExecution && (
+        <div className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3.5 text-xs leading-relaxed text-slate-700">
+          <Lock className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+          <p>
+            Checker and Signer decisions are unavailable while the case is in{" "}
+            <strong>{caseData.status}</strong>.
+            {caseData.status === "ESCALATION_REQUIRED"
+              ? " This is a stopped state with no resume, retry, or direct re-analysis action. Review the saved decisions and audit history; active participants may add evidence or close the case."
+              : " This tab remains read-only outside the CHECKING and SIGNING decision stages."}
+          </p>
+        </div>
+      )}
+
       {/* Signer Authorization Card (Status: SIGNING) */}
       {isSigning && (
         <Card className="border-purple-300 bg-purple-50/30 shadow-sm" data-testid="signer-card">
@@ -161,7 +172,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
                     className="bg-purple-700 hover:bg-purple-800 text-white gap-1.5 shadow-sm"
                   >
                     <ShieldCheck className="h-4 w-4" />
-                    <span>Authorize Case (Signer Approve)</span>
+                    <span>Submit Signer Approval</span>
                   </Button>
 
                   <Button
@@ -174,7 +185,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
                     className="gap-1.5"
                   >
                     <XCircle className="h-4 w-4" />
-                    <span>Reject Authorization (Signer Reject)</span>
+                    <span>Submit Signer Rejection</span>
                   </Button>
                 </div>
               </div>
@@ -242,7 +253,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
                     className="gap-1.5"
                   >
                     <CheckCircle2 className="h-4 w-4" />
-                    <span>Approve Analysis (Approve)</span>
+                    <span>Submit Checker Approval</span>
                   </Button>
 
                   <Button
@@ -255,7 +266,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
                     className="gap-1.5"
                   >
                     <XCircle className="h-4 w-4" />
-                    <span>Reject Analysis (Reject)</span>
+                    <span>Submit Checker Rejection</span>
                   </Button>
                 </div>
               </div>

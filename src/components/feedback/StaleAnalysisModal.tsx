@@ -49,7 +49,7 @@ export function StaleAnalysisModal({
           className="gap-1.5"
         >
           <RefreshCw className="h-4 w-4" />
-          <span>Reload & Review Latest Analysis</span>
+          <span>Reload & Review CURRENT Analysis</span>
         </Button>
       }
     >
@@ -61,7 +61,7 @@ export function StaleAnalysisModal({
               Your Decision Was Not Applied
             </p>
             <p className="text-[11px] leading-relaxed text-amber-900">
-              The backend rejected your review/authorization action (code: <code>409 STALE_ANALYSIS</code>) because the analysis version you were viewing was superseded by a newer version or the case status transitioned.
+              The backend rejected your review/authorization action (code: <code>409 STALE_ANALYSIS</code>) because the analysis version you were viewing is no longer CURRENT or the case status changed.
             </p>
           </div>
         </div>
@@ -73,7 +73,7 @@ export function StaleAnalysisModal({
           <ul className="list-disc pl-5 space-y-1 text-[11px]">
             <li>The system will <strong>never</strong> automatically re-apply or retry your decision on a newer analysis version.</li>
             <li>All case versions and authoritative verification records will be resynchronized to your interface.</li>
-            <li>Please re-evaluate the recommendation clauses on the latest analysis before submitting a new approval or directive.</li>
+            <li>Please re-evaluate the recommendation clauses on the CURRENT analysis before submitting a new decision.</li>
           </ul>
         </div>
       </div>

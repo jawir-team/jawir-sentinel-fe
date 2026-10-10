@@ -72,9 +72,9 @@ export default function AppLayout({
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
       <AppHeader userSection={userSection} />
-      <div className="flex flex-1">
+      <div className="flex flex-1 flex-col md:flex-row">
         <AppSidebar isAdmin={isAdmin} />
-        <main className="flex-1 overflow-x-hidden min-h-[calc(100vh-4rem)]">
+        <main className="min-w-0 flex-1 overflow-x-hidden md:min-h-[calc(100vh-4rem)]">
           {children}
         </main>
       </div>

@@ -214,6 +214,7 @@ export function HistoryTimeline({
             size="sm"
             onClick={() => setIsDescending(!isDescending)}
             className="text-xs gap-1.5 h-8"
+            aria-label={`Audit history order: ${isDescending ? "newest first" : "oldest first"}. Activate to reverse.`}
           >
             <ArrowDownUp className="h-3.5 w-3.5" />
             <span>{isDescending ? "Newest First" : "Oldest First"}</span>
@@ -235,8 +236,8 @@ export function HistoryTimeline({
 
                 {/* Event Card */}
                 <div className="p-3.5 rounded-lg border border-slate-200 bg-white hover:border-slate-300 transition-colors space-y-2 shadow-xs">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
                       {config.icon}
                       <span className="font-semibold text-slate-900 text-sm">
                         {config.label}
@@ -246,7 +247,7 @@ export function HistoryTimeline({
                       </Badge>
                     </div>
 
-                    <div className="flex items-center gap-2 text-slate-400 font-mono text-[11px]">
+                    <div className="flex shrink-0 items-center gap-2 text-slate-500 font-mono text-[11px]">
                       <Clock className="h-3.5 w-3.5" />
                       <span>{new Date(evt.created_at).toLocaleString("en-US")}</span>
                     </div>
@@ -277,7 +278,7 @@ export function HistoryTimeline({
                       <button
                         type="button"
                         onClick={() => onSelectAnalysisVersion?.(evt.analysis_version!)}
-                        className="ml-auto flex items-center gap-1 text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100 transition-colors"
+                        className="flex items-center gap-1 rounded border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-mono font-medium text-blue-800 transition-colors hover:bg-blue-100 sm:ml-auto"
                       >
                         <Sparkles className="h-3 w-3 text-blue-600" />
                         <span>Analysis Version v{evt.analysis_version}</span>
@@ -327,6 +328,26 @@ export function HistoryTimeline({
                       {typeof evt.metadata.max_reanalysis === "number" && (
                         <p className="text-rose-900 font-medium">
                           Maximum re-analysis limit reached (limit: {evt.metadata.max_reanalysis} cycles).
+                        </p>
+                      )}
+                      {typeof evt.metadata.latest_analysis_version === "number" && (
+                        <p className="text-rose-900 font-medium">
+                          Latest recorded analysis attempt: v{evt.metadata.latest_analysis_version}.
+                        </p>
+                      )}
+                      {typeof evt.metadata.verification_status === "string" && (
+                        <p className="text-slate-700">
+                          <strong className="text-slate-800">Verification:</strong>{" "}
+                          {evt.metadata.verification_status}
+                        </p>
+                      )}
+                      {typeof evt.metadata.title === "string" && (
+                        <p className="text-slate-700">
+                          <strong className="text-slate-800">Evidence:</strong>{" "}
+                          {evt.metadata.title}
+                          {typeof evt.metadata.evidence_type === "string"
+                            ? ` (${evt.metadata.evidence_type})`
+                            : ""}
                         </p>
                       )}
                     </div>

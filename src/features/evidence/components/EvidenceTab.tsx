@@ -142,7 +142,7 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
         </div>
 
         {canAddEvidence ? (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Button
               variant="outline"
               onClick={() => setIsUploadOpen(true)}
@@ -163,6 +163,14 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
         )}
       </div>
 
+      <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-600">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" aria-hidden="true" />
+        <p>
+          Evidence source badges are audit metadata recorded from the uploader&apos;s active case
+          role. There is no acting-role selector, and the source role cannot be chosen manually.
+        </p>
+      </div>
+
       {isLoading ? (
         <LoadingState label="Loading evidence documents..." />
       ) : isError ? (
@@ -178,9 +186,14 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
           }
           action={
             canAddEvidence && (
-              <Button variant="primary" onClick={() => setIsDialogOpen(true)}>
-                Add First Evidence
-              </Button>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button variant="outline" onClick={() => setIsUploadOpen(true)}>
+                  Upload File
+                </Button>
+                <Button variant="primary" onClick={() => setIsDialogOpen(true)}>
+                  Add Evidence Note
+                </Button>
+              </div>
             )
           }
         />
@@ -210,7 +223,7 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
 
                 <div className="flex items-center gap-2">
                   <Badge variant={getSourceBadgeVariant(ev.source_type)} dot>
-                    {ev.source_type}
+                    SOURCE · {ev.source_type}
                   </Badge>
                 </div>
               </CardHeader>
@@ -227,7 +240,7 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-slate-400 text-[11px]">
+                <div className="flex flex-col gap-2 pt-2 border-t border-slate-100 text-slate-400 text-[11px] sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-1.5">
                     <User className="h-3 w-3" />
                     <span>By: {ev.source_user?.name || "System"}</span>
@@ -281,7 +294,8 @@ export function EvidenceTab({ caseData }: EvidenceTabProps) {
               <span>Evidence Ingestion Authorization</span>
             </div>
             <p className="text-[11px] text-blue-700">
-              Uploader role is automatically mapped from your active workflow assignment for this case.
+              The server records the source role from your active workflow assignment. You cannot
+              select or impersonate another workflow role.
             </p>
           </div>
 

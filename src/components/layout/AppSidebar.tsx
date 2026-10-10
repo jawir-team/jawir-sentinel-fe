@@ -10,6 +10,7 @@ import {
   Users,
   Building2,
   FileSpreadsheet,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -66,17 +67,17 @@ export function AppSidebar({ isAdmin = true, className }: AppSidebarProps) {
   return (
     <aside
       className={cn(
-        "flex w-64 flex-col border-r border-slate-200 bg-white min-h-[calc(100vh-4rem)] p-4",
+        "flex w-full shrink-0 flex-col border-b border-slate-200 bg-white p-2 md:min-h-[calc(100vh-4rem)] md:w-64 md:border-b-0 md:border-r md:p-4",
         className
       )}
       aria-label="Sidebar navigation"
     >
-      <nav className="flex-1 space-y-6">
-        <div>
-          <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-            Main
+      <nav className="flex min-w-0 flex-1 gap-3 overflow-x-auto md:block md:space-y-6 md:overflow-visible">
+        <div className="shrink-0">
+          <p className="hidden px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 md:block">
+            User workspace
           </p>
-          <ul className="space-y-1">
+          <ul className="flex gap-1 md:block md:space-y-1">
             {mainNav.map((item) => {
               const Icon = item.icon;
               return (
@@ -107,11 +108,11 @@ export function AppSidebar({ isAdmin = true, className }: AppSidebarProps) {
         </div>
 
         {isAdmin && (
-          <div>
-            <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-              Administration
+          <div className="shrink-0 border-l border-slate-200 pl-3 md:border-l-0 md:pl-0">
+            <p className="hidden px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 md:block">
+              Admin settings
             </p>
-            <ul className="space-y-1">
+            <ul className="flex gap-1 md:block md:space-y-1">
               {adminNav.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -142,6 +143,16 @@ export function AppSidebar({ isAdmin = true, className }: AppSidebarProps) {
           </div>
         )}
       </nav>
+
+      <div className="mt-4 hidden rounded-lg border border-slate-200 bg-slate-50 p-3 text-[11px] leading-relaxed text-slate-600 md:block">
+        <div className="mb-1 flex items-center gap-1.5 font-semibold text-slate-800">
+          <ShieldCheck className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
+          <span>{isAdmin ? "ADMIN system access" : "USER system access"}</span>
+        </div>
+        {isAdmin
+          ? "Admin access enables configuration and oversight. Case actions still require the assigned workflow role."
+          : "Case actions are available only when your assigned workflow role and the current case state allow them."}
+      </div>
     </aside>
   );
 }

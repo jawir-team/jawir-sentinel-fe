@@ -113,7 +113,8 @@ export function SubmitCaseSection({
           </CardTitle>
         </div>
         <CardDescription>
-          Validation of Sentinel governance prerequisites before case data is frozen and processed by AI.
+          The server validates role completeness, ACTIVE assignments, and Segregation of Duties
+          before accepting submission and freezing this governance context.
         </CardDescription>
       </CardHeader>
 
@@ -174,7 +175,7 @@ export function SubmitCaseSection({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-blue-100">
           <p className="text-xs text-slate-500">
             {isEligible
-              ? "All prerequisites met. You may submit this case."
+              ? "UI checks pass. The server remains the final authority for submission."
               : "Fulfill all participant roles above to enable case submission."}
           </p>
 
@@ -237,7 +238,7 @@ export function SubmitCaseSection({
             <ul className="text-xs list-disc list-inside space-y-1 text-amber-800 pl-1">
               <li>Case description and urgency will be <strong>permanently frozen</strong>.</li>
               <li>Participant assignments (Maker, Checker, Signer, Executer) <strong>cannot be modified</strong>.</li>
-              <li>Case status will transition directly to <strong>AI_ANALYSIS</strong> for Sentinel policy evaluation.</li>
+              <li>If server validation succeeds, the case enters <strong>AI_ANALYSIS</strong> and asynchronous processing begins.</li>
             </ul>
           </div>
 

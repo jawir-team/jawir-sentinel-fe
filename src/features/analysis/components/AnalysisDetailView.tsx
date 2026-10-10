@@ -39,6 +39,15 @@ export function AnalysisDetailView({
   onOpenPolicyRef,
   onOpenEvidenceRef,
 }: AnalysisDetailViewProps) {
+  const hasStructuredResult = Boolean(
+    analysis.summary ||
+      analysis.recommendation ||
+      analysis.compliance_analysis ||
+      (analysis.facts && analysis.facts.length > 0) ||
+      (analysis.risk_analysis && analysis.risk_analysis.length > 0) ||
+      (analysis.policy_references && analysis.policy_references.length > 0) ||
+      (analysis.evidence_references && analysis.evidence_references.length > 0)
+  );
   const getStatusBadge = (status: AnalysisStatus) => {
     switch (status) {
       case "COMPLETED":
@@ -134,7 +143,7 @@ export function AnalysisDetailView({
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-slate-900 text-sm">
-                Analysis Version #{analysis.version}
+                Analysis Attempt v{analysis.version}
               </h3>
               {isCurrent && (
                 <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-200">
@@ -143,7 +152,7 @@ export function AnalysisDetailView({
               )}
             </div>
             <p className="text-xs text-slate-500 font-mono">
-              ID: {analysis.id} &bull; Generated:{" "}
+              ID: {analysis.id} &bull; Recorded:{" "}
               {new Date(analysis.created_at).toLocaleString("en-US")}
             </p>
           </div>
@@ -158,8 +167,26 @@ export function AnalysisDetailView({
       {/* Verification failure details exposed by the locked analysis shape */}
       {analysis.status === "FAILED" && (
         <Alert variant="destructive" title="Analysis Failed / Verifier Rejected">
-          The analysis did not produce a reviewable result. See verification issues and case
-          history for the authoritative failure classification.
+          This persisted FAILED attempt remains visible for audit. It is not a CURRENT reviewable
+          analysis. See verification issues and case history for the authoritative failure
+          classification.
+        </Alert>
+      )}
+
+      {analysis.status === "FAILED" && !hasStructuredResult && (
+        <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-center">
+          <p className="text-sm font-semibold text-slate-800">No structured analysis result was persisted</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">
+            Summary, recommendation, risk, compliance, and provenance fields are unavailable for
+            this failed attempt. The attempt record and any failure metadata remain in history.
+          </p>
+        </div>
+      )}
+
+      {analysis.status === "GENERATING" && (
+        <Alert variant="info" title="Analysis Queued / Processing">
+          This attempt is persisted and still being processed asynchronously. This view refreshes
+          automatically; review actions remain unavailable until a reviewable CURRENT result exists.
         </Alert>
       )}
 

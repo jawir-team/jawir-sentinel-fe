@@ -97,7 +97,7 @@ export function Dialog({
         <div className="py-4 overflow-y-auto flex-1">{children}</div>
 
         {footer && (
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+          <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
             {footer}
           </div>
         )}

@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { FormField } from "@/components/ui/FormField";
 import { Dialog } from "@/components/ui/Dialog";
 import { Alert } from "@/components/ui/Alert";
+import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { LoadingState } from "@/components/feedback/LoadingState";
 import { ErrorState } from "@/components/feedback/ErrorState";
@@ -26,7 +27,7 @@ import {
 import { queryKeys } from "@/constants/queryKeys";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { PolicyVersion } from "@/types/policy";
-import { Plus, Check, RefreshCw, AlertTriangle, Clock, Calendar, FileText } from "lucide-react";
+import { Plus, Check, RefreshCw, AlertTriangle, Clock, Calendar } from "lucide-react";
 
 export default function PolicyDetailPage({
   params,
@@ -180,6 +181,12 @@ export default function PolicyDetailPage({
         </Alert>
       )}
 
+      <Alert variant="info" title="Three Independent Policy Signals" className="mb-6">
+        Authority (DRAFT/ACTIVE/SUPERSEDED), retrieval readiness, and the effective-time window
+        are shown separately. Only a version that is ACTIVE, READY, and effective now is eligible
+        for analysis retrieval.
+      </Alert>
+
       {/* Policy Meta Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card className="border-slate-200">
@@ -202,7 +209,7 @@ export default function PolicyDetailPage({
 
         <Card className="border-slate-200">
           <CardContent className="p-4 text-xs space-y-1">
-            <span className="text-slate-400 block font-medium">Active Version</span>
+            <span className="text-slate-400 block font-medium">Authoritative Version</span>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="font-mono font-bold text-sm text-slate-800">
                 {policy.active_version ? `v${policy.active_version.version}` : "None"}
@@ -222,7 +229,7 @@ export default function PolicyDetailPage({
             Policy Version History ({policy.versions.length})
           </h2>
           <span className="text-xs text-slate-500">
-            Only ACTIVE versions are utilized by Sentinel for AI evaluations.
+            Eligibility requires ACTIVE authority + READY retrieval + effective now.
           </span>
         </div>
 
@@ -236,6 +243,11 @@ export default function PolicyDetailPage({
               const isFuture = ver.effective_from && new Date(ver.effective_from) > now;
               const isExpired = ver.effective_until && new Date(ver.effective_until) <= now;
               const canActivateTime = !isFuture && !isExpired;
+              const effectiveState = isFuture
+                ? "FUTURE · NOT EFFECTIVE"
+                : isExpired
+                ? "EXPIRED · NOT EFFECTIVE"
+                : "EFFECTIVE NOW";
 
               return (
                 <Card
@@ -276,7 +288,7 @@ export default function PolicyDetailPage({
                           {ver.index_status === "PROCESSING" && !ver.index_recoverable && (
                             <Button variant="outline" size="sm" disabled>
                               <Clock className="h-3.5 w-3.5 mr-1 animate-spin" />
-                              Indexing...
+                              Retrieval Index Processing
                             </Button>
                           )}
 
@@ -299,7 +311,7 @@ export default function PolicyDetailPage({
                               <Check className="h-3.5 w-3.5 mr-1" />
                               {ver.index_status === "READY"
                                 ? "Activate Version"
-                                : "Activate & Index"}
+                                : "Prepare Index & Activate"}
                             </Button>
                           )}
                         </div>
@@ -310,11 +322,19 @@ export default function PolicyDetailPage({
                   <CardContent className="py-4 space-y-4 text-xs">
                     {/* Diagnostic error if failed */}
                     {ver.index_status === "FAILED" && ver.index_error && (
-                      <Alert variant="destructive" title="Vector Indexing Failure">
+                      <Alert variant="destructive" title="Retrieval Index Failed · Authority Unchanged">
                         <div className="flex items-center gap-2">
                           <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
                           <span>{ver.index_error}</span>
                         </div>
+                      </Alert>
+                    )}
+
+                    {ver.index_status === "PROCESSING" && (
+                      <Alert variant="info" title="Retrieval Index Processing">
+                        The version remains <strong>{ver.status}</strong> while retrieval preparation
+                        runs. Any existing ACTIVE policy remains authoritative until this version is
+                        READY and activation completes.
                       </Alert>
                     )}
 
@@ -335,18 +355,24 @@ export default function PolicyDetailPage({
                     </div>
 
                     {/* Metadata Footer */}
-                    <div className="flex flex-wrap items-center gap-6 pt-2 text-slate-500 border-t border-slate-100">
+                    <div className="flex flex-wrap items-center gap-3 pt-2 text-slate-500 border-t border-slate-100">
+                      <Badge
+                        variant={canActivateTime ? "success" : "warning"}
+                        className="font-mono text-[10px]"
+                      >
+                        TIME: {effectiveState}
+                      </Badge>
                       <div className="flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
                         <span>
                           Effective:{" "}
                           {ver.effective_from
-                            ? new Date(ver.effective_from).toLocaleDateString("en-US")
-                            : "Now"}{" "}
+                            ? new Date(ver.effective_from).toLocaleString("en-US")
+                            : "No start bound"}{" "}
                           to{" "}
                           {ver.effective_until
-                            ? new Date(ver.effective_until).toLocaleDateString("en-US")
-                            : "Indefinite"}
+                            ? new Date(ver.effective_until).toLocaleString("en-US")
+                            : "No end bound"}
                         </span>
                       </div>
 

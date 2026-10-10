@@ -22,7 +22,6 @@ import {
   XCircle,
   Clock,
   Info,
-  ShieldCheck,
   History,
   Lock,
 } from "lucide-react";
@@ -75,11 +74,6 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
 
   // Active in-progress execution
   const inProgressExecution = executions.find((e) => e.status === "IN_PROGRESS");
-  // Execution on current analysis
-  const currentAnalysisExecution = executions.find(
-    (e) => e.analysis_id === currentAnalysisId
-  );
-
   // Start execution mutation
   const startMutation = useMutation({
     mutationFn: () => {
@@ -115,8 +109,16 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
     return (
       <EmptyState
         icon={<PlayCircle className="h-8 w-8 text-slate-400" />}
-        title="Execution Stage Not Open"
-        description="Operational execution can only begin after the analysis is fully authorized by the Signer (Status: EXECUTION)."
+        title={
+          caseData.status === "ESCALATION_REQUIRED"
+            ? "Execution Unavailable · Escalation Required"
+            : "Execution Stage Not Open"
+        }
+        description={
+          caseData.status === "ESCALATION_REQUIRED"
+            ? "ESCALATION_REQUIRED is a stopped state. There is no resume, retry, or direct re-analysis action; active participants may add evidence or close the case."
+            : `Operational execution is read-only while the case is ${caseData.status}. It can begin only after Signer authorization places the case in EXECUTION.`
+        }
       />
     );
   }
@@ -137,6 +139,19 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
 
   return (
     <div className="space-y-6" data-testid="execution-tab">
+      {!isExecutionPhase && !isDone && (
+        <div className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3.5 text-xs leading-relaxed text-slate-700">
+          <Lock className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+          <p>
+            Execution actions are unavailable while the case is in{" "}
+            <strong>{caseData.status}</strong>.
+            {caseData.status === "ESCALATION_REQUIRED"
+              ? " This stopped state has no resume, retry, or direct re-analysis action."
+              : " Existing execution attempts remain visible below for audit."}
+          </p>
+        </div>
+      )}
+
       {/* SUCCESS & DONE celebration banner */}
       {isDone && (
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-3 text-emerald-950 shadow-xs">

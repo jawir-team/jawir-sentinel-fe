@@ -11,6 +11,7 @@ import { Alert } from "@/components/ui/Alert";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { closeCase } from "@/services/api/cases";
 import { queryKeys } from "@/constants/queryKeys";
+import { ApiError } from "@/types/api";
 import { XCircle, Lock } from "lucide-react";
 
 export interface CaseDetailHeaderProps {
@@ -42,10 +43,15 @@ export function CaseDetailHeader({
     onError: (err: unknown) => {
       // Refetch authoritative state
       queryClient.invalidateQueries({ queryKey: queryKeys.case(caseData.id) });
-      const msg =
-        err instanceof Error
-          ? err.message
-          : "Failed to close case. Ensure no analysis or execution is currently active.";
+      const isActiveProcessConflict =
+        err instanceof ApiError &&
+        err.code === "INVALID_STATE_TRANSITION" &&
+        (caseData.status === "AI_ANALYSIS" || caseData.status === "EXECUTION");
+      const msg = isActiveProcessConflict
+        ? "Close is blocked while analysis generation or execution is active. Wait for the process to reach a terminal status, refresh the case, then try again. Closing does not cancel active work."
+        : err instanceof Error
+        ? err.message
+        : "Failed to close case. Refresh the case and verify its current workflow state before trying again.";
       setErrorMsg(msg);
     },
   });
@@ -75,7 +81,7 @@ export function CaseDetailHeader({
             <CaseStatusBadge status={caseData.status} />
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          <h1 className="break-words text-2xl font-bold tracking-tight text-slate-900">
             {caseData.title}
           </h1>
 
@@ -89,7 +95,7 @@ export function CaseDetailHeader({
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5 md:shrink-0">
           {!isTerminal && isParticipant && (
             <Button
               variant="outline"
@@ -109,7 +115,7 @@ export function CaseDetailHeader({
           {isTerminal && (
             <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-md border border-slate-200">
               <Lock className="h-3.5 w-3.5" aria-hidden="true" />
-              Case Completed / Closed (Read-Only)
+              {caseData.status} · Read-Only
             </div>
           )}
         </div>
@@ -120,7 +126,7 @@ export function CaseDetailHeader({
         isOpen={isCloseOpen}
         onClose={() => setIsCloseOpen(false)}
         title={`Close Case: ${caseData.case_number}`}
-        description="Closing a case requires a clear and auditable justification. This action will conclude the case workflow."
+        description="Closing is a participant-requested backend action with a required audit reason. The server validates the current state and active-process guard before changing the case."
         footer={
           <>
             <Button

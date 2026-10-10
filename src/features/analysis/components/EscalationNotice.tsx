@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AlertOctagon, HelpCircle, ShieldAlert, RefreshCw, Info } from "lucide-react";
+import { AlertOctagon, Info } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 

@@ -19,7 +19,7 @@ import { EscalationNotice, EscalationCause } from "./EscalationNotice";
 import { LoadingState } from "@/components/feedback/LoadingState";
 import { ErrorState } from "@/components/feedback/ErrorState";
 import { EmptyState } from "@/components/feedback/EmptyState";
-import { Sparkles, Clock, AlertTriangle, Info, RefreshCw, ShieldAlert } from "lucide-react";
+import { Sparkles, Info, RefreshCw } from "lucide-react";
 
 interface AnalysisTabProps {
   caseData: CaseDetail;
@@ -166,22 +166,23 @@ export function AnalysisTab({ caseData, requestedVersion }: AnalysisTabProps) {
         </div>
         <div className="space-y-2">
           <h3 className="text-lg font-bold text-slate-900">
-            Sentinel AI Analysis in Progress
+            AI Analysis Queued / Processing
           </h3>
           <p className="text-sm text-slate-600 leading-relaxed">
-            Sentinel AI is extracting facts from case evidence, performing semantic search against policy clauses, and verifying action recommendations.
+            The case is in <strong>AI_ANALYSIS</strong>. The persisted analysis request is queued
+            or processing asynchronously; no browser action is required.
           </p>
         </div>
 
         <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-left space-y-2.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
             <RefreshCw className="h-3.5 w-3.5 animate-spin text-blue-600" />
-            <span>Inference & Verification Cycle Status:</span>
+            <span>Asynchronous analysis status:</span>
           </div>
           <ul className="text-xs text-slate-600 space-y-1.5 pl-5 list-disc">
-            <li>Validating documentary evidence uploaded by Maker...</li>
-            <li>Matching relevant SOP / Policy clauses...</li>
-            <li>Running anti-hallucination verification and factual consistency checks...</li>
+            <li>The analysis request has been accepted for processing.</li>
+            <li>Evidence and applicable policy context are evaluated in the background.</li>
+            <li>A persisted result will appear here after processing reaches a terminal status.</li>
           </ul>
         </div>
 
@@ -282,7 +283,7 @@ export function AnalysisTab({ caseData, requestedVersion }: AnalysisTabProps) {
           <p>
             <span className="font-semibold">Historical Review Mode:</span> You
             are viewing Analysis <strong>Version #{activeAnalysis.version}</strong> (
-            {activeAnalysis.status}). Historical and trial attempts are read-only.
+            {activeAnalysis.status}). Historical attempts are read-only.
             Checker and Signer approvals apply exclusively to the{" "}
             <strong>CURRENT</strong> version.
           </p>

@@ -124,7 +124,7 @@ export default function PoliciesPage() {
     <ContentContainer>
       <PageHeader
         title="Regulations & Policies"
-        description="Manage SOPs and operational guidelines that govern Sentinel verification decisions."
+        description="View policy authority and retrieval readiness separately. ADMIN access is required to create or activate versions."
         action={
           isAdmin && (
             <Button variant="primary" onClick={handleOpenDialog}>
@@ -213,8 +213,8 @@ export default function PoliciesPage() {
               <TableHead>Policy Title</TableHead>
               <TableHead className="w-32">Domain</TableHead>
               <TableHead className="w-44">Case Type</TableHead>
-              <TableHead className="w-48">Active Version</TableHead>
-              <TableHead className="w-44">Index Status</TableHead>
+              <TableHead className="w-48">Authority Version</TableHead>
+              <TableHead className="w-48">Retrieval Readiness</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -248,7 +248,7 @@ export default function PoliciesPage() {
                       <PolicyAuthorityBadge status={p.active_version.status} />
                     </div>
                   ) : (
-                    <span className="text-xs text-slate-400">No Active Version</span>
+                    <span className="text-xs text-slate-400">No authoritative ACTIVE version</span>
                   )}
                 </TableCell>
                 <TableCell>

@@ -26,13 +26,13 @@ export function AnalysisVersionSelector({
 
   return (
     <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-2 shadow-xs">
-      <div className="flex items-center justify-between text-xs text-slate-500 font-medium pb-2 border-b border-slate-100">
+      <div className="flex flex-col gap-1 text-xs text-slate-500 font-medium pb-2 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-1.5 text-slate-700">
           <History className="h-4 w-4 text-blue-600" />
           <span>Analysis Attempt History ({analyses.length} attempts recorded)</span>
         </div>
         <span className="text-[11px] text-slate-400">
-          Select an attempt to inspect historical trace details
+          CURRENT is the review target; LATEST ATTEMPT is only the highest recorded version.
         </span>
       </div>
 
@@ -49,7 +49,7 @@ export function AnalysisVersionSelector({
               role="tab"
               aria-selected={isSelected}
               onClick={() => onSelectAnalysis(item.id)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium border transition-all text-left ${
+              className={`flex max-w-full flex-wrap items-center gap-2 px-3 py-2 rounded-md text-xs font-medium border transition-all text-left ${
                 isSelected
                   ? "bg-blue-50 border-blue-600 text-blue-900 shadow-xs ring-1 ring-blue-600"
                   : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"

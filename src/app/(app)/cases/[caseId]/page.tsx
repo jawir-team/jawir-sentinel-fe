@@ -17,7 +17,7 @@ import { ReviewTab } from "@/features/review/components/ReviewTab";
 import { ExecutionTab } from "@/features/execution/components/ExecutionTab";
 import { HistoryTimeline } from "@/features/history/components/HistoryTimeline";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import { Alert } from "@/components/ui/Alert";
 import { getCaseById } from "@/services/api/cases";
 import { queryKeys } from "@/constants/queryKeys";
 import { useAuth } from "@/features/auth/context/AuthContext";
@@ -28,10 +28,6 @@ import {
   CheckSquare,
   PlayCircle,
   History,
-  Edit,
-  UserCheck,
-  Send,
-  Building,
 } from "lucide-react";
 
 export type CaseTabKey =
@@ -102,6 +98,18 @@ export default function CaseDetailPage({
   return (
     <ContentContainer>
       <CaseDetailHeader caseData={caseData} isParticipant={isParticipant} />
+
+      {caseData.status === "DRAFT" ? (
+        <Alert variant="info" title="DRAFT · Governance Setup Open" className="mb-6">
+          The Maker can complete participant assignments while this case remains in DRAFT.
+          Submission freezes the case core data and participant set.
+        </Alert>
+      ) : (
+        <Alert variant="warning" title="Submitted · Governance Context Frozen" className="mb-6">
+          Core case data and participant assignments are read-only after DRAFT. Evidence and
+          workflow actions remain available only where the current state and assigned role allow.
+        </Alert>
+      )}
 
       {/* Workflow Tabs */}
       <div className="border-b border-slate-200 mb-6">
@@ -186,18 +194,16 @@ export default function CaseDetailPage({
               </CardHeader>
               <CardContent className="space-y-4 text-xs">
                 <div>
-                  <span className="text-slate-400 block mb-1">Maker / Initiator</span>
+                  <span className="text-slate-400 block mb-1">Owner / Maker (Permanent)</span>
                   <div className="flex items-center gap-2 font-medium text-slate-800">
                     <div className="h-6 w-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
                       {caseData.maker?.name?.charAt(0) || "M"}
                     </div>
                     <span>{caseData.maker?.name}</span>
                   </div>
-                </div>
-
-                <div className="pt-3 border-t border-slate-100">
-                  <span className="text-slate-400 block mb-1">Owner (Permanent)</span>
-                  <p className="text-slate-700 font-medium">{caseData.owner?.name}</p>
+                  <p className="mt-1.5 text-[11px] leading-relaxed text-slate-500">
+                    The case creator is both Owner and Maker. This identity cannot be reassigned.
+                  </p>
                 </div>
 
                 <div className="pt-3 border-t border-slate-100">
