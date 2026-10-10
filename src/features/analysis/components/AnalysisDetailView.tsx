@@ -182,6 +182,14 @@ export function AnalysisDetailView({
         </div>
       )}
 
+      {analysis.policy_status === "POLICY_CONFLICT" && (
+        <Alert variant="warning" title="Semantic Policy Conflict">
+          POLICY_CONFLICT is an AI analysis finding: retrieved policy clauses
+          conflict and require human review. It is not an HTTP 409 error and does
+          not independently change the case workflow state.
+        </Alert>
+      )}
+
       {/* Ringkasan Eksekutif */}
       {analysis.summary !== null && analysis.summary !== undefined && (
         <Card className="border-slate-200 shadow-sm">

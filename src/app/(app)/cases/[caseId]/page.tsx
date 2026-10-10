@@ -50,6 +50,8 @@ export default function CaseDetailPage({
   const router = useRouter();
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = React.useState<CaseTabKey>("overview");
+  const [requestedAnalysisVersion, setRequestedAnalysisVersion] =
+    React.useState<number | null>(null);
 
   const {
     data: caseData,
@@ -215,7 +217,10 @@ export default function CaseDetailPage({
       {/* Placeholders for subsequent issues */}
       {activeTab === "analysis" && (
         <div id="tab-analysis-container">
-          <AnalysisTab caseData={caseData} />
+          <AnalysisTab
+            caseData={caseData}
+            requestedVersion={requestedAnalysisVersion}
+          />
         </div>
       )}
 
@@ -239,7 +244,13 @@ export default function CaseDetailPage({
 
       {activeTab === "history" && (
         <div id="tab-history-container">
-          <HistoryTimeline caseId={caseData.id} />
+          <HistoryTimeline
+            caseId={caseData.id}
+            onSelectAnalysisVersion={(version) => {
+              setRequestedAnalysisVersion(version);
+              setActiveTab("analysis");
+            }}
+          />
         </div>
       )}
     </ContentContainer>

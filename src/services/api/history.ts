@@ -53,18 +53,66 @@ const mockHistories: Record<string, CaseHistoryEvent[]> = {
       metadata: { verification_status: "PASS" },
       created_at: "2026-10-01T10:04:00Z",
     },
+  ],
+  "case-006": [
     {
-      id: "hist-006",
-      event_type: "CHECKER_APPROVED",
-      actor: { id: "usr-risk", name: "Risk User" },
-      actor_role: "CHECKER",
-      analysis_id: "analysis-v1",
+      id: "hist-601",
+      event_type: "AI_ANALYSIS_COMPLETED",
+      actor: null,
+      actor_role: null,
+      analysis_id: "analysis-v601",
       analysis_version: 1,
-      metadata: { comment: "Verified discrepancy matches clearing report." },
-      created_at: "2026-10-01T10:05:00Z",
+      metadata: { verification_status: "PASS" },
+      created_at: "2026-10-01T08:15:00Z",
+    },
+    {
+      id: "hist-602",
+      event_type: "AI_ANALYSIS_FAILED",
+      actor: null,
+      actor_role: null,
+      analysis_id: "analysis-v602",
+      analysis_version: 2,
+      metadata: { failure_type: "VERIFIER_FAIL" },
+      created_at: "2026-10-01T09:00:00Z",
+    },
+  ],
+  "case-003": [
+    {
+      id: "hist-301",
+      event_type: "CASE_CREATED",
+      actor: { id: "usr-ops", name: "Operations User" },
+      actor_role: "MAKER",
+      analysis_id: null,
+      analysis_version: null,
+      metadata: {},
+      created_at: "2026-10-01T12:00:00Z",
     },
   ],
 };
+
+export function initializeMockHistory(
+  caseId: string,
+  event: CaseHistoryEvent
+): void {
+  mockHistories[caseId] = [event];
+}
+
+export function appendMockHistory(
+  caseId: string,
+  event: Omit<CaseHistoryEvent, "id" | "created_at"> & {
+    id?: string;
+    created_at?: string;
+  }
+): void {
+  if (!mockHistories[caseId]) {
+    mockHistories[caseId] = [];
+  }
+  mockHistories[caseId].push({
+    ...event,
+    id: event.id || `hist-${Date.now()}-${mockHistories[caseId].length + 1}`,
+    created_at: event.created_at || new Date().toISOString(),
+  });
+}
 
 export async function getCaseHistory(
   caseId: string
@@ -86,6 +134,6 @@ export async function getCaseHistory(
     ) {
       throw err;
     }
-    return mockHistories[caseId] || [];
+    return (mockHistories[caseId] || []).map((event) => ({ ...event }));
   }
 }

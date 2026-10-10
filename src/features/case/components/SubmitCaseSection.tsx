@@ -32,7 +32,7 @@ export function SubmitCaseSection({
 
   const hasMaker = !!caseData.maker?.id;
   const checkers = activeParticipants.filter((p) => p.role === "CHECKER");
-  const hasChecker = checkers.length >= 1;
+  const hasChecker = checkers.some((checker) => checker.required);
   const signers = activeParticipants.filter((p) => p.role === "SIGNER");
   const hasSigner = signers.length === 1;
   const executers = activeParticipants.filter((p) => p.role === "EXECUTER");
@@ -138,7 +138,7 @@ export function SubmitCaseSection({
               <XCircle className="h-4 w-4 text-red-500 shrink-0" />
             )}
             <span className={hasChecker ? "text-slate-800" : "text-red-700"}>
-              Checker: {checkers.length} user(s) (At least 1)
+              Checker: {checkers.length} user(s) (At least 1 required)
             </span>
           </div>
 

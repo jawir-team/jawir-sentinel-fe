@@ -63,6 +63,8 @@ export function AnalysisVersionSelector({
                       isSelected ? "text-blue-600" : "text-emerald-600"
                     }`}
                   />
+                ) : item.status === "GENERATING" ? (
+                  <Sparkles className="h-3.5 w-3.5 text-amber-600 animate-pulse" />
                 ) : (
                   <AlertCircle className="h-3.5 w-3.5 text-rose-600" />
                 )}
@@ -74,6 +76,8 @@ export function AnalysisVersionSelector({
                   className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
                     item.status === "COMPLETED"
                       ? "bg-emerald-100 text-emerald-800"
+                      : item.status === "GENERATING"
+                      ? "bg-amber-100 text-amber-800"
                       : "bg-rose-100 text-rose-800"
                   }`}
                 >

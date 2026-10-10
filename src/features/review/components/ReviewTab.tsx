@@ -15,6 +15,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { LoadingState } from "@/components/feedback/LoadingState";
 import { EmptyState } from "@/components/feedback/EmptyState";
+import { ErrorState } from "@/components/feedback/ErrorState";
 import {
   CheckSquare,
   ShieldCheck,
@@ -62,6 +63,7 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
   const {
     data: checkerStatus,
     isLoading: isLoadingStatus,
+    isError: isErrorStatus,
     refetch: refetchStatus,
   } = useQuery({
     queryKey: queryKeys.checkerStatus(caseData.id),
@@ -108,6 +110,16 @@ export function ReviewTab({ caseData, onNavigateToTab }: ReviewTabProps) {
 
   if (isLoadingStatus) {
     return <LoadingState label="Loading Checker & Signer verification status..." />;
+  }
+
+  if (isErrorStatus) {
+    return (
+      <ErrorState
+        title="Review Status Unavailable"
+        message="Unable to load the authoritative Checker round. Reload it before submitting a governance decision."
+        onRetry={() => refetchStatus()}
+      />
+    );
   }
 
   return (

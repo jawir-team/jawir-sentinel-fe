@@ -28,7 +28,6 @@ export function CaseDetailHeader({
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
   const isTerminal = caseData.status === "DONE" || caseData.status === "CLOSED";
-  const isGeneratingOrInProgress = caseData.status === "AI_ANALYSIS";
 
   const closeMutation = useMutation({
     mutationFn: (reason: string) => closeCase(caseData.id, { reason }),
@@ -36,6 +35,7 @@ export function CaseDetailHeader({
       queryClient.invalidateQueries({ queryKey: queryKeys.case(caseData.id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.cases() });
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.history(caseData.id) });
       setIsCloseOpen(false);
       setCloseReason("");
     },
@@ -99,7 +99,6 @@ export function CaseDetailHeader({
                 setCloseReason("");
                 setIsCloseOpen(true);
               }}
-              disabled={isGeneratingOrInProgress}
               className="text-red-700 border-red-200 hover:bg-red-50 hover:border-red-300"
             >
               <XCircle className="h-4 w-4 mr-1.5 text-red-600" aria-hidden="true" />
@@ -145,6 +144,15 @@ export function CaseDetailHeader({
           {errorMsg && (
             <Alert variant="destructive" title="Failed to Close Case">
               {errorMsg}
+            </Alert>
+          )}
+
+          {(caseData.status === "AI_ANALYSIS" ||
+            caseData.status === "EXECUTION") && (
+            <Alert variant="warning" title="Active Process Safety Guard">
+              Close is rejected while an analysis is GENERATING or an execution is
+              IN_PROGRESS. Wait for the active process to reach a terminal state,
+              then try again.
             </Alert>
           )}
 

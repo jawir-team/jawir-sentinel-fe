@@ -34,15 +34,15 @@ export function AppSidebar({ isAdmin = true, className }: AppSidebarProps) {
       icon: Briefcase,
       active: pathname.startsWith("/cases"),
     },
-  ];
-
-  const adminNav = [
     {
       name: "Policies",
       href: "/policies",
       icon: BookOpen,
       active: pathname.startsWith("/policies"),
     },
+  ];
+
+  const adminNav = [
     {
       name: "Users",
       href: "/users",

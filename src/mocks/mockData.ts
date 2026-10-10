@@ -81,7 +81,7 @@ export const initialUsers: UserItem[] = [
     name: "Manager User",
     email: "manager@jawir.local",
     status: "ACTIVE",
-    system_role: "USER",
+    system_role: "ADMIN",
     unit: { id: "unit-mgmt", code: "MGMT", name: "Executive Management" },
   },
   {
@@ -128,14 +128,6 @@ export const initialCases: CaseDetail[] = [
       },
       {
         id: "part-3",
-        user_id: "usr-dev",
-        name: "Development User",
-        role: "CHECKER" as const,
-        required: true,
-        status: "ACTIVE" as const,
-      },
-      {
-        id: "part-4",
         user_id: "usr-manager",
         name: "Manager User",
         role: "SIGNER" as const,
@@ -143,9 +135,9 @@ export const initialCases: CaseDetail[] = [
         status: "ACTIVE" as const,
       },
       {
-        id: "part-5",
-        user_id: "usr-ops",
-        name: "Operations User",
+        id: "part-4",
+        user_id: "usr-dev",
+        name: "Development User",
         role: "EXECUTER" as const,
         required: true,
         status: "ACTIVE" as const,
@@ -198,11 +190,19 @@ export const initialCases: CaseDetail[] = [
         required: true,
         status: "ACTIVE" as const,
       },
+      {
+        id: "part-204",
+        user_id: "usr-dev",
+        name: "Development User",
+        role: "EXECUTER" as const,
+        required: true,
+        status: "ACTIVE" as const,
+      },
     ],
     current_analysis: {
-      id: "analysis-v2",
-      version: 2,
-      verification_status: "PASS" as const,
+      id: "analysis-v201",
+      version: 1,
+      verification_status: "PASS_WITH_WARNING" as const,
     },
     created_at: "2026-10-01T11:00:00Z",
     updated_at: "2026-10-01T11:30:00Z",
@@ -284,7 +284,7 @@ export const initialCases: CaseDetail[] = [
       },
     ],
     current_analysis: {
-      id: "analysis-v1",
+      id: "analysis-v401",
       version: 1,
       verification_status: "PASS" as const,
     },
@@ -350,8 +350,8 @@ export const initialCases: CaseDetail[] = [
   {
     id: "case-006",
     case_number: "CASE-2026-000006",
-    title: "Settlement deadlock with exhausted re-analysis quota",
-    description: "Multiple rejection cycles exhausted maximum re-analysis quota (3 re-analyses). Requires manual committee intervention.",
+    title: "Settlement analysis rejected by verifier",
+    description: "The latest AI attempt cited an invalid policy and was rejected by the verifier. Manual escalation is required.",
     urgency: "CRITICAL" as const,
     status: "ESCALATION_REQUIRED" as const,
     case_type: {
@@ -396,7 +396,7 @@ export const initialCases: CaseDetail[] = [
       },
     ],
     current_analysis: {
-      id: "analysis-v1",
+      id: "analysis-v601",
       version: 1,
       verification_status: "PASS" as const,
     },
@@ -456,5 +456,3 @@ export const initialCases: CaseDetail[] = [
     updated_at: "2026-10-01T14:00:00Z",
   },
 ];
-
-

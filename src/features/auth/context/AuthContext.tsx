@@ -14,6 +14,7 @@ import {
 } from "@/services/api/client";
 import { getCurrentUser } from "@/services/api/auth";
 import { CurrentUser } from "@/types/user";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface AuthContextType {
   user: SentinelAuthUser | null;
@@ -29,6 +30,7 @@ interface AuthContextType {
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = React.useState<SentinelAuthUser | null>(null);
   const [currentUser, setCurrentUser] = React.useState<CurrentUser | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -83,6 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = React.useCallback(
     async (email: string, pass: string) => {
       setError(null);
+      queryClient.clear();
       try {
         const loggedUser = await signInWithEmail(email, pass);
         setUser(loggedUser);
@@ -94,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw err;
       }
     },
-    [fetchSentinelUser]
+    [fetchSentinelUser, queryClient]
   );
 
   const logout = React.useCallback(async () => {
@@ -104,8 +107,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setCurrentUser(null);
     } catch (err: unknown) {
       console.warn("Logout error:", err);
+    } finally {
+      queryClient.clear();
     }
-  }, []);
+  }, [queryClient]);
 
   const refetchCurrentUser = React.useCallback(async () => {
     if (user) {

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { LoadingState } from "@/components/feedback/LoadingState";
 import { EmptyState } from "@/components/feedback/EmptyState";
+import { ErrorState } from "@/components/feedback/ErrorState";
 import {
   History,
   Sparkles,
@@ -42,6 +43,7 @@ export function HistoryTimeline({
   const {
     data: historyEvents = [],
     isLoading,
+    isError,
     refetch,
   } = useQuery({
     queryKey: queryKeys.history(caseId),
@@ -50,6 +52,16 @@ export function HistoryTimeline({
 
   if (isLoading) {
     return <LoadingState label="Loading case audit history trail..." />;
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Audit History Unavailable"
+        message="Unable to load the append-only case history."
+        onRetry={() => refetch()}
+      />
+    );
   }
 
   if (historyEvents.length === 0) {
@@ -81,6 +93,18 @@ export function HistoryTimeline({
           icon: <Paperclip className="h-4 w-4 text-slate-600" />,
           label: "Evidence Added",
           badgeVariant: "outline" as const,
+        };
+      case "PARTICIPANT_ASSIGNED":
+        return {
+          icon: <User className="h-4 w-4 text-blue-600" />,
+          label: "Workflow Participant Assigned",
+          badgeVariant: "default" as const,
+        };
+      case "PARTICIPANT_REMOVED":
+        return {
+          icon: <User className="h-4 w-4 text-slate-600" />,
+          label: "Workflow Participant Removed",
+          badgeVariant: "secondary" as const,
         };
       case "CASE_SUBMITTED":
         return {

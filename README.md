@@ -2132,6 +2132,20 @@ Environment:
 cp .env.example .env.local
 ```
 
+For an offline, synthetic demo (with the backend stopped), set these values in
+`.env.local`:
+
+```env
+NEXT_PUBLIC_ENABLE_API_MOCKS=true
+NEXT_PUBLIC_ENABLE_MOCK_AUTH=true
+```
+
+Then use the four persona buttons on `/login`. The mock workflow is kept in
+browser-session memory so persona sign-out/sign-in preserves the active case;
+a hard refresh or dev-server restart resets the synthetic data. API fallback is
+fail-closed: it is used only for network failures while the explicit flag is
+enabled, never for backend HTTP error responses.
+
 Install:
 
 ```bash

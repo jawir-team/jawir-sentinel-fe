@@ -1,5 +1,6 @@
 import { apiGet, shouldUseApiFallback } from "./client";
 import { CurrentUser } from "@/types/user";
+import { initialUsers } from "@/mocks/mockData";
 
 export async function getCurrentUser(fallbackEmail?: string | null): Promise<CurrentUser> {
   try {
@@ -16,6 +17,20 @@ export async function getCurrentUser(fallbackEmail?: string | null): Promise<Cur
 
     // Fallback contract layer if backend server is not reachable
     const email = fallbackEmail || "ops@jawir.local";
+    const seededUser = initialUsers.find(
+      (user) => user.email.toLowerCase() === email.toLowerCase()
+    );
+
+    if (seededUser) {
+      return {
+        id: seededUser.id,
+        name: seededUser.name,
+        email: seededUser.email,
+        system_role: seededUser.system_role,
+        unit: seededUser.unit,
+      };
+    }
+
     const isAdmin = email.toLowerCase().includes("admin");
 
     return {

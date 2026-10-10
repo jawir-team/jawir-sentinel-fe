@@ -13,6 +13,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { LoadingState } from "@/components/feedback/LoadingState";
 import { EmptyState } from "@/components/feedback/EmptyState";
+import { ErrorState } from "@/components/feedback/ErrorState";
 import { Alert } from "@/components/ui/Alert";
 import {
   PlayCircle,
@@ -55,6 +56,7 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
   const {
     data: executions = [],
     isLoading: isLoadingExecutions,
+    isError: isErrorExecutions,
     refetch: refetchExecutions,
   } = useQuery({
     queryKey: ["executions", caseData.id],
@@ -97,7 +99,7 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
       queryClient.invalidateQueries({ queryKey: queryKeys.analyses(caseData.id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.analysisCurrent(caseData.id) });
 
-      if (err?.status === 409 || err?.code === "STALE_ANALYSIS") {
+      if (err?.code === "STALE_ANALYSIS") {
         setIsStaleConflict(true);
         return;
       }
@@ -121,6 +123,16 @@ export function ExecutionTab({ caseData }: ExecutionTabProps) {
 
   if (isLoadingExecutions) {
     return <LoadingState label="Loading execution history..." />;
+  }
+
+  if (isErrorExecutions) {
+    return (
+      <ErrorState
+        title="Execution History Unavailable"
+        message="Unable to load the execution state for this case. Refresh authoritative state before taking an execution action."
+        onRetry={() => refetchExecutions()}
+      />
+    );
   }
 
   return (

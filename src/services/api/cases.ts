@@ -14,8 +14,32 @@ import {
 import { Pagination } from "@/types/api";
 import { initialCases, initialCaseTypes, initialUsers } from "@/mocks/mockData";
 import { ApiError } from "@/types/api";
+import { appendMockHistory, initializeMockHistory } from "./history";
+import { getActiveMockUser } from "@/mocks/mockSession";
+import {
+  hasMockActiveProcess,
+  startMockAnalysisProcess,
+} from "@/mocks/mockWorkflowState";
 
 let mockCases: CaseDetail[] = [...initialCases];
+
+export function getMockCase(caseId: string): CaseDetail | undefined {
+  return mockCases.find((c) => c.id === caseId || c.case_number === caseId);
+}
+
+export function getMockCases(): CaseDetail[] {
+  return mockCases;
+}
+
+export function updateMockCase(
+  caseId: string,
+  updates: Partial<CaseDetail>
+): CaseDetail | undefined {
+  const found = getMockCase(caseId);
+  if (!found) return undefined;
+  Object.assign(found, updates, { updated_at: new Date().toISOString() });
+  return found;
+}
 
 export async function getCases(
   params?: CasesFilterParams
@@ -44,7 +68,15 @@ export async function getCases(
       throw err;
     }
 
-    let filtered = [...mockCases];
+    const actor = getActiveMockUser();
+    let filtered = mockCases.filter(
+      (caseItem) =>
+        actor.system_role === "ADMIN" ||
+        caseItem.participants.some(
+          (participant) =>
+            participant.user_id === actor.id && participant.status === "ACTIVE"
+        )
+    );
     if (params?.status) {
       filtered = filtered.filter((c) => c.status === params.status);
     }
@@ -90,7 +122,23 @@ export async function getCaseById(caseId: string): Promise<CaseDetail> {
     if (!found) {
       throw new ApiError("CASE_NOT_FOUND", "Case not found", 404);
     }
-    return found as CaseDetail;
+    const actor = getActiveMockUser();
+    const canRead =
+      actor.system_role === "ADMIN" ||
+      found.participants.some(
+        (participant) =>
+          participant.user_id === actor.id && participant.status === "ACTIVE"
+      );
+    if (!canRead) {
+      throw new ApiError("FORBIDDEN", "You are not authorized to read this case.", 403);
+    }
+    return {
+      ...found,
+      participants: [...found.participants],
+      current_analysis: found.current_analysis
+        ? { ...found.current_analysis }
+        : found.current_analysis,
+    };
   }
 }
 
@@ -110,6 +158,7 @@ export async function createCase(payload: CreateCasePayload): Promise<CreateCase
       };
 
     const newCaseNum = `CASE-2026-${String(mockCases.length + 1).padStart(6, "0")}`;
+    const actor = getActiveMockUser();
     const newCase: CaseDetail = {
       id: `case-${Date.now()}`,
       case_number: newCaseNum,
@@ -122,13 +171,13 @@ export async function createCase(payload: CreateCasePayload): Promise<CreateCase
         code: ct.code,
         name: ct.name,
       },
-      maker: { id: "usr-ops", name: "Operations User" },
-      owner: { id: "usr-ops", name: "Operations User" },
+      maker: { id: actor.id, name: actor.name },
+      owner: { id: actor.id, name: actor.name },
       participants: [
         {
           id: `part-${Date.now()}`,
-          user_id: "usr-ops",
-          name: "Operations User",
+          user_id: actor.id,
+          name: actor.name,
           role: "MAKER",
           required: true,
           status: "ACTIVE",
@@ -140,6 +189,16 @@ export async function createCase(payload: CreateCasePayload): Promise<CreateCase
     };
 
     mockCases.unshift(newCase);
+    initializeMockHistory(newCase.id, {
+      id: `hist-${Date.now()}`,
+      event_type: "CASE_CREATED",
+      actor: { id: actor.id, name: actor.name },
+      actor_role: "MAKER",
+      analysis_id: null,
+      analysis_version: null,
+      metadata: {},
+      created_at: newCase.created_at,
+    });
     return { id: newCase.id, case_number: newCase.case_number, status: "DRAFT" };
   }
 }
@@ -158,6 +217,16 @@ export async function updateCase(
     const index = mockCases.findIndex((c) => c.id === caseId);
     if (index === -1) {
       throw new ApiError("CASE_NOT_FOUND", "Case not found", 404);
+    }
+    if (mockCases[index].status !== "DRAFT") {
+      throw new ApiError(
+        "INVALID_STATE_TRANSITION",
+        "Case core data can only be updated while in DRAFT.",
+        409
+      );
+    }
+    if (mockCases[index].maker.id !== getActiveMockUser().id) {
+      throw new ApiError("FORBIDDEN", "Only the Maker can update this draft.", 403);
     }
     mockCases[index] = {
       ...mockCases[index],
@@ -188,6 +257,20 @@ export async function assignParticipant(
     }
     if (found.status !== "DRAFT") {
       throw new ApiError("INVALID_STATE_TRANSITION", "Participants can only be added while in DRAFT", 409);
+    }
+    if (found.maker.id !== getActiveMockUser().id) {
+      throw new ApiError(
+        "FORBIDDEN",
+        "Only the Maker can assign draft participants.",
+        403
+      );
+    }
+    if (payload.role === "MAKER") {
+      throw new ApiError(
+        "INVALID_REQUEST",
+        "Maker is assigned automatically and cannot be assigned through the participant API.",
+        400
+      );
     }
 
     const alreadyAssigned = found.participants.some(
@@ -231,10 +314,23 @@ export async function assignParticipant(
       user_id: payload.user_id,
       name: matchedUser ? matchedUser.name : "Assigned User",
       role: payload.role,
-      required: true,
+      required: payload.role === "CHECKER" ? payload.required : true,
       status: "ACTIVE",
     };
     found.participants.push(newPart);
+    const actor = getActiveMockUser();
+    appendMockHistory(found.id, {
+      event_type: "PARTICIPANT_ASSIGNED",
+      actor: { id: actor.id, name: actor.name },
+      actor_role: "MAKER",
+      analysis_id: null,
+      analysis_version: null,
+      metadata: {
+        participant_name: newPart.name,
+        participant_role: newPart.role,
+        required: newPart.required,
+      },
+    });
     return newPart;
   }
 }
@@ -259,9 +355,36 @@ export async function removeParticipant(
     if (found.status !== "DRAFT") {
       throw new ApiError("INVALID_STATE_TRANSITION", "Participants can only be removed while in DRAFT", 409);
     }
+    if (found.maker.id !== getActiveMockUser().id) {
+      throw new ApiError(
+        "FORBIDDEN",
+        "Only the Maker can remove draft participants.",
+        403
+      );
+    }
     const partIdx = found.participants.findIndex((p) => p.id === participantId);
+    if (found.participants[partIdx]?.role === "MAKER") {
+      throw new ApiError(
+        "INVALID_STATE_TRANSITION",
+        "Maker assignment is immutable.",
+        409
+      );
+    }
     if (partIdx !== -1) {
+      const removed = found.participants[partIdx];
       found.participants.splice(partIdx, 1);
+      const actor = getActiveMockUser();
+      appendMockHistory(found.id, {
+        event_type: "PARTICIPANT_REMOVED",
+        actor: { id: actor.id, name: actor.name },
+        actor_role: "MAKER",
+        analysis_id: null,
+        analysis_version: null,
+        metadata: {
+          participant_name: removed.name,
+          participant_role: removed.role,
+        },
+      });
     }
     return { id: participantId, status: "INACTIVE" };
   }
@@ -279,8 +402,53 @@ export async function submitCase(caseId: string): Promise<SubmitCaseResponse> {
     if (index === -1) {
       throw new ApiError("CASE_NOT_FOUND", "Case not found", 404);
     }
+    const activeParticipants = mockCases[index].participants.filter(
+      (participant) => participant.status === "ACTIVE"
+    );
+    const makerCount = activeParticipants.filter(
+      (participant) => participant.role === "MAKER"
+    ).length;
+    const requiredCheckerCount = activeParticipants.filter(
+      (participant) => participant.role === "CHECKER" && participant.required
+    ).length;
+    const signerCount = activeParticipants.filter(
+      (participant) => participant.role === "SIGNER"
+    ).length;
+    const executerCount = activeParticipants.filter(
+      (participant) => participant.role === "EXECUTER"
+    ).length;
+    const uniqueUsers = new Set(
+      activeParticipants.map((participant) => participant.user_id)
+    );
+    if (
+      mockCases[index].status !== "DRAFT" ||
+      makerCount !== 1 ||
+      requiredCheckerCount < 1 ||
+      signerCount !== 1 ||
+      executerCount !== 1 ||
+      uniqueUsers.size !== activeParticipants.length
+    ) {
+      throw new ApiError(
+        "INVALID_STATE_TRANSITION",
+        "Case must be DRAFT with one Maker, at least one required Checker, one Signer, one Executer, and strict distinct users.",
+        409
+      );
+    }
+    if (mockCases[index].maker.id !== getActiveMockUser().id) {
+      throw new ApiError("FORBIDDEN", "Only the Maker can submit this case.", 403);
+    }
+    const actor = getActiveMockUser();
     mockCases[index].status = "AI_ANALYSIS";
     mockCases[index].updated_at = new Date().toISOString();
+    appendMockHistory(mockCases[index].id, {
+      event_type: "CASE_SUBMITTED",
+      actor: { id: actor.id, name: actor.name },
+      actor_role: "MAKER",
+      analysis_id: null,
+      analysis_version: null,
+      metadata: {},
+    });
+    startMockAnalysisProcess(mockCases[index].id);
     return { id: mockCases[index].id, status: "AI_ANALYSIS" };
   }
 }
@@ -311,12 +479,45 @@ export async function closeCase(
         409
       );
     }
+    const actor = getActiveMockUser();
+    const participant = current.participants.find(
+      (item) => item.user_id === actor.id && item.status === "ACTIVE"
+    );
+    if (!participant) {
+      throw new ApiError(
+        "FORBIDDEN",
+        "Only an active case participant can close this case.",
+        403
+      );
+    }
+    if (current.status === "AI_ANALYSIS" || hasMockActiveProcess(current.id)) {
+      throw new ApiError(
+        "INVALID_STATE_TRANSITION",
+        "Case cannot be closed while AI analysis is GENERATING or execution is IN_PROGRESS. Wait for the active process to reach a terminal state.",
+        409
+      );
+    }
+    if (!payload.reason.trim()) {
+      throw new ApiError("INVALID_REQUEST", "Case closure reason is required.", 400);
+    }
     const closedAt = new Date().toISOString();
     mockCases[index] = {
       ...current,
       status: "CLOSED",
       updated_at: closedAt,
     };
+    appendMockHistory(current.id, {
+      event_type: "CASE_CLOSED",
+      actor: { id: actor.id, name: actor.name },
+      actor_role: participant?.role ?? null,
+      analysis_id: current.current_analysis?.id ?? null,
+      analysis_version: current.current_analysis?.version ?? null,
+      metadata: {
+        reason: payload.reason.trim(),
+        previous_status: current.status,
+        closed_at: closedAt,
+      },
+    });
     return {
       id: mockCases[index].id,
       status: "CLOSED",

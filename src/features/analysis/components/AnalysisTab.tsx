@@ -23,9 +23,10 @@ import { Sparkles, Clock, AlertTriangle, Info, RefreshCw, ShieldAlert } from "lu
 
 interface AnalysisTabProps {
   caseData: CaseDetail;
+  requestedVersion?: number | null;
 }
 
-export function AnalysisTab({ caseData }: AnalysisTabProps) {
+export function AnalysisTab({ caseData, requestedVersion }: AnalysisTabProps) {
   const queryClient = useQueryClient();
   const isDraft = caseData.status === "DRAFT";
   const isAiAnalysisRunning = caseData.status === "AI_ANALYSIS";
@@ -38,6 +39,7 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
   const {
     data: analyses = [],
     isLoading: isLoadingList,
+    isError: isErrorList,
     refetch: refetchList,
   } = useQuery({
     queryKey: queryKeys.analyses(caseData.id),
@@ -63,6 +65,7 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
 
   // Selected analysis ID state
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const previousCurrentAnalysisId = React.useRef<string | undefined>(undefined);
 
   // Provenance viewer modal state
   const [viewingPolicyRef, setViewingPolicyRef] =
@@ -83,6 +86,26 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
       }
     }
   }, [currentAnalysisId, analyses, selectedId]);
+
+  // Follow an authoritative current-analysis change after re-analysis. A
+  // deliberate historical selection remains stable until the current ID changes.
+  React.useEffect(() => {
+    if (
+      currentAnalysisId &&
+      previousCurrentAnalysisId.current &&
+      previousCurrentAnalysisId.current !== currentAnalysisId
+    ) {
+      setSelectedId(currentAnalysisId);
+    }
+    previousCurrentAnalysisId.current = currentAnalysisId;
+  }, [currentAnalysisId]);
+
+  // Audit history links identify versions, while analysis reads use IDs.
+  React.useEffect(() => {
+    if (requestedVersion === null || requestedVersion === undefined) return;
+    const requested = analyses.find((analysis) => analysis.version === requestedVersion);
+    if (requested) setSelectedId(requested.id);
+  }, [requestedVersion, analyses]);
 
   // Fetch the active analysis details (either current or selected historical)
   const activeAnalysisId = selectedId || currentAnalysisId;
@@ -120,6 +143,16 @@ export function AnalysisTab({ caseData }: AnalysisTabProps) {
         icon={<Sparkles className="h-8 w-8 text-slate-400" />}
         title="AI Analysis Not Started"
         description="Sentinel AI analysis will run automatically once the Maker finishes drafting and submits the case."
+      />
+    );
+  }
+
+  if (isErrorList && !activeAnalysis) {
+    return (
+      <ErrorState
+        title="Analysis Attempts Unavailable"
+        message="Unable to load the persisted analysis attempts for this case."
+        onRetry={() => refetchList()}
       />
     );
   }

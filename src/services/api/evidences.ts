@@ -1,6 +1,9 @@
 import { apiGet, apiPost, shouldUseApiFallback } from "./client";
 import { EvidenceItem, CreateEvidencePayload } from "@/types/evidence";
 import { ApiError } from "@/types/api";
+import { getActiveMockUser } from "@/mocks/mockSession";
+import { getMockCase } from "./cases";
+import { appendMockHistory } from "./history";
 
 const mockEvidences: Record<string, EvidenceItem[]> = {
   "case-001": [
@@ -26,8 +29,43 @@ const mockEvidences: Record<string, EvidenceItem[]> = {
       mime_type: null,
       created_at: "2026-10-01T10:04:00Z",
     },
+    {
+      id: "ev-003",
+      evidence_type: "SCREENSHOT",
+      source_type: "MAKER",
+      source_user: { id: "usr-ops", name: "Operations User" },
+      title: "Clearing dashboard mismatch",
+      content: "Dashboard capture showing the 37 unmatched settlement records.",
+      file_path: "evidence/case-001/clearing-dashboard.png",
+      mime_type: "image/png",
+      created_at: "2026-10-01T10:02:30Z",
+    },
   ],
 };
+
+function getAuthorizedMockEvidenceActor(caseId: string) {
+  const actor = getActiveMockUser();
+  const caseData = getMockCase(caseId);
+  if (!caseData) {
+    throw new ApiError("CASE_NOT_FOUND", "Case not found", 404);
+  }
+  const participant = caseData.participants.find(
+    (item) => item.user_id === actor.id && item.status === "ACTIVE"
+  );
+  const isAllowed =
+    (caseData.status === "DRAFT" && caseData.maker.id === actor.id) ||
+    (["CHECKING", "SIGNING", "EXECUTION", "ESCALATION_REQUIRED"].includes(
+      caseData.status
+    ) && Boolean(participant));
+  if (!isAllowed) {
+    throw new ApiError(
+      "FORBIDDEN",
+      `Evidence cannot be added by this user while the case is ${caseData.status}.`,
+      403
+    );
+  }
+  return { actor, participant };
+}
 
 export async function getEvidences(caseId: string): Promise<EvidenceItem[]> {
   try {
@@ -61,11 +99,12 @@ export async function createEvidence(
       throw err;
     }
 
+    const { actor, participant } = getAuthorizedMockEvidenceActor(caseId);
     const newEvidence: EvidenceItem = {
       id: `ev-${Date.now()}`,
       evidence_type: payload.evidence_type,
-      source_type: "MAKER",
-      source_user: { id: "usr-ops", name: "Operations User" },
+      source_type: participant?.role ?? "MAKER",
+      source_user: { id: actor.id, name: actor.name },
       title: payload.title,
       content: payload.content,
       file_path: null,
@@ -77,6 +116,17 @@ export async function createEvidence(
       mockEvidences[caseId] = [];
     }
     mockEvidences[caseId].push(newEvidence);
+    appendMockHistory(caseId, {
+      event_type: "EVIDENCE_ADDED",
+      actor: { id: actor.id, name: actor.name },
+      actor_role: participant?.role ?? null,
+      analysis_id: null,
+      analysis_version: null,
+      metadata: {
+        title: newEvidence.title,
+        evidence_type: newEvidence.evidence_type,
+      },
+    });
     return newEvidence;
   }
 }
@@ -95,6 +145,7 @@ export async function getEvidenceUploadUrl(
     if (err && typeof err === "object" && "status" in err && (err as { status?: number }).status === 401) {
       throw err;
     }
+    getAuthorizedMockEvidenceActor(caseId);
     const safeKey = `cases/${caseId}/evidence/${Date.now()}-${payload.file_name}`;
     return {
       upload_url: `https://mock-gcs.local/upload/${encodeURIComponent(safeKey)}`,
@@ -154,11 +205,12 @@ export async function registerFileEvidence(
         ? "image/png"
         : "image/jpeg";
 
+    const { actor, participant } = getAuthorizedMockEvidenceActor(caseId);
     const newEvidence: EvidenceItem = {
       id: `ev-${Date.now()}`,
       evidence_type: payload.evidence_type,
-      source_type: "MAKER",
-      source_user: { id: "usr-ops", name: "Operations User" },
+      source_type: participant?.role ?? "MAKER",
+      source_user: { id: actor.id, name: actor.name },
       title: payload.title,
       content: `Uploaded evidence file: ${payload.file_key.split("/").pop()}`,
       file_path: payload.file_key,
@@ -170,6 +222,17 @@ export async function registerFileEvidence(
       mockEvidences[caseId] = [];
     }
     mockEvidences[caseId].push(newEvidence);
+    appendMockHistory(caseId, {
+      event_type: "EVIDENCE_ADDED",
+      actor: { id: actor.id, name: actor.name },
+      actor_role: participant?.role ?? null,
+      analysis_id: null,
+      analysis_version: null,
+      metadata: {
+        title: newEvidence.title,
+        evidence_type: newEvidence.evidence_type,
+      },
+    });
     return newEvidence;
   }
 }

@@ -76,6 +76,16 @@ export function EscalationNotice({
         </div>
       </CardHeader>
       <CardContent className="pt-4 space-y-3 text-xs">
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900 leading-relaxed">
+          <p className="font-semibold">Governed action persisted successfully</p>
+          <p className="text-[11px] mt-1">
+            When escalation follows a Checker/Signer rejection or an execution
+            BLOCKED/FAILED result, that business action remains saved. This
+            stopped escalation state is the authoritative outcome, not a request
+            failure to retry.
+          </p>
+        </div>
+
         <div className="p-3 bg-white border border-rose-200 rounded-lg text-slate-800 leading-relaxed">
           <p className="font-medium text-rose-900 mb-1">Escalation Cause:</p>
           <p>{details.explanation}</p>
@@ -88,7 +98,9 @@ export function EscalationNotice({
           </div>
           <p className="text-[11px]">{details.actionAdvice}</p>
           <p className="text-[11px] mt-2 font-mono text-amber-800">
-            Governance Note: In this release, manual resume or instant re-analysis triggers are restricted to preserve Segregation of Duties integrity.
+            Governance Note: MVP provides no resume, retry, or direct re-analysis
+            action from ESCALATION_REQUIRED. Active participants may add evidence
+            for investigation or close the case.
           </p>
         </div>
       </CardContent>

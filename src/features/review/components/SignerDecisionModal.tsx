@@ -66,7 +66,12 @@ export function SignerDecisionModal({
       onClose();
     },
     onError: (err: any) => {
-      if (err?.status === 409 || err?.code === "STALE_ANALYSIS") {
+      queryClient.invalidateQueries({ queryKey: queryKeys.case(caseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.analyses(caseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.analysisCurrent(caseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.checkerStatus(caseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.history(caseId) });
+      if (err?.code === "STALE_ANALYSIS") {
         onStaleConflict?.();
         onClose();
         return;
